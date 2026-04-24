@@ -1,9 +1,22 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, Cloud, LogOut, Mail, ShieldCheck } from "lucide-react";
+import {
+  CheckCircle2,
+  Cloud,
+  CloudUpload,
+  LogOut,
+  Mail,
+  ShieldCheck,
+} from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { authRepository } from "../services/authRepository";
+import { migrateLocalSnapshotToSupabase } from "../services/cloudMigration";
+import type { QuantumXDataSnapshot } from "../types";
 
-export function CloudModePanel() {
+interface CloudModePanelProps {
+  snapshot: QuantumXDataSnapshot;
+}
+
+export function CloudModePanel({ snapshot }: CloudModePanelProps) {
   const [configured, setConfigured] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [email, setEmail] = useState("");
@@ -47,6 +60,21 @@ export function CloudModePanel() {
       setMessage("登录链接已发送，请去邮箱确认。");
     } catch {
       setMessage("暂时无法发送登录链接，请检查 Supabase 配置和邮箱设置。");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function syncToCloud() {
+    setBusy(true);
+    setMessage("");
+    try {
+      const result = await migrateLocalSnapshotToSupabase(snapshot);
+      setMessage(
+        `已同步 ${result.thoughts} 条记录、${result.topics} 个主题、${result.drafts} 份草稿和 ${result.links} 个主题关系。`,
+      );
+    } catch {
+      setMessage("同步失败。请确认 Supabase schema 已执行，且当前账号有写入权限。");
     } finally {
       setBusy(false);
     }
@@ -100,17 +128,28 @@ export function CloudModePanel() {
             </span>
           </div>
           <p className="mb-4 text-sm leading-7 text-muted">
-            账号会话已准备好。下一步会把本地记录迁移到云端数据库。
+            账号会话已准备好。你可以把当前浏览器里的本地数据同步到 Supabase。
           </p>
-          <button
-            className="inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:bg-white disabled:opacity-60"
-            disabled={busy}
-            type="button"
-            onClick={() => void signOut()}
-          >
-            <LogOut size={15} strokeWidth={1.8} />
-            退出登录
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              className="inline-flex items-center gap-2 rounded-md bg-ink px-3 py-2 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+              disabled={busy}
+              type="button"
+              onClick={() => void syncToCloud()}
+            >
+              <CloudUpload size={15} strokeWidth={1.8} />
+              同步到云端
+            </button>
+            <button
+              className="inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:bg-white disabled:opacity-60"
+              disabled={busy}
+              type="button"
+              onClick={() => void signOut()}
+            >
+              <LogOut size={15} strokeWidth={1.8} />
+              退出登录
+            </button>
+          </div>
         </div>
       ) : (
         <div>

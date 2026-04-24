@@ -69,6 +69,7 @@ npm run preview
 - `src/services/quantumxRepository.ts`：数据仓储接口和 localStorage 实现，后续可以新增 Supabase 实现替换。
 - `src/services/supabaseClient.ts`：可选 Supabase client。没有环境变量时不会启用云端能力。
 - `src/services/authRepository.ts`：邮箱 magic link 登录入口。当前只准备身份会话，数据同步仍保持本地模式。
+- `src/services/cloudMigration.ts`：把当前浏览器里的本地记录、主题、草稿和快速记录草稿迁移到 Supabase。
 
 如果要开始接 Supabase，先复制环境变量模板：
 
@@ -85,8 +86,11 @@ VITE_SUPABASE_ANON_KEY=
 
 不要把 `.env.local` 提交到 Git。
 
-配置完成后，「数据与隐私」页会显示邮箱登录入口。当前阶段登录只建立云端身份，
-下一步再把本地 thoughts/topics/drafts 同步到 Supabase 表。
+配置完成后，「数据与隐私」页会显示邮箱登录入口。登录后可以点击「同步到云端」，
+把当前浏览器里的 thoughts/topics/drafts/capture draft 写入 Supabase 表。
+
+当前同步是本地到云端的单向迁移，不是完整双向实时同步。重复点击会按 `client_id`
+更新同一批本地数据，不会为同一条本地记录无限创建重复行。
 
 ## Deployment
 

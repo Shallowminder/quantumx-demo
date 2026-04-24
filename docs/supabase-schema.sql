@@ -15,6 +15,7 @@ create table if not exists public.profiles (
 create table if not exists public.thoughts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
+  client_id text not null,
   content text not null,
   source text not null default '快速记录',
   summary text not null default '',
@@ -34,6 +35,7 @@ create table if not exists public.thoughts (
 create table if not exists public.topics (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
+  client_id text not null,
   name text not null,
   summary text not null default '',
   description text not null default '',
@@ -63,6 +65,7 @@ create table if not exists public.thought_topics (
 create table if not exists public.distill_drafts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
+  client_id text not null,
   topic_id uuid references public.topics(id) on delete set null,
   title text not null,
   output_type text not null check (
@@ -128,6 +131,9 @@ for each row execute function public.set_updated_at();
 create index if not exists thoughts_user_created_at_idx
   on public.thoughts(user_id, created_at desc);
 
+create unique index if not exists thoughts_user_client_id_idx
+  on public.thoughts(user_id, client_id);
+
 create index if not exists thoughts_user_status_idx
   on public.thoughts(user_id, status);
 
@@ -137,11 +143,17 @@ create index if not exists thoughts_search_vector_idx
 create index if not exists topics_user_updated_at_idx
   on public.topics(user_id, updated_at desc);
 
+create unique index if not exists topics_user_client_id_idx
+  on public.topics(user_id, client_id);
+
 create index if not exists thought_topics_user_topic_idx
   on public.thought_topics(user_id, topic_id);
 
 create index if not exists distill_drafts_user_updated_at_idx
   on public.distill_drafts(user_id, updated_at desc);
+
+create unique index if not exists distill_drafts_user_client_id_idx
+  on public.distill_drafts(user_id, client_id);
 
 create index if not exists memory_feedback_user_created_at_idx
   on public.memory_feedback(user_id, created_at desc);

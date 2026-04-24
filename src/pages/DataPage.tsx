@@ -187,7 +187,7 @@ export function DataPage({
         </section>
 
         <aside className="space-y-4">
-          <CloudModePanel />
+          <CloudModePanel snapshot={snapshot} />
 
           <div className="rounded-[1.25rem] bg-white p-5 shadow-sm">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
