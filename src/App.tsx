@@ -12,7 +12,6 @@ import {
   readStoredValue,
   THOUGHTS_STORAGE_KEY,
   TOPICS_STORAGE_KEY,
-  writeStoredValue,
 } from "./lib/persistence";
 import { DataPage } from "./pages/DataPage";
 import { DistillPage } from "./pages/DistillPage";
@@ -22,6 +21,7 @@ import { SearchPage } from "./pages/SearchPage";
 import { ThoughtDetailPage } from "./pages/ThoughtDetailPage";
 import { TodayPage } from "./pages/TodayPage";
 import { TopicsPage } from "./pages/TopicsPage";
+import { localQuantumXRepository } from "./services/quantumxRepository";
 import type {
   QuantumXDataSnapshot,
   SavedDistill,
@@ -217,19 +217,19 @@ export default function App() {
   }
 
   useEffect(() => {
-    writeStoredValue(THOUGHTS_STORAGE_KEY, thoughts);
+    void localQuantumXRepository.saveThoughts(thoughts);
   }, [thoughts]);
 
   useEffect(() => {
-    writeStoredValue(TOPICS_STORAGE_KEY, topics);
+    void localQuantumXRepository.saveTopics(topics);
   }, [topics]);
 
   useEffect(() => {
-    writeStoredValue(CAPTURE_DRAFT_STORAGE_KEY, captureDraft);
+    void localQuantumXRepository.saveCaptureDraft(captureDraft);
   }, [captureDraft]);
 
   useEffect(() => {
-    writeStoredValue(DISTILLS_STORAGE_KEY, savedDistills);
+    void localQuantumXRepository.saveDistills(savedDistills);
   }, [savedDistills]);
 
   useEffect(() => {

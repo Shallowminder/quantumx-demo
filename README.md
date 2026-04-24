@@ -29,6 +29,7 @@ QuantumX 是一个 AI Native 的个人思考沉淀工具 Demo。它面向学生�
 - 数据备份：在「数据与隐私」里可以下载 JSON 备份，也可以从备份恢复本地记录。
 - 数据层准备：localStorage 读写已集中到独立 helper，后续接账号、数据库和云同步时更容易替换。
 - 本地搜索：新增「找回想法」页面，先用全文匹配跑通搜索体验，后续可以替换为 embedding 语义召回。
+- 云同步准备：新增 Supabase schema 草案、环境变量模板和 repository 接口，本地模式仍然默认可用。
 
 ## 技术栈
 
@@ -59,6 +60,29 @@ npm run build
 npm run preview
 ```
 
+## Cloud Sync Preparation
+
+当前线上 Demo 仍默认使用本地模式。仓库里已经准备了下一阶段接 Supabase 的基础文件：
+
+- `docs/supabase-schema.sql`：账号、记录、主题、草稿、召回反馈和 RLS 策略草案。
+- `.env.example`：未来接 Supabase 所需的环境变量模板。
+- `src/services/quantumxRepository.ts`：数据仓储接口和 localStorage 实现，后续可以新增 Supabase 实现替换。
+
+如果要开始接 Supabase，先复制环境变量模板：
+
+```bash
+cp .env.example .env.local
+```
+
+然后填入：
+
+```bash
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+```
+
+不要把 `.env.local` 提交到 Git。
+
 ## Deployment
 
 QuantumX 是纯前端本地优先 Demo，没有后端、数据库、账号系统、真实 LLM API 或云同步。当前数据保存在当前浏览器的 `localStorage` 中：
@@ -72,7 +96,7 @@ QuantumX 是纯前端本地优先 Demo，没有后端、数据库、账号系统
 
 当前版本已经从展示型 Demo 进入本地可用原型阶段。要继续落地成可长期使用的产品，建议按这个顺序推进：
 
-1. 账号与云数据库：接入 Supabase / PostgreSQL，保存用户、记录、主题、草稿和反馈。
+1. 账号与云数据库：根据 `docs/supabase-schema.sql` 接入 Supabase / PostgreSQL，保存用户、记录、主题、草稿和反馈。
 2. 真实召回：把当前本地搜索升级为数据库全文索引 + embedding 向量检索。
 3. AI 蒸馏服务：在服务端调用 LLM 生成摘要、主题建议、提纲和每周回顾。
 4. 数据安全：提供导出、删除账号、备份恢复、隐私说明和错误监控。
