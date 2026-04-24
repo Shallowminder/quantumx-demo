@@ -4,6 +4,7 @@ export type ViewKey =
   | "topics"
   | "distill"
   | "insights"
+  | "data"
   | "detail";
 
 export type ThoughtStatus = "inbox" | "linked" | "themed" | "distilled" | "archived";
@@ -86,4 +87,19 @@ export interface CalendarDaySummary {
   draftCount: number;
   topicNames: string[];
   representativeThought?: string;
+}
+
+export interface QuantumXDataSnapshot {
+  thoughts: Thought[];
+  topics: Topic[];
+  savedDistills: SavedDistill[];
+  captureDraft: string;
+}
+
+export interface QuantumXDataExport {
+  app: "QuantumX";
+  version: 1;
+  exportedAt: string;
+  note: string;
+  data: QuantumXDataSnapshot;
 }

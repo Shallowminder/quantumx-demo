@@ -1,4 +1,11 @@
-import { BookOpenText, ChartNoAxesCombined, Home, Layers3, NotebookPen } from "lucide-react";
+import {
+  BookOpenText,
+  ChartNoAxesCombined,
+  Database,
+  Home,
+  Layers3,
+  NotebookPen,
+} from "lucide-react";
 import type { ViewKey } from "../types";
 
 const navItems = [
@@ -7,6 +14,7 @@ const navItems = [
   { key: "topics" as const, label: "主题", icon: Layers3 },
   { key: "distill" as const, label: "蒸馏", icon: BookOpenText },
   { key: "insights" as const, label: "洞察", icon: ChartNoAxesCombined },
+  { key: "data" as const, label: "数据", icon: Database },
 ];
 
 export function MobileNav({
@@ -17,7 +25,7 @@ export function MobileNav({
   onNavigate: (view: ViewKey) => void;
 }) {
   return (
-    <nav className="fixed inset-x-3 bottom-3 z-20 grid grid-cols-5 rounded-xl border border-line bg-white/95 p-1 shadow-soft backdrop-blur lg:hidden">
+    <nav className="fixed inset-x-3 bottom-3 z-20 grid grid-cols-6 rounded-xl border border-line bg-white/95 p-1 shadow-soft backdrop-blur lg:hidden">
       {navItems.map((item) => {
         const Icon = item.icon;
         const active = activeView === item.key || (activeView === "detail" && item.key === "today");

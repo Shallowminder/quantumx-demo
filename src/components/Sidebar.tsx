@@ -1,6 +1,7 @@
 import {
   BookOpenText,
   ChartNoAxesCombined,
+  Database,
   Home,
   Layers3,
   NotebookPen,
@@ -22,6 +23,7 @@ const navItems: Array<{
   { key: "topics", label: "主题沉淀", icon: Layers3 },
   { key: "distill", label: "蒸馏输出", icon: BookOpenText },
   { key: "insights", label: "个人洞察", icon: ChartNoAxesCombined },
+  { key: "data", label: "数据与隐私", icon: Database },
 ];
 
 export function Sidebar({ activeView, onNavigate }: SidebarProps) {

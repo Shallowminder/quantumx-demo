@@ -3,50 +3,36 @@ import { MobileNav } from "./components/MobileNav";
 import { Sidebar } from "./components/Sidebar";
 import { thoughts as seedThoughts, topics as seedTopics } from "./data/mockData";
 import { createCapturedThought } from "./lib/memory";
+import {
+  CAPTURE_DRAFT_STORAGE_KEY,
+  DISTILLS_STORAGE_KEY,
+  normalizeDistills,
+  normalizeThoughts,
+  normalizeTopics,
+  readStoredValue,
+  THOUGHTS_STORAGE_KEY,
+  TOPICS_STORAGE_KEY,
+  writeStoredValue,
+} from "./lib/persistence";
+import { DataPage } from "./pages/DataPage";
 import { DistillPage } from "./pages/DistillPage";
 import { InsightsPage } from "./pages/InsightsPage";
 import { PersonalHome } from "./pages/PersonalHome";
 import { ThoughtDetailPage } from "./pages/ThoughtDetailPage";
 import { TodayPage } from "./pages/TodayPage";
 import { TopicsPage } from "./pages/TopicsPage";
-import type { SavedDistill, Thought, Topic, ViewKey } from "./types";
-
-const THOUGHTS_STORAGE_KEY = "quantumx.thoughts";
-const TOPICS_STORAGE_KEY = "quantumx.topics";
-const CAPTURE_DRAFT_STORAGE_KEY = "quantumx.captureDraft";
-const DISTILLS_STORAGE_KEY = "quantumx.distills";
+import type {
+  QuantumXDataSnapshot,
+  SavedDistill,
+  Thought,
+  Topic,
+  ViewKey,
+} from "./types";
 
 interface ToastState {
   message: string;
   actionLabel?: string;
   onAction?: () => void;
-}
-
-function readStoredValue<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-
-  try {
-    const stored = window.localStorage.getItem(key);
-    return stored ? (JSON.parse(stored) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function normalizeThoughts(storedThoughts: Thought[]): Thought[] {
-  return storedThoughts.map((thought) => {
-    const legacyStatus = thought.status as string;
-    const status =
-      legacyStatus === "captured"
-        ? "inbox"
-        : legacyStatus === "reviewed"
-          ? "themed"
-          : legacyStatus === "drafted"
-            ? "distilled"
-            : thought.status;
-
-    return { ...thought, status };
-  });
 }
 
 export default function App() {
@@ -55,7 +41,7 @@ export default function App() {
     normalizeThoughts(readStoredValue(THOUGHTS_STORAGE_KEY, seedThoughts)),
   );
   const [topics, setTopics] = useState<Topic[]>(() =>
-    readStoredValue(TOPICS_STORAGE_KEY, seedTopics),
+    normalizeTopics(readStoredValue(TOPICS_STORAGE_KEY, seedTopics)),
   );
   const [selectedThoughtId, setSelectedThoughtId] = useState(seedThoughts[0].id);
   const [selectedTopicId, setSelectedTopicId] = useState(seedTopics[0].id);
@@ -63,13 +49,17 @@ export default function App() {
     readStoredValue(CAPTURE_DRAFT_STORAGE_KEY, ""),
   );
   const [savedDistills, setSavedDistills] = useState<SavedDistill[]>(() =>
-    readStoredValue(DISTILLS_STORAGE_KEY, []),
+    normalizeDistills(readStoredValue(DISTILLS_STORAGE_KEY, [])),
   );
   const [toast, setToast] = useState<ToastState | null>(null);
   const [focusCaptureSignal, setFocusCaptureSignal] = useState(0);
 
   const selectedThought = useMemo(() => {
-    return thoughts.find((thought) => thought.id === selectedThoughtId) ?? thoughts[0];
+    return (
+      thoughts.find((thought) => thought.id === selectedThoughtId) ??
+      thoughts[0] ??
+      seedThoughts[0]
+    );
   }, [selectedThoughtId, thoughts]);
 
   function navigate(view: ViewKey) {
@@ -206,23 +196,35 @@ export default function App() {
     setFocusCaptureSignal((value) => value + 1);
   }
 
+  function importData(snapshot: QuantumXDataSnapshot) {
+    const nextThoughts =
+      snapshot.thoughts.length > 0 ? snapshot.thoughts : seedThoughts;
+    const nextTopics = snapshot.topics.length > 0 ? snapshot.topics : seedTopics;
+
+    setThoughts(nextThoughts);
+    setTopics(nextTopics);
+    setSavedDistills(snapshot.savedDistills);
+    setCaptureDraft(snapshot.captureDraft);
+    setSelectedThoughtId(nextThoughts[0].id);
+    setSelectedTopicId(nextTopics[0].id);
+    setActiveView("data");
+    setToast({ message: "备份已恢复到当前浏览器。" });
+  }
+
   useEffect(() => {
-    window.localStorage.setItem(THOUGHTS_STORAGE_KEY, JSON.stringify(thoughts));
+    writeStoredValue(THOUGHTS_STORAGE_KEY, thoughts);
   }, [thoughts]);
 
   useEffect(() => {
-    window.localStorage.setItem(TOPICS_STORAGE_KEY, JSON.stringify(topics));
+    writeStoredValue(TOPICS_STORAGE_KEY, topics);
   }, [topics]);
 
   useEffect(() => {
-    window.localStorage.setItem(
-      CAPTURE_DRAFT_STORAGE_KEY,
-      JSON.stringify(captureDraft),
-    );
+    writeStoredValue(CAPTURE_DRAFT_STORAGE_KEY, captureDraft);
   }, [captureDraft]);
 
   useEffect(() => {
-    window.localStorage.setItem(DISTILLS_STORAGE_KEY, JSON.stringify(savedDistills));
+    writeStoredValue(DISTILLS_STORAGE_KEY, savedDistills);
   }, [savedDistills]);
 
   useEffect(() => {
@@ -327,6 +329,16 @@ export default function App() {
               topics={topics}
               onNavigate={navigate}
               onOpenTopic={openTopic}
+            />
+          )}
+
+          {activeView === "data" && (
+            <DataPage
+              captureDraft={captureDraft}
+              savedDistills={savedDistills}
+              thoughts={thoughts}
+              topics={topics}
+              onImportData={importData}
             />
           )}
         </main>
