@@ -67,6 +67,8 @@ npm run preview
 - `docs/supabase-schema.sql`：账号、记录、主题、草稿、召回反馈和 RLS 策略草案。
 - `.env.example`：未来接 Supabase 所需的环境变量模板。
 - `src/services/quantumxRepository.ts`：数据仓储接口和 localStorage 实现，后续可以新增 Supabase 实现替换。
+- `src/services/supabaseClient.ts`：可选 Supabase client。没有环境变量时不会启用云端能力。
+- `src/services/authRepository.ts`：邮箱 magic link 登录入口。当前只准备身份会话，数据同步仍保持本地模式。
 
 如果要开始接 Supabase，先复制环境变量模板：
 
@@ -82,6 +84,9 @@ VITE_SUPABASE_ANON_KEY=
 ```
 
 不要把 `.env.local` 提交到 Git。
+
+配置完成后，「数据与隐私」页会显示邮箱登录入口。当前阶段登录只建立云端身份，
+下一步再把本地 thoughts/topics/drafts 同步到 Supabase 表。
 
 ## Deployment
 
