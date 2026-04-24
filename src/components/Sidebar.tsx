@@ -5,6 +5,7 @@ import {
   Home,
   Layers3,
   NotebookPen,
+  Search,
 } from "lucide-react";
 import type { ViewKey } from "../types";
 
@@ -20,6 +21,7 @@ const navItems: Array<{
 }> = [
   { key: "today", label: "今日思考", icon: NotebookPen },
   { key: "home", label: "我的思考", icon: Home },
+  { key: "search", label: "找回想法", icon: Search },
   { key: "topics", label: "主题沉淀", icon: Layers3 },
   { key: "distill", label: "蒸馏输出", icon: BookOpenText },
   { key: "insights", label: "个人洞察", icon: ChartNoAxesCombined },

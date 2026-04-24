@@ -1,6 +1,7 @@
 export type ViewKey =
   | "today"
   | "home"
+  | "search"
   | "topics"
   | "distill"
   | "insights"

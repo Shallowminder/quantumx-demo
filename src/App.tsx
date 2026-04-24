@@ -18,6 +18,7 @@ import { DataPage } from "./pages/DataPage";
 import { DistillPage } from "./pages/DistillPage";
 import { InsightsPage } from "./pages/InsightsPage";
 import { PersonalHome } from "./pages/PersonalHome";
+import { SearchPage } from "./pages/SearchPage";
 import { ThoughtDetailPage } from "./pages/ThoughtDetailPage";
 import { TodayPage } from "./pages/TodayPage";
 import { TopicsPage } from "./pages/TopicsPage";
@@ -74,6 +75,10 @@ export default function App() {
   function openTopic(topicId: string) {
     setSelectedTopicId(topicId);
     setActiveView("topics");
+  }
+
+  function openDistill() {
+    setActiveView("distill");
   }
 
   function captureThought(content: string) {
@@ -275,6 +280,18 @@ export default function App() {
               topics={topics}
               onContinueFromThought={continueFromThought}
               onNavigate={navigate}
+              onOpenTopic={openTopic}
+            />
+          )}
+
+          {activeView === "search" && (
+            <SearchPage
+              savedDistills={savedDistills}
+              thoughts={thoughts}
+              topics={topics}
+              onContinueFromThought={continueFromThought}
+              onNavigateDistill={openDistill}
+              onOpenThought={openThought}
               onOpenTopic={openTopic}
             />
           )}
