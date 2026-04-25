@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  AlertTriangle,
   CheckCircle2,
   Cloud,
   Download,
@@ -10,7 +11,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
-import { formatDayLabel } from "../lib/date";
+import { formatDateTime, formatDayLabel } from "../lib/date";
 import {
   CLOUD_SYNC_METADATA_STORAGE_KEY,
   normalizeCloudSyncMetadata,
@@ -49,6 +50,7 @@ export function CloudModePanel({
     normalizeCloudSyncMetadata(readStoredValue(CLOUD_SYNC_METADATA_STORAGE_KEY, {})),
   );
   const localSummary = summarizeSnapshot(snapshot);
+  const effectiveCloudSummary = cloudSummary ?? syncMetadata.lastKnownCloudSummary ?? null;
 
   useEffect(() => {
     let mounted = true;
@@ -103,6 +105,63 @@ export function CloudModePanel({
     setSyncMetadata((current) => ({ ...current, ...next }));
   }
 
+  function suggestionForSync() {
+    if (!effectiveCloudSummary) {
+      return "还没有读取到云端摘要。第一次使用时，建议先把当前本地数据上传到云端。";
+    }
+
+    const localLatest = localSummary.latestActivityAt
+      ? new Date(localSummary.latestActivityAt).getTime()
+      : 0;
+    const cloudLatest = effectiveCloudSummary.latestActivityAt
+      ? new Date(effectiveCloudSummary.latestActivityAt).getTime()
+      : 0;
+    const localVolume =
+      localSummary.thoughts + localSummary.topics + localSummary.drafts;
+    const cloudVolume =
+      effectiveCloudSummary.thoughts +
+      effectiveCloudSummary.topics +
+      effectiveCloudSummary.drafts;
+
+    if (localLatest > cloudLatest + 60_000) {
+      return "本地更新较新，建议先上传到云端，再决定是否需要从云端恢复。";
+    }
+
+    if (cloudLatest > localLatest + 60_000) {
+      return "云端更新较新。如果当前浏览器不是最新设备，建议先备份本地，再从云端恢复。";
+    }
+
+    if (cloudVolume > localVolume) {
+      return "云端数据看起来更完整。如果你最近在别的设备上用过 QuantumX，可以先恢复再继续。";
+    }
+
+    if (localVolume > cloudVolume) {
+      return "本地数据更多，建议先上传，让云端跟上当前这台设备的状态。";
+    }
+
+    return "本地和云端状态比较接近。刷新一次云端摘要后，再决定上传还是恢复会更稳。";
+  }
+
+  function confirmSyncToCloud() {
+    const cloudText = effectiveCloudSummary
+      ? `${effectiveCloudSummary.thoughts} 条记录、${effectiveCloudSummary.topics} 个主题、${effectiveCloudSummary.drafts} 份草稿`
+      : "暂无云端摘要";
+
+    return window.confirm(
+      `准备把本地数据上传到云端。\n\n本地：${localSummary.thoughts} 条记录、${localSummary.topics} 个主题、${localSummary.drafts} 份草稿\n云端：${cloudText}\n\n已存在的同 client_id 数据会被更新。确认继续吗？`,
+    );
+  }
+
+  function confirmRestoreFromCloud() {
+    const cloudText = effectiveCloudSummary
+      ? `${effectiveCloudSummary.thoughts} 条记录、${effectiveCloudSummary.topics} 个主题、${effectiveCloudSummary.drafts} 份草稿`
+      : "暂无云端摘要";
+
+    return window.confirm(
+      `准备从云端恢复数据到当前浏览器。\n\n本地：${localSummary.thoughts} 条记录、${localSummary.topics} 个主题、${localSummary.drafts} 份草稿\n云端：${cloudText}\n\n这会覆盖当前浏览器里的本地数据。建议先下载备份。确认继续吗？`,
+    );
+  }
+
   async function sendMagicLink() {
     const cleanEmail = email.trim();
     if (!cleanEmail) return;
@@ -120,6 +179,8 @@ export function CloudModePanel({
   }
 
   async function syncToCloud() {
+    if (!confirmSyncToCloud()) return;
+
     setBusy(true);
     setMessage("");
     try {
@@ -140,10 +201,7 @@ export function CloudModePanel({
   }
 
   async function restoreFromCloud() {
-    const confirmed = window.confirm(
-      "从云端恢复会覆盖当前浏览器里的本地数据。确认继续吗？",
-    );
-    if (!confirmed) return;
+    if (!confirmRestoreFromCloud()) return;
 
     setBusy(true);
     setMessage("");
@@ -280,6 +338,18 @@ export function CloudModePanel({
                 ? formatDayLabel(syncMetadata.lastPulledAt)
                 : "还没有从云端恢复"}
             </div>
+          </div>
+          <div className="mb-4 rounded-lg border border-amber/25 bg-amber/10 px-3 py-3 text-sm leading-6 text-ink">
+            <div className="mb-1 flex items-center gap-2 font-medium">
+              <AlertTriangle size={15} strokeWidth={1.8} />
+              同步建议
+            </div>
+            <p>{suggestionForSync()}</p>
+            {effectiveCloudSummary?.latestActivityAt && (
+              <p className="mt-2 text-xs text-muted">
+                最近一次云端活动：{formatDateTime(effectiveCloudSummary.latestActivityAt)}
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             <button

@@ -28,3 +28,12 @@ export function formatMonthDay(value: string): string {
     day: "numeric",
   });
 }
+
+export function formatDateTime(value: string): string {
+  return new Date(value).toLocaleString("zh-CN", {
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
