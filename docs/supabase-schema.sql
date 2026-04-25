@@ -1,6 +1,12 @@
 -- QuantumX Supabase schema draft
 -- Run this in a new Supabase project before connecting the frontend.
--- The current app still runs in local-first mode; this schema prepares the cloud data model.
+-- The current app is local-first. When Supabase env vars are configured,
+-- this schema matches src/services/cloudMigration.ts and enables:
+-- 1. account-scoped cloud restore,
+-- 2. manual local-to-cloud migration,
+-- 3. cloud mode snapshot upserts after local writes.
+-- Do not rename distill_drafts, thought_topics, memory_feedback, or capture_drafts
+-- unless the repository / migration layer is updated in the same change.
 
 create extension if not exists pgcrypto;
 

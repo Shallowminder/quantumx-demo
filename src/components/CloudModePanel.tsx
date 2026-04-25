@@ -508,8 +508,8 @@ export function CloudModePanel({
           邮箱登录
         </div>
         <p className="text-sm leading-7 text-muted">
-          入口其实在这里，只是当前这个站点还没有接好 Supabase，所以发送按钮暂时不可用。
-          等部署端补上环境变量后，这里就会直接变成可用的邮箱登录。
+入口就在这里。当前部署如果还没有配置 Supabase 环境变量，发送按钮会暂时不可用；
+配好后，邮箱登录会直接接入本地优先的云端同步链路。
         </p>
         <div className="mt-4 rounded-xl border border-line bg-canvas/70 p-4">
           {renderEmailLogin(
@@ -523,7 +523,7 @@ export function CloudModePanel({
           VITE_SUPABASE_ANON_KEY
         </div>
         <p className="mt-3 text-xs leading-6 text-muted">
-          等这两个环境变量在 Vercel 里配好后，邮箱登录就会立即可用。微信登录我们可以先不管。
+          等这两个环境变量在 Vercel 里配好后，邮箱登录和云端数据恢复就会立即可用。微信登录可以后续再接。
         </p>
       </section>
     );
