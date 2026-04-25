@@ -16,7 +16,7 @@ import {
   TOPICS_STORAGE_KEY,
 } from "./lib/persistence";
 import {
-  migrateLocalSnapshotToSupabase,
+  summarizeSnapshot,
 } from "./services/cloudMigration";
 import { authRepository } from "./services/authRepository";
 import { DataPage } from "./pages/DataPage";
@@ -408,15 +408,17 @@ export default function App() {
 
     cloudSyncTimerRef.current = window.setTimeout(() => {
       setCloudSyncState("syncing");
-      void migrateLocalSnapshotToSupabase(currentSnapshot)
-        .then((result) => {
+      void supabaseQuantumXRepository
+        .saveSnapshot(currentSnapshot)
+        .then(() => {
           lastCloudSyncedSignatureRef.current = signature;
           hasShownCloudSyncErrorRef.current = false;
           setCloudSyncState("synced");
+          const summary = summarizeSnapshot(currentSnapshot);
           setCloudSyncMetadata((current) => ({
             ...current,
             lastPushedAt: new Date().toISOString(),
-            lastKnownCloudSummary: result.summary,
+            lastKnownCloudSummary: summary,
           }));
         })
         .catch(() => {
@@ -438,20 +440,8 @@ export default function App() {
   }, [authState.session, cloudSyncState, currentSnapshot, dataMode]);
 
   useEffect(() => {
-    void localQuantumXRepository.saveThoughts(thoughts);
-  }, [thoughts]);
-
-  useEffect(() => {
-    void localQuantumXRepository.saveTopics(topics);
-  }, [topics]);
-
-  useEffect(() => {
-    void localQuantumXRepository.saveCaptureDraft(captureDraft);
-  }, [captureDraft]);
-
-  useEffect(() => {
-    void localQuantumXRepository.saveDistills(savedDistills);
-  }, [savedDistills]);
+    void localQuantumXRepository.saveSnapshot(currentSnapshot);
+  }, [currentSnapshot]);
 
   useEffect(() => {
     if (!toast) return undefined;
