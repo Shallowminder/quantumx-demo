@@ -439,6 +439,67 @@ export function CloudModePanel({
     );
   }
 
+  function renderPostLoginGuide() {
+    if (!session || dataMode === "cloud") return null;
+
+    const localCount =
+      localSummary.thoughts + localSummary.topics + localSummary.drafts;
+    const cloudCount = effectiveCloudSummary
+      ? effectiveCloudSummary.thoughts +
+        effectiveCloudSummary.topics +
+        effectiveCloudSummary.drafts
+      : 0;
+
+    const title =
+      localCount > 0 && cloudCount > 0
+        ? "你已经连上云端了，先决定这台设备要跟哪一边对齐。"
+        : localCount > 0
+          ? "你已经连上云端了，可以先把这台设备里的内容同步上去。"
+          : cloudCount > 0
+            ? "你已经连上云端了，可以先把已有云端内容恢复到这台设备。"
+            : "你已经连上云端了，接下来可以先选一个方向开始。";
+
+    const detail =
+      localCount > 0 && cloudCount > 0
+        ? "如果这台设备上的内容是最新的，就先同步到云端；如果你之前在别的设备上已经整理过内容，就先从云端恢复。"
+        : localCount > 0
+          ? "这样这台设备里的记录、主题和草稿会成为你的第一份云端副本。"
+          : cloudCount > 0
+            ? "这样你会把已经保存到云端的记录和草稿带回这台设备。"
+            : "当前本地和云端都还比较空，你可以先记录一点内容，再决定是否需要同步。";
+
+    return (
+      <div className="mb-4 rounded-xl border border-sage/20 bg-sage/10 px-4 py-4 text-sm text-ink">
+        <div className="mb-1 flex items-center gap-2 font-medium">
+          <CheckCircle2 size={15} strokeWidth={1.8} />
+          登录成功，下一步这样做会更顺
+        </div>
+        <p className="leading-6">{title}</p>
+        <p className="mt-2 text-xs leading-6 text-muted">{detail}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            className="inline-flex items-center gap-2 rounded-md bg-ink px-3 py-2 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+            disabled={busy}
+            type="button"
+            onClick={() => void syncToCloud()}
+          >
+            <CloudUpload size={15} strokeWidth={1.8} />
+            把这台设备同步到云端
+          </button>
+          <button
+            className="inline-flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2 text-sm text-ink transition hover:bg-canvas disabled:opacity-60"
+            disabled={busy}
+            type="button"
+            onClick={() => void restoreFromCloud()}
+          >
+            <Download size={15} strokeWidth={1.8} />
+            从云端恢复到这台设备
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!configured) {
     return (
       <section className="rounded-[1.25rem] bg-white p-5 shadow-sm">
@@ -483,6 +544,7 @@ export function CloudModePanel({
               已登录：{session.user.email ?? "当前用户"}
             </span>
           </div>
+          {renderPostLoginGuide()}
           <p className="mb-4 text-sm leading-7 text-muted">
             账号会话已准备好。
             {dataMode === "cloud"
