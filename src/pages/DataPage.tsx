@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import {
   CheckCircle2,
+  Cloud,
   Database,
   Download,
   FileUp,
@@ -13,14 +14,32 @@ import {
   getStorageSizeLabel,
   parseDataExport,
 } from "../lib/persistence";
-import type { QuantumXDataSnapshot, SavedDistill, Thought, Topic } from "../types";
+import type { AuthState } from "../services/authRepository";
+import type {
+  CloudSyncMetadata,
+  QuantumXDataSnapshot,
+  SavedDistill,
+  Thought,
+  Topic,
+} from "../types";
 
 interface DataPageProps {
+  authState: AuthState;
   captureDraft: string;
+  cloudSyncMetadata: CloudSyncMetadata;
+  dataMode: "local" | "cloud";
   savedDistills: SavedDistill[];
   thoughts: Thought[];
   topics: Topic[];
-  onImportData: (snapshot: QuantumXDataSnapshot) => void;
+  onImportData: (
+    snapshot: QuantumXDataSnapshot,
+    options?: {
+      activateDataView?: boolean;
+      toastMessage?: string;
+      dataMode?: "local" | "cloud";
+    },
+  ) => void;
+  onSyncMetadataChange: (metadata: CloudSyncMetadata) => void;
 }
 
 function formatBackupDate(date = new Date()) {
@@ -32,11 +51,15 @@ function formatBackupDate(date = new Date()) {
 }
 
 export function DataPage({
+  authState,
   captureDraft,
+  cloudSyncMetadata,
+  dataMode,
   savedDistills,
   thoughts,
   topics,
   onImportData,
+  onSyncMetadataChange,
 }: DataPageProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [importMessage, setImportMessage] = useState("");
@@ -103,6 +126,15 @@ export function DataPage({
           QuantumX 当前把记录保存在这个浏览器里。正式云同步上线前，你可以在这里备份、
           迁移和恢复自己的思考数据。
         </p>
+        <div className="mt-4 flex flex-wrap gap-2 text-xs">
+          <span className="inline-flex items-center gap-1 rounded-full border border-line bg-white px-3 py-1.5 text-muted">
+            <Cloud size={12} strokeWidth={1.8} />
+            当前数据源：{dataMode === "cloud" ? "云端读取" : "本地读取"}
+          </span>
+          <span className="rounded-full border border-line bg-white px-3 py-1.5 text-muted">
+            云端登录：{authState.session ? "已连接" : authState.configured ? "未登录" : "未配置"}
+          </span>
+        </div>
       </header>
 
       <section className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -190,6 +222,8 @@ export function DataPage({
           <CloudModePanel
             snapshot={snapshot}
             onImportCloudSnapshot={onImportData}
+            syncMetadata={cloudSyncMetadata}
+            onSyncMetadataChange={onSyncMetadataChange}
           />
 
           <div className="rounded-[1.25rem] bg-white p-5 shadow-sm">

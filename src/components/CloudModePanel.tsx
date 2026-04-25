@@ -12,12 +12,6 @@ import {
 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { formatDateTime, formatDayLabel } from "../lib/date";
-import {
-  CLOUD_SYNC_METADATA_STORAGE_KEY,
-  normalizeCloudSyncMetadata,
-  readStoredValue,
-  writeStoredValue,
-} from "../lib/persistence";
 import { authRepository } from "../services/authRepository";
 import {
   fetchCloudSnapshotSummary,
@@ -33,12 +27,23 @@ import type {
 
 interface CloudModePanelProps {
   snapshot: QuantumXDataSnapshot;
-  onImportCloudSnapshot: (snapshot: QuantumXDataSnapshot) => void;
+  onImportCloudSnapshot: (
+    snapshot: QuantumXDataSnapshot,
+    options?: {
+      activateDataView?: boolean;
+      toastMessage?: string;
+      dataMode?: "local" | "cloud";
+    },
+  ) => void;
+  syncMetadata: CloudSyncMetadata;
+  onSyncMetadataChange: (metadata: CloudSyncMetadata) => void;
 }
 
 export function CloudModePanel({
   snapshot,
   onImportCloudSnapshot,
+  syncMetadata,
+  onSyncMetadataChange,
 }: CloudModePanelProps) {
   const [configured, setConfigured] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
@@ -46,9 +51,6 @@ export function CloudModePanel({
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [cloudSummary, setCloudSummary] = useState<SnapshotSummary | null>(null);
-  const [syncMetadata, setSyncMetadata] = useState<CloudSyncMetadata>(() =>
-    normalizeCloudSyncMetadata(readStoredValue(CLOUD_SYNC_METADATA_STORAGE_KEY, {})),
-  );
   const localSummary = summarizeSnapshot(snapshot);
   const effectiveCloudSummary = cloudSummary ?? syncMetadata.lastKnownCloudSummary ?? null;
 
@@ -97,12 +99,8 @@ export function CloudModePanel({
     };
   }, [configured, session]);
 
-  useEffect(() => {
-    writeStoredValue(CLOUD_SYNC_METADATA_STORAGE_KEY, syncMetadata);
-  }, [syncMetadata]);
-
   function updateSyncMetadata(next: Partial<CloudSyncMetadata>) {
-    setSyncMetadata((current) => ({ ...current, ...next }));
+    onSyncMetadataChange({ ...syncMetadata, ...next });
   }
 
   function suggestionForSync() {
@@ -207,7 +205,11 @@ export function CloudModePanel({
     setMessage("");
     try {
       const result = await restoreSnapshotFromSupabase();
-      onImportCloudSnapshot(result.snapshot);
+      onImportCloudSnapshot(result.snapshot, {
+        activateDataView: false,
+        dataMode: "cloud",
+        toastMessage: "已从云端恢复当前账号的数据。",
+      });
       setCloudSummary(result.summary);
       updateSyncMetadata({
         lastPulledAt: new Date().toISOString(),
@@ -314,13 +316,13 @@ export function CloudModePanel({
                 </button>
               </div>
               <div className="font-medium text-ink">
-                {cloudSummary
-                  ? `${cloudSummary.thoughts} 条记录 · ${cloudSummary.topics} 个主题 · ${cloudSummary.drafts} 份草稿`
+                {effectiveCloudSummary
+                  ? `${effectiveCloudSummary.thoughts} 条记录 · ${effectiveCloudSummary.topics} 个主题 · ${effectiveCloudSummary.drafts} 份草稿`
                   : "还没有读取云端摘要"}
               </div>
               <div className="mt-1 text-xs">
-                {cloudSummary?.latestActivityAt
-                  ? `最近活动：${formatDayLabel(cloudSummary.latestActivityAt)}`
+                {effectiveCloudSummary?.latestActivityAt
+                  ? `最近活动：${formatDayLabel(effectiveCloudSummary.latestActivityAt)}`
                   : "还没有云端活动"}
               </div>
             </div>

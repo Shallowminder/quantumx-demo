@@ -5,7 +5,9 @@ import { thoughts as seedThoughts, topics as seedTopics } from "./data/mockData"
 import { createCapturedThought } from "./lib/memory";
 import {
   CAPTURE_DRAFT_STORAGE_KEY,
+  CLOUD_SYNC_METADATA_STORAGE_KEY,
   DISTILLS_STORAGE_KEY,
+  normalizeCloudSyncMetadata,
   normalizeDistills,
   normalizeThoughts,
   normalizeTopics,
@@ -13,6 +15,8 @@ import {
   THOUGHTS_STORAGE_KEY,
   TOPICS_STORAGE_KEY,
 } from "./lib/persistence";
+import { restoreSnapshotFromSupabase } from "./services/cloudMigration";
+import { authRepository } from "./services/authRepository";
 import { DataPage } from "./pages/DataPage";
 import { DistillPage } from "./pages/DistillPage";
 import { InsightsPage } from "./pages/InsightsPage";
@@ -23,6 +27,10 @@ import { TodayPage } from "./pages/TodayPage";
 import { TopicsPage } from "./pages/TopicsPage";
 import { localQuantumXRepository } from "./services/quantumxRepository";
 import type {
+  AuthState,
+} from "./services/authRepository";
+import type {
+  CloudSyncMetadata,
   QuantumXDataSnapshot,
   SavedDistill,
   Thought,
@@ -36,7 +44,17 @@ interface ToastState {
   onAction?: () => void;
 }
 
+type DataMode = "local" | "cloud";
+type ImportDataOptions = {
+  activateDataView?: boolean;
+  toastMessage?: string;
+  dataMode?: DataMode;
+};
+
 export default function App() {
+  const initialCloudSyncMetadata = normalizeCloudSyncMetadata(
+    readStoredValue(CLOUD_SYNC_METADATA_STORAGE_KEY, {}),
+  );
   const [activeView, setActiveView] = useState<ViewKey>("today");
   const [thoughts, setThoughts] = useState<Thought[]>(() =>
     normalizeThoughts(readStoredValue(THOUGHTS_STORAGE_KEY, seedThoughts)),
@@ -52,6 +70,14 @@ export default function App() {
   const [savedDistills, setSavedDistills] = useState<SavedDistill[]>(() =>
     normalizeDistills(readStoredValue(DISTILLS_STORAGE_KEY, [])),
   );
+  const [authState, setAuthState] = useState<AuthState>({
+    configured: false,
+    session: null,
+  });
+  const [cloudSyncMetadata, setCloudSyncMetadata] =
+    useState<CloudSyncMetadata>(initialCloudSyncMetadata);
+  const [dataMode, setDataMode] = useState<DataMode>("local");
+  const [hydratedSessionId, setHydratedSessionId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [focusCaptureSignal, setFocusCaptureSignal] = useState(0);
 
@@ -201,7 +227,10 @@ export default function App() {
     setFocusCaptureSignal((value) => value + 1);
   }
 
-  function importData(snapshot: QuantumXDataSnapshot) {
+  function importData(
+    snapshot: QuantumXDataSnapshot,
+    options?: ImportDataOptions,
+  ) {
     const nextThoughts =
       snapshot.thoughts.length > 0 ? snapshot.thoughts : seedThoughts;
     const nextTopics = snapshot.topics.length > 0 ? snapshot.topics : seedTopics;
@@ -212,9 +241,100 @@ export default function App() {
     setCaptureDraft(snapshot.captureDraft);
     setSelectedThoughtId(nextThoughts[0].id);
     setSelectedTopicId(nextTopics[0].id);
-    setActiveView("data");
-    setToast({ message: "备份已恢复到当前浏览器。" });
+    setDataMode(options?.dataMode ?? "local");
+    if (options?.activateDataView ?? true) {
+      setActiveView("data");
+    }
+    if (options?.toastMessage) {
+      setToast({ message: options.toastMessage });
+    } else {
+      setToast({ message: "备份已恢复到当前浏览器。" });
+    }
   }
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void authRepository
+      .getState()
+      .then((state) => {
+        if (cancelled) return;
+        setAuthState(state);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setAuthState({ configured: false, session: null });
+      });
+
+    const unsubscribe = authRepository.onAuthChange((session) => {
+      setAuthState((current) => ({
+        configured: current.configured,
+        session,
+      }));
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    const sessionId = authState.session?.user.id;
+
+    if (!sessionId) {
+      setDataMode("local");
+      setHydratedSessionId(null);
+      return;
+    }
+
+    const hasPreviousCloudLink =
+      Boolean(cloudSyncMetadata.lastPushedAt) ||
+      Boolean(cloudSyncMetadata.lastPulledAt) ||
+      Boolean(cloudSyncMetadata.lastKnownCloudSummary);
+
+    if (!hasPreviousCloudLink || hydratedSessionId === sessionId) {
+      if (!hasPreviousCloudLink) {
+        setDataMode("local");
+      }
+      return;
+    }
+
+    let cancelled = false;
+
+    void restoreSnapshotFromSupabase()
+      .then((result) => {
+        if (cancelled) return;
+        importData(result.snapshot, {
+          activateDataView: false,
+          dataMode: "cloud",
+          toastMessage: "已自动读取当前账号的云端数据。",
+        });
+        setHydratedSessionId(sessionId);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setDataMode("local");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    authState.session,
+    hydratedSessionId,
+  ]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        CLOUD_SYNC_METADATA_STORAGE_KEY,
+        JSON.stringify(cloudSyncMetadata),
+      );
+    } catch {
+      // Ignore local persistence failures and keep the in-memory state usable.
+    }
+  }, [cloudSyncMetadata]);
 
   useEffect(() => {
     void localQuantumXRepository.saveThoughts(thoughts);
@@ -351,11 +471,15 @@ export default function App() {
 
           {activeView === "data" && (
             <DataPage
+              authState={authState}
               captureDraft={captureDraft}
+              dataMode={dataMode}
+              cloudSyncMetadata={cloudSyncMetadata}
               savedDistills={savedDistills}
               thoughts={thoughts}
               topics={topics}
               onImportData={importData}
+              onSyncMetadataChange={setCloudSyncMetadata}
             />
           )}
         </main>
