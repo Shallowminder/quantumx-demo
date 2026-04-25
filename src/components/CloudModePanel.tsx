@@ -406,24 +406,64 @@ export function CloudModePanel({
     }
   }
 
+  function renderEmailLogin(disabled: boolean, note: string) {
+    return (
+      <>
+        <div className="flex gap-2">
+          <label className="relative min-w-0 flex-1">
+            <Mail
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+              size={15}
+              strokeWidth={1.8}
+            />
+            <input
+              className="w-full rounded-md border border-line bg-canvas py-2 pl-9 pr-3 text-sm text-ink outline-none transition focus:border-sage/45 focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={disabled}
+              placeholder="邮箱地址"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          </label>
+          <button
+            className="rounded-md bg-ink px-3 py-2 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+            disabled={disabled || busy || email.trim().length === 0}
+            type="button"
+            onClick={() => void sendMagicLink()}
+          >
+            发送登录链接
+          </button>
+        </div>
+        <p className="mt-3 text-xs leading-6 text-muted">{note}</p>
+      </>
+    );
+  }
+
   if (!configured) {
     return (
       <section className="rounded-[1.25rem] bg-white p-5 shadow-sm">
         <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
-          <Cloud size={16} strokeWidth={1.8} />
-          云同步准备
+          <ShieldCheck size={16} strokeWidth={1.8} />
+          邮箱登录
         </div>
         <p className="text-sm leading-7 text-muted">
-          当前仍是本地模式。填入 Supabase 环境变量后，这里会出现邮箱登录入口，
-          后续就可以把记录同步到云端。
+          入口其实在这里，只是当前这个站点还没有接好 Supabase，所以发送按钮暂时不可用。
+          等部署端补上环境变量后，这里就会直接变成可用的邮箱登录。
         </p>
+        <div className="mt-4 rounded-xl border border-line bg-canvas/70 p-4">
+          {renderEmailLogin(
+            true,
+            "输入邮箱后本应发送一封 magic link 登录邮件。现在你在网站里看不到可用状态，不是你没找到入口，而是这台部署环境还没配置云端登录。",
+          )}
+        </div>
         <div className="mt-4 rounded-lg bg-canvas px-3 py-2 font-mono text-xs leading-6 text-muted">
           VITE_SUPABASE_URL
           <br />
           VITE_SUPABASE_ANON_KEY
-          <br />
-          VITE_SUPABASE_WECHAT_PROVIDER
         </div>
+        <p className="mt-3 text-xs leading-6 text-muted">
+          等这两个环境变量在 Vercel 里配好后，邮箱登录就会立即可用。微信登录我们可以先不管。
+        </p>
       </section>
     );
   }
@@ -545,65 +585,15 @@ export function CloudModePanel({
       ) : (
         <div>
           <p className="mb-4 text-sm leading-7 text-muted">
-            你现在可以先用邮箱魔法链接登录，也可以接入微信 OAuth。
-            微信登录会通过 Supabase 的自定义 OAuth provider 进入，不是内建 provider。
+            先用邮箱登录最省心。输入邮箱后，QuantumX 会发一封登录邮件给你；
+            点开邮件里的链接，就能把这台设备和你的云端账号连起来。
           </p>
-          <div className="flex gap-2">
-            <label className="relative min-w-0 flex-1">
-              <Mail
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
-                size={15}
-                strokeWidth={1.8}
-              />
-              <input
-                className="w-full rounded-md border border-line bg-canvas py-2 pl-9 pr-3 text-sm text-ink outline-none transition focus:border-sage/45 focus:bg-white"
-                placeholder="邮箱地址"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-              />
-            </label>
-            <button
-              className="rounded-md bg-ink px-3 py-2 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
-              disabled={busy || email.trim().length === 0}
-              type="button"
-              onClick={() => void sendMagicLink()}
-            >
-              发送
-            </button>
+          <div className="rounded-xl border border-line bg-canvas/70 p-4">
+            {renderEmailLogin(
+              false,
+              "发送后请去邮箱里点开登录链接。如果没收到，可以稍等几十秒，或者检查垃圾邮件。",
+            )}
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button
-              className="inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:bg-white disabled:opacity-60"
-              disabled={busy || !isWeChatConfigured}
-              type="button"
-              onClick={() => void signInWithWeChat()}
-            >
-              <MessageCircleMore size={15} strokeWidth={1.8} />
-              微信登录
-            </button>
-            <button
-              className="inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:bg-white disabled:opacity-60"
-              disabled={busy || !isWeChatConfigured}
-              type="button"
-              onClick={() => void prepareWeChatQr()}
-            >
-              <QrCode size={15} strokeWidth={1.8} />
-              二维码登录
-            </button>
-            <span className="inline-flex items-center rounded-md bg-canvas px-3 py-2 text-xs text-muted">
-              {isWeChatConfigured
-                ? `当前 provider：${weChatProviderId}`
-                : "请先配置 VITE_SUPABASE_WECHAT_PROVIDER，例如 custom:wechat"}
-            </span>
-          </div>
-          <p className="mt-3 text-xs leading-6 text-muted">
-            如果你在 Supabase 里把微信配置成自定义 OAuth provider，前端会使用{" "}
-            <code className="rounded bg-canvas px-1 py-0.5 text-[11px]">
-              custom:...
-            </code>{" "}
-            形式的 provider 标识发起登录。
-          </p>
           <div className="mt-3 rounded-lg border border-line bg-canvas/70 px-3 py-3 text-xs leading-6 text-muted">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-medium text-ink">当前登录回调地址</span>
@@ -632,10 +622,33 @@ export function CloudModePanel({
           </div>
           {isWeChatConfigured && (
             <div className="mt-4 rounded-xl border border-line bg-canvas/70 p-4">
-              <div className="mb-2 text-sm font-medium text-ink">微信扫码登录</div>
+              <div className="mb-2 text-sm font-medium text-ink">其他登录方式（可选）</div>
               <p className="mb-3 text-xs leading-6 text-muted">
-                这里会尽量直接显示微信 PC 网站登录二维码。扫码后，如果微信 provider 配置正确，当前浏览器会完成登录。
+                微信登录还可以保留在这里，但我们现在主推邮箱登录。只有在你已经把微信 provider 配好时，这部分才会显示。
               </p>
+              <div className="mb-3 flex flex-wrap gap-2">
+                <button
+                  className="inline-flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2 text-sm text-ink transition hover:bg-canvas disabled:opacity-60"
+                  disabled={busy}
+                  type="button"
+                  onClick={() => void signInWithWeChat()}
+                >
+                  <MessageCircleMore size={15} strokeWidth={1.8} />
+                  微信登录
+                </button>
+                <button
+                  className="inline-flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2 text-sm text-ink transition hover:bg-canvas disabled:opacity-60"
+                  disabled={busy}
+                  type="button"
+                  onClick={() => void prepareWeChatQr()}
+                >
+                  <QrCode size={15} strokeWidth={1.8} />
+                  二维码登录
+                </button>
+                <span className="inline-flex items-center rounded-md bg-white px-3 py-2 text-xs text-muted">
+                  当前 provider：{weChatProviderId}
+                </span>
+              </div>
               <div
                 className="mx-auto flex min-h-[240px] max-w-[240px] items-center justify-center rounded-xl bg-white p-3 shadow-sm"
                 id={qrContainerId}

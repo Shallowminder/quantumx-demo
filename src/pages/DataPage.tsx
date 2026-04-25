@@ -186,7 +186,7 @@ export function DataPage({
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
           QuantumX 当前把记录保存在这个浏览器里。正式云同步上线前，你可以在这里备份、
-          迁移和恢复自己的思考数据。
+          迁移和恢复自己的思考数据。邮箱登录入口也在这一页右侧，不需要再去别的地方找。
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
           <span className="inline-flex items-center gap-1 rounded-full border border-line bg-white px-3 py-1.5 text-muted">
