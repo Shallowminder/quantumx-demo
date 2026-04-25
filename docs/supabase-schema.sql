@@ -38,6 +38,17 @@ create table if not exists public.thoughts (
   archived_at timestamptz
 );
 
+create table if not exists public.thought_embeddings (
+  thought_id uuid primary key references public.thoughts(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  provider text not null default 'openai-compatible',
+  model text not null,
+  content_hash text not null,
+  embedding jsonb not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.topics (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -124,6 +135,11 @@ create trigger set_topics_updated_at
 before update on public.topics
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_thought_embeddings_updated_at on public.thought_embeddings;
+create trigger set_thought_embeddings_updated_at
+before update on public.thought_embeddings
+for each row execute function public.set_updated_at();
+
 drop trigger if exists set_distill_drafts_updated_at on public.distill_drafts;
 create trigger set_distill_drafts_updated_at
 before update on public.distill_drafts
@@ -146,6 +162,12 @@ create index if not exists thoughts_user_status_idx
 create index if not exists thoughts_search_vector_idx
   on public.thoughts using gin(search_vector);
 
+create index if not exists thought_embeddings_user_updated_at_idx
+  on public.thought_embeddings(user_id, updated_at desc);
+
+create index if not exists thought_embeddings_user_hash_idx
+  on public.thought_embeddings(user_id, content_hash);
+
 create index if not exists topics_user_updated_at_idx
   on public.topics(user_id, updated_at desc);
 
@@ -166,6 +188,7 @@ create index if not exists memory_feedback_user_created_at_idx
 
 alter table public.profiles enable row level security;
 alter table public.thoughts enable row level security;
+alter table public.thought_embeddings enable row level security;
 alter table public.topics enable row level security;
 alter table public.thought_topics enable row level security;
 alter table public.distill_drafts enable row level security;
@@ -179,6 +202,11 @@ with check (auth.uid() = id);
 
 create policy "Thoughts are private to owner"
 on public.thoughts for all
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+create policy "Thought embeddings are private to owner"
+on public.thought_embeddings for all
 using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
 

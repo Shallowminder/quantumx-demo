@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, CalendarDays, Inbox, RotateCcw, X } from "lucide-react";
 import { CaptureComposer } from "../components/CaptureComposer";
 import { RelatedMemoriesPanel } from "../components/RelatedMemoriesPanel";
 import { ThoughtCard } from "../components/ThoughtCard";
 import { findRelatedMemoryMatches, inferTopicIds } from "../lib/memory";
-import type { Thought, Topic } from "../types";
+import { fetchRelatedMemoryMatches } from "../services/recallRepository";
+import type { MemoryMatch, Thought, Topic } from "../types";
 
 interface TodayPageProps {
   draft: string;
@@ -37,10 +38,35 @@ export function TodayPage({
     month: "long",
     day: "numeric",
   });
-  const relatedMatches = useMemo(() => {
-    const input = draft.trim().length > 0 ? draft : thoughts[0]?.content ?? "";
-    return findRelatedMemoryMatches(input, thoughts, topics, 5);
-  }, [draft, thoughts, topics]);
+  const recallInput = draft.trim().length > 0 ? draft : thoughts[0]?.content ?? "";
+  const localRelatedMatches = useMemo(
+    () => findRelatedMemoryMatches(recallInput, thoughts, topics, 5),
+    [recallInput, thoughts, topics],
+  );
+  const [relatedMatches, setRelatedMatches] =
+    useState<MemoryMatch[]>(localRelatedMatches);
+
+  useEffect(() => {
+    let cancelled = false;
+    setRelatedMatches(localRelatedMatches);
+
+    const timer = window.setTimeout(async () => {
+      const nextMatches = await fetchRelatedMemoryMatches(
+        recallInput,
+        thoughts,
+        topics,
+        5,
+      );
+      if (!cancelled) {
+        setRelatedMatches(nextMatches);
+      }
+    }, draft.trim().length > 0 ? 320 : 120);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [draft, localRelatedMatches, recallInput, thoughts, topics]);
 
   const todayThoughts = thoughts.slice(0, 7);
   const inboxThoughts = thoughts

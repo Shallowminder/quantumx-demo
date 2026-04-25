@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Archive,
   ArrowLeft,
@@ -14,7 +14,8 @@ import { ThoughtStatusTrail } from "../components/ThoughtStatusTrail";
 import { TopicBadge } from "../components/TopicBadge";
 import { formatDayLabel } from "../lib/date";
 import { findRelatedMemoryMatches } from "../lib/memory";
-import type { Thought, ThoughtStatus, Topic } from "../types";
+import { fetchRelatedMemoryMatches } from "../services/recallRepository";
+import type { MemoryMatch, Thought, ThoughtStatus, Topic } from "../types";
 
 interface ThoughtDetailPageProps {
   thought: Thought;
@@ -54,7 +55,12 @@ export function ThoughtDetailPage({
   const [summaryDraft, setSummaryDraft] = useState(thought.summary);
   const [selectedTopicIds, setSelectedTopicIds] = useState(thought.topicIds);
   const thoughtTopics = topics.filter((topic) => thought.topicIds.includes(topic.id));
-  const relatedMatches = findRelatedMemoryMatches(thought, thoughts, topics, 5);
+  const localRelatedMatches = useMemo(
+    () => findRelatedMemoryMatches(thought, thoughts, topics, 5),
+    [thought, thoughts, topics],
+  );
+  const [relatedMatches, setRelatedMatches] =
+    useState<MemoryMatch[]>(localRelatedMatches);
 
   useEffect(() => {
     setContentDraft(thought.content);
@@ -62,6 +68,23 @@ export function ThoughtDetailPage({
     setSelectedTopicIds(thought.topicIds);
     setIsEditing(false);
   }, [thought]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setRelatedMatches(localRelatedMatches);
+
+    const timer = window.setTimeout(async () => {
+      const nextMatches = await fetchRelatedMemoryMatches(thought, thoughts, topics, 5);
+      if (!cancelled) {
+        setRelatedMatches(nextMatches);
+      }
+    }, 120);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [localRelatedMatches, thought, thoughts, topics]);
 
   function saveEdits() {
     onUpdateThought(thought.id, {
