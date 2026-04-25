@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   Cloud,
+  Download,
   CloudUpload,
   LogOut,
   Mail,
@@ -9,14 +10,21 @@ import {
 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { authRepository } from "../services/authRepository";
-import { migrateLocalSnapshotToSupabase } from "../services/cloudMigration";
+import {
+  migrateLocalSnapshotToSupabase,
+  restoreSnapshotFromSupabase,
+} from "../services/cloudMigration";
 import type { QuantumXDataSnapshot } from "../types";
 
 interface CloudModePanelProps {
   snapshot: QuantumXDataSnapshot;
+  onImportCloudSnapshot: (snapshot: QuantumXDataSnapshot) => void;
 }
 
-export function CloudModePanel({ snapshot }: CloudModePanelProps) {
+export function CloudModePanel({
+  snapshot,
+  onImportCloudSnapshot,
+}: CloudModePanelProps) {
   const [configured, setConfigured] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [email, setEmail] = useState("");
@@ -75,6 +83,27 @@ export function CloudModePanel({ snapshot }: CloudModePanelProps) {
       );
     } catch {
       setMessage("同步失败。请确认 Supabase schema 已执行，且当前账号有写入权限。");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function restoreFromCloud() {
+    const confirmed = window.confirm(
+      "从云端恢复会覆盖当前浏览器里的本地数据。确认继续吗？",
+    );
+    if (!confirmed) return;
+
+    setBusy(true);
+    setMessage("");
+    try {
+      const result = await restoreSnapshotFromSupabase();
+      onImportCloudSnapshot(result.snapshot);
+      setMessage(
+        `已从云端恢复 ${result.thoughts} 条记录、${result.topics} 个主题和 ${result.drafts} 份草稿。`,
+      );
+    } catch {
+      setMessage("恢复失败。请确认 Supabase 已有数据，且当前账号有读取权限。");
     } finally {
       setBusy(false);
     }
@@ -139,6 +168,15 @@ export function CloudModePanel({ snapshot }: CloudModePanelProps) {
             >
               <CloudUpload size={15} strokeWidth={1.8} />
               同步到云端
+            </button>
+            <button
+              className="inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:bg-white disabled:opacity-60"
+              disabled={busy}
+              type="button"
+              onClick={() => void restoreFromCloud()}
+            >
+              <Download size={15} strokeWidth={1.8} />
+              从云端恢复
             </button>
             <button
               className="inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:bg-white disabled:opacity-60"
