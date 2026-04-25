@@ -117,6 +117,8 @@ VITE_SUPABASE_WECHAT_PROVIDER=custom:wechat
 
 微信 provider 还需要你在 Supabase 里填写微信开放平台提供的 Client ID / Client Secret，以及使用 Supabase Dashboard 显示的 callback URL 去微信侧完成回调配置。
 
+当前「数据与隐私」页除了直接跳转微信授权，也会尝试先拿到 Supabase 返回的 OAuth URL，并在页面里渲染微信 PC 网站登录二维码。二维码链路依赖微信返回的 `qrconnect` 授权地址；如果当前 provider 没有返回可渲染的二维码地址，页面会自动退回到普通「微信登录」跳转。
+
 当前同步是本地到云端的单向迁移，不是完整双向实时同步。重复点击会按 `client_id`
 更新同一批本地数据，不会为同一条本地记录无限创建重复行。
 

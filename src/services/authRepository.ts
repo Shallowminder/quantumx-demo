@@ -14,6 +14,7 @@ export interface AuthState {
 export interface AuthRepository {
   getState(): Promise<AuthState>;
   sendMagicLink(email: string): Promise<void>;
+  getWeChatOAuthUrl(): Promise<string>;
   signInWithWeChat(): Promise<void>;
   signOut(): Promise<void>;
   onAuthChange(callback: (session: Session | null) => void): () => void;
@@ -45,6 +46,33 @@ export function createSupabaseAuthRepository(): AuthRepository {
         },
       });
       if (error) throw error;
+    },
+
+    async getWeChatOAuthUrl() {
+      const supabase = await getSupabaseClient();
+      if (!supabase) {
+        throw new Error("Supabase is not configured.");
+      }
+      if (!isWeChatConfigured || !weChatProviderId) {
+        throw new Error("WeChat OAuth provider is not configured.");
+      }
+
+      const provider = weChatProviderId as Parameters<
+        typeof supabase.auth.signInWithOAuth
+      >[0]["provider"];
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: window.location.origin,
+          skipBrowserRedirect: true,
+        },
+      });
+      if (error) throw error;
+      if (!data.url) {
+        throw new Error("WeChat OAuth url is empty.");
+      }
+      return data.url;
     },
 
     async signInWithWeChat() {

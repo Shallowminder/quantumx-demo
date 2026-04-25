@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -9,6 +9,7 @@ import {
   LogOut,
   Mail,
   MessageCircleMore,
+  QrCode,
   ShieldCheck,
 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
@@ -53,14 +54,44 @@ export function CloudModePanel({
   syncMetadata,
   onSyncMetadataChange,
 }: CloudModePanelProps) {
+  const qrContainerId = useId().replace(/:/g, "-");
   const [configured, setConfigured] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [cloudSummary, setCloudSummary] = useState<SnapshotSummary | null>(null);
+  const [wechatQrUrl, setWeChatQrUrl] = useState("");
+  const [wechatQrState, setWeChatQrState] = useState<"idle" | "loading" | "ready" | "error">(
+    "idle",
+  );
+  const qrScriptRequestedRef = useRef(false);
   const localSummary = summarizeSnapshot(snapshot);
   const effectiveCloudSummary = cloudSummary ?? syncMetadata.lastKnownCloudSummary ?? null;
+  const weChatQrParams = useMemo(() => {
+    if (!wechatQrUrl) return null;
+
+    try {
+      const parsed = new URL(wechatQrUrl);
+      const hostOk = parsed.hostname.includes("weixin.qq.com");
+      const pathOk = parsed.pathname.includes("qrconnect");
+      const appid = parsed.searchParams.get("appid");
+      const redirectUri = parsed.searchParams.get("redirect_uri");
+      const state = parsed.searchParams.get("state") ?? "";
+      const scope = parsed.searchParams.get("scope") ?? "snsapi_login";
+
+      if (!hostOk || !pathOk || !appid || !redirectUri) return null;
+
+      return {
+        appid,
+        redirectUri,
+        scope,
+        state,
+      };
+    } catch {
+      return null;
+    }
+  }, [wechatQrUrl]);
 
   useEffect(() => {
     let mounted = true;
@@ -110,6 +141,71 @@ export function CloudModePanel({
   function updateSyncMetadata(next: Partial<CloudSyncMetadata>) {
     onSyncMetadataChange({ ...syncMetadata, ...next });
   }
+
+  useEffect(() => {
+    if (!weChatQrParams) return;
+    if (typeof window === "undefined") return;
+
+    let cancelled = false;
+
+    async function ensureScript() {
+      if (window.WxLogin) return;
+      if (qrScriptRequestedRef.current) {
+        await new Promise<void>((resolve, reject) => {
+          const startedAt = Date.now();
+          const poll = window.setInterval(() => {
+            if (window.WxLogin) {
+              window.clearInterval(poll);
+              resolve();
+              return;
+            }
+            if (Date.now() - startedAt > 8000) {
+              window.clearInterval(poll);
+              reject(new Error("WeChat QR script timeout"));
+            }
+          }, 120);
+        });
+        return;
+      }
+
+      qrScriptRequestedRef.current = true;
+      await new Promise<void>((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js";
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("WeChat QR script load failed"));
+        document.head.appendChild(script);
+      });
+    }
+
+    void ensureScript()
+      .then(() => {
+        if (cancelled || !window.WxLogin) return;
+        const container = document.getElementById(qrContainerId);
+        if (!container) return;
+        container.innerHTML = "";
+        new window.WxLogin({
+          id: qrContainerId,
+          appid: weChatQrParams.appid,
+          scope: weChatQrParams.scope,
+          redirect_uri: weChatQrParams.redirectUri,
+          state: weChatQrParams.state,
+          style: "black",
+          self_redirect: false,
+          href:
+            "data:text/css;base64,LmltcG93ZXJCb3ggLmluZm8sLmltcG93ZXJCb3ggLnRpdGxle2Rpc3BsYXk6bm9uZX0uaW1wb3dlckJveCAucXJjb2Rle3dpZHRoOjEwMCU7bWFyZ2luOjA7Ym9yZGVyOjA7Ym9yZGVyLXJhZGl1czoxNHB4O292ZXJmbG93OmhpZGRlbn0=",
+        });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setWeChatQrState("error");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [qrContainerId, weChatQrParams]);
 
   function suggestionForSync() {
     if (!effectiveCloudSummary) {
@@ -192,6 +288,24 @@ export function CloudModePanel({
     } catch {
       setMessage(
         "微信登录暂时还没配置好。请先在 Supabase 的 Custom OAuth Providers 里创建微信 provider，再回到这里重试。",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function prepareWeChatQr() {
+    setBusy(true);
+    setMessage("");
+    setWeChatQrState("loading");
+    try {
+      const url = await authRepository.getWeChatOAuthUrl();
+      setWeChatQrUrl(url);
+      setWeChatQrState("ready");
+    } catch {
+      setWeChatQrState("error");
+      setMessage(
+        "暂时拿不到微信扫码登录地址。请确认 Supabase 自定义 provider 和回调地址已经配置完成。",
       );
     } finally {
       setBusy(false);
@@ -456,6 +570,15 @@ export function CloudModePanel({
               <MessageCircleMore size={15} strokeWidth={1.8} />
               微信登录
             </button>
+            <button
+              className="inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:bg-white disabled:opacity-60"
+              disabled={busy || !isWeChatConfigured}
+              type="button"
+              onClick={() => void prepareWeChatQr()}
+            >
+              <QrCode size={15} strokeWidth={1.8} />
+              二维码登录
+            </button>
             <span className="inline-flex items-center rounded-md bg-canvas px-3 py-2 text-xs text-muted">
               {isWeChatConfigured
                 ? `当前 provider：${weChatProviderId}`
@@ -469,6 +592,53 @@ export function CloudModePanel({
             </code>{" "}
             形式的 provider 标识发起登录。
           </p>
+          {isWeChatConfigured && (
+            <div className="mt-4 rounded-xl border border-line bg-canvas/70 p-4">
+              <div className="mb-2 text-sm font-medium text-ink">微信扫码登录</div>
+              <p className="mb-3 text-xs leading-6 text-muted">
+                这里会尽量直接显示微信 PC 网站登录二维码。扫码后，如果微信 provider 配置正确，当前浏览器会完成登录。
+              </p>
+              <div
+                className="mx-auto flex min-h-[240px] max-w-[240px] items-center justify-center rounded-xl bg-white p-3 shadow-sm"
+                id={qrContainerId}
+              >
+                {wechatQrState === "idle" && (
+                  <div className="px-4 text-center text-xs leading-6 text-muted">
+                    点击上面的「二维码登录」后，这里会生成可扫码的登录二维码。
+                  </div>
+                )}
+                {wechatQrState === "loading" && (
+                  <div className="px-4 text-center text-xs leading-6 text-muted">
+                    正在生成微信扫码二维码…
+                  </div>
+                )}
+                {wechatQrState === "error" && (
+                  <div className="px-4 text-center text-xs leading-6 text-muted">
+                    暂时没能渲染二维码。你可以先用「微信登录」直接跳到微信授权页。
+                  </div>
+                )}
+              </div>
+              {wechatQrUrl && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    className="inline-flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2 text-xs text-ink transition hover:bg-canvas"
+                    type="button"
+                    onClick={() => void prepareWeChatQr()}
+                  >
+                    <RefreshCcw size={13} strokeWidth={1.8} />
+                    刷新二维码
+                  </button>
+                  <a
+                    className="inline-flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2 text-xs text-ink transition hover:bg-canvas"
+                    href={wechatQrUrl}
+                  >
+                    <MessageCircleMore size={13} strokeWidth={1.8} />
+                    打开微信授权页
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
