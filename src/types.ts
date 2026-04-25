@@ -118,3 +118,10 @@ export interface CloudSyncMetadata {
   lastPulledAt?: string;
   lastKnownCloudSummary?: SnapshotSummary;
 }
+
+export type CloudSyncState =
+  | "local"
+  | "pending"
+  | "syncing"
+  | "synced"
+  | "error";

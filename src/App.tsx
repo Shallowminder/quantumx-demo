@@ -33,6 +33,7 @@ import type {
   AuthState,
 } from "./services/authRepository";
 import type {
+  CloudSyncState,
   CloudSyncMetadata,
   QuantumXDataSnapshot,
   SavedDistill,
@@ -84,6 +85,8 @@ export default function App() {
   const [cloudSyncMetadata, setCloudSyncMetadata] =
     useState<CloudSyncMetadata>(initialCloudSyncMetadata);
   const [dataMode, setDataMode] = useState<DataMode>("local");
+  const [cloudSyncState, setCloudSyncState] =
+    useState<CloudSyncState>("local");
   const [hydratedSessionId, setHydratedSessionId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [focusCaptureSignal, setFocusCaptureSignal] = useState(0);
@@ -260,8 +263,10 @@ export default function App() {
     if (options?.dataMode === "cloud") {
       lastCloudSyncedSignatureRef.current = createSnapshotSignature(snapshot);
       hasShownCloudSyncErrorRef.current = false;
+      setCloudSyncState("synced");
     } else {
       lastCloudSyncedSignatureRef.current = null;
+      setCloudSyncState("local");
     }
     if (options?.activateDataView ?? true) {
       setActiveView("data");
@@ -305,6 +310,7 @@ export default function App() {
 
     if (!sessionId) {
       setDataMode("local");
+      setCloudSyncState("local");
       setHydratedSessionId(null);
       lastCloudSyncedSignatureRef.current = null;
       return;
@@ -337,6 +343,7 @@ export default function App() {
       .catch(() => {
         if (cancelled) return;
         setDataMode("local");
+        setCloudSyncState("error");
       });
 
     return () => {
@@ -370,6 +377,9 @@ export default function App() {
 
     const signature = createSnapshotSignature(currentSnapshot);
     if (lastCloudSyncedSignatureRef.current === signature) {
+      if (cloudSyncState !== "synced") {
+        setCloudSyncState("synced");
+      }
       return;
     }
 
@@ -377,11 +387,17 @@ export default function App() {
       window.clearTimeout(cloudSyncTimerRef.current);
     }
 
+    if (cloudSyncState !== "pending") {
+      setCloudSyncState("pending");
+    }
+
     cloudSyncTimerRef.current = window.setTimeout(() => {
+      setCloudSyncState("syncing");
       void migrateLocalSnapshotToSupabase(currentSnapshot)
         .then((result) => {
           lastCloudSyncedSignatureRef.current = signature;
           hasShownCloudSyncErrorRef.current = false;
+          setCloudSyncState("synced");
           setCloudSyncMetadata((current) => ({
             ...current,
             lastPushedAt: new Date().toISOString(),
@@ -389,6 +405,7 @@ export default function App() {
           }));
         })
         .catch(() => {
+          setCloudSyncState("error");
           if (hasShownCloudSyncErrorRef.current) return;
           hasShownCloudSyncErrorRef.current = true;
           setToast({
@@ -403,7 +420,7 @@ export default function App() {
         cloudSyncTimerRef.current = null;
       }
     };
-  }, [authState.session, currentSnapshot, dataMode]);
+  }, [authState.session, cloudSyncState, currentSnapshot, dataMode]);
 
   useEffect(() => {
     void localQuantumXRepository.saveThoughts(thoughts);
@@ -542,6 +559,7 @@ export default function App() {
             <DataPage
               authState={authState}
               captureDraft={captureDraft}
+              cloudSyncState={cloudSyncState}
               dataMode={dataMode}
               cloudSyncMetadata={cloudSyncMetadata}
               savedDistills={savedDistills}

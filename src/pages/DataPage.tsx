@@ -1,13 +1,18 @@
 import { useMemo, useRef, useState } from "react";
 import {
+  AlertTriangle,
   CheckCircle2,
   Cloud,
+  CloudOff,
+  CloudUpload,
   Database,
   Download,
   FileUp,
   HardDrive,
+  LoaderCircle,
   ShieldCheck,
 } from "lucide-react";
+import { formatDateTime } from "../lib/date";
 import { CloudModePanel } from "../components/CloudModePanel";
 import {
   createDataExport,
@@ -16,6 +21,7 @@ import {
 } from "../lib/persistence";
 import type { AuthState } from "../services/authRepository";
 import type {
+  CloudSyncState,
   CloudSyncMetadata,
   QuantumXDataSnapshot,
   SavedDistill,
@@ -26,6 +32,7 @@ import type {
 interface DataPageProps {
   authState: AuthState;
   captureDraft: string;
+  cloudSyncState: CloudSyncState;
   cloudSyncMetadata: CloudSyncMetadata;
   dataMode: "local" | "cloud";
   savedDistills: SavedDistill[];
@@ -53,6 +60,7 @@ function formatBackupDate(date = new Date()) {
 export function DataPage({
   authState,
   captureDraft,
+  cloudSyncState,
   cloudSyncMetadata,
   dataMode,
   savedDistills,
@@ -77,6 +85,59 @@ export function DataPage({
     (thought) => thought.status !== "inbox",
   ).length;
   const dataSize = getStorageSizeLabel(snapshot);
+  const lastCloudEventAt =
+    cloudSyncMetadata.lastPushedAt ?? cloudSyncMetadata.lastPulledAt;
+
+  function renderSyncStatus() {
+    if (dataMode === "local" || cloudSyncState === "local") {
+      return {
+        icon: CloudOff,
+        tone: "border-line bg-white text-muted",
+        title: "当前是本地模式",
+        detail: "记录会先保存在这个浏览器里。登录并同步后，才会开始跟随云端。",
+      };
+    }
+
+    if (cloudSyncState === "pending") {
+      return {
+        icon: CloudUpload,
+        tone: "border-amber/30 bg-amber/10 text-ink",
+        title: "检测到新的修改",
+        detail: "这些改动会在很短时间内推到云端，暂时不用手动再点一次同步。",
+      };
+    }
+
+    if (cloudSyncState === "syncing") {
+      return {
+        icon: LoaderCircle,
+        tone: "border-sage/25 bg-sage/10 text-ink",
+        title: "正在同步到云端",
+        detail: "当前浏览器里的最新修改正在写入 Supabase。",
+        spinning: true,
+      };
+    }
+
+    if (cloudSyncState === "error") {
+      return {
+        icon: AlertTriangle,
+        tone: "border-clay/25 bg-clay/10 text-ink",
+        title: "最近一次同步没有完成",
+        detail: "当前修改还在这个浏览器里。你可以稍后重试，或者先下载一份备份。",
+      };
+    }
+
+    return {
+      icon: CheckCircle2,
+      tone: "border-sage/25 bg-sage/10 text-ink",
+      title: "本地与云端已对齐",
+      detail: lastCloudEventAt
+        ? `最近同步：${formatDateTime(lastCloudEventAt)}`
+        : "当前这份数据已经和云端保持一致。",
+    };
+  }
+
+  const syncStatus = renderSyncStatus();
+  const SyncIcon = syncStatus.icon;
 
   function downloadBackup() {
     const backup = createDataExport(snapshot);
@@ -153,6 +214,24 @@ export function DataPage({
         <div className="rounded-xl bg-white/75 p-4 shadow-sm">
           <div className="mb-1 text-xs text-muted">草稿</div>
           <div className="text-2xl font-semibold text-ink">{savedDistills.length}</div>
+        </div>
+      </section>
+
+      <section
+        className={`mb-6 rounded-[1.1rem] border px-4 py-3 shadow-sm sm:px-5 ${syncStatus.tone}`}
+      >
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/70">
+            <SyncIcon
+              className={syncStatus.spinning ? "animate-spin" : undefined}
+              size={16}
+              strokeWidth={1.8}
+            />
+          </div>
+          <div className="min-w-0">
+            <div className="text-sm font-medium">{syncStatus.title}</div>
+            <p className="mt-1 text-sm leading-6 text-muted">{syncStatus.detail}</p>
+          </div>
         </div>
       </section>
 
