@@ -17,7 +17,6 @@ import {
 } from "./lib/persistence";
 import {
   migrateLocalSnapshotToSupabase,
-  restoreSnapshotFromSupabase,
 } from "./services/cloudMigration";
 import { authRepository } from "./services/authRepository";
 import { DataPage } from "./pages/DataPage";
@@ -28,7 +27,10 @@ import { SearchPage } from "./pages/SearchPage";
 import { ThoughtDetailPage } from "./pages/ThoughtDetailPage";
 import { TodayPage } from "./pages/TodayPage";
 import { TopicsPage } from "./pages/TopicsPage";
-import { localQuantumXRepository } from "./services/quantumxRepository";
+import {
+  localQuantumXRepository,
+  supabaseQuantumXRepository,
+} from "./services/quantumxRepository";
 import type {
   AuthState,
 } from "./services/authRepository";
@@ -53,11 +55,19 @@ type ImportDataOptions = {
   activateDataView?: boolean;
   toastMessage?: string;
   dataMode?: DataMode;
+  useSeedFallback?: boolean;
 };
 
 function createSnapshotSignature(snapshot: QuantumXDataSnapshot) {
   return JSON.stringify(snapshot);
 }
+
+const seedSnapshot: QuantumXDataSnapshot = {
+  thoughts: seedThoughts,
+  topics: seedTopics,
+  savedDistills: [],
+  captureDraft: "",
+};
 
 export default function App() {
   const initialCloudSyncMetadata = normalizeCloudSyncMetadata(
@@ -249,9 +259,15 @@ export default function App() {
     snapshot: QuantumXDataSnapshot,
     options?: ImportDataOptions,
   ) {
+    const useSeedFallback = options?.useSeedFallback ?? true;
     const nextThoughts =
-      snapshot.thoughts.length > 0 ? snapshot.thoughts : seedThoughts;
-    const nextTopics = snapshot.topics.length > 0 ? snapshot.topics : seedTopics;
+      snapshot.thoughts.length > 0 || !useSeedFallback
+        ? snapshot.thoughts
+        : seedThoughts;
+    const nextTopics =
+      snapshot.topics.length > 0 || !useSeedFallback
+        ? snapshot.topics
+        : seedTopics;
 
     setThoughts(nextThoughts);
     setTopics(nextTopics);
@@ -330,13 +346,15 @@ export default function App() {
 
     let cancelled = false;
 
-    void restoreSnapshotFromSupabase()
-      .then((result) => {
+    void supabaseQuantumXRepository
+      .loadSnapshot(seedSnapshot)
+      .then((snapshot) => {
         if (cancelled) return;
-        importData(result.snapshot, {
+        importData(snapshot, {
           activateDataView: false,
           dataMode: "cloud",
           toastMessage: "已自动读取当前账号的云端数据。",
+          useSeedFallback: false,
         });
         setHydratedSessionId(sessionId);
       })
@@ -349,10 +367,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [
-    authState.session,
-    hydratedSessionId,
-  ]);
+  }, [authState.session, hydratedSessionId, seedSnapshot]);
 
   useEffect(() => {
     try {

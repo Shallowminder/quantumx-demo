@@ -66,7 +66,7 @@ npm run preview
 
 - `docs/supabase-schema.sql`：账号、记录、主题、草稿、召回反馈和 RLS 策略草案。
 - `.env.example`：未来接 Supabase 所需的环境变量模板。
-- `src/services/quantumxRepository.ts`：数据仓储接口和 localStorage 实现，后续可以新增 Supabase 实现替换。
+- `src/services/quantumxRepository.ts`：数据仓储接口，当前已经包含 localStorage 实现和 Supabase 读取实现，主链路开始向 repository 统一。
 - `src/services/supabaseClient.ts`：可选 Supabase client。没有环境变量时不会启用云端能力。
 - `src/services/authRepository.ts`：邮箱 magic link 登录入口。当前只准备身份会话，数据同步仍保持本地模式。
 - `src/services/cloudMigration.ts`：把当前浏览器里的本地记录、主题、草稿和快速记录草稿迁移到 Supabase。
@@ -90,6 +90,7 @@ VITE_SUPABASE_ANON_KEY=
 把当前浏览器里的 thoughts/topics/drafts/capture draft 写入 Supabase 表。
 如果当前浏览器之前已经和这个账号做过同步，QuantumX 会在登录后自动读取该账号最近一次恢复/同步过的云端数据，并在页面里标明当前数据源是「本地读取」还是「云端读取」。
 切到云端模式后，当前浏览器里的编辑会继续先落到本地，再自动 upsert 到 Supabase，尽量让记录和草稿保持跟账号一致。
+云端读取现在也开始通过 repository 接口走主链路，后续把 Today / Topics / Distill / Search 全部收口到统一数据层会更顺。
 
 当前同步是本地到云端的单向迁移，不是完整双向实时同步。重复点击会按 `client_id`
 更新同一批本地数据，不会为同一条本地记录无限创建重复行。

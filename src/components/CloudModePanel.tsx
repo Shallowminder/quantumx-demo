@@ -34,6 +34,7 @@ interface CloudModePanelProps {
       activateDataView?: boolean;
       toastMessage?: string;
       dataMode?: "local" | "cloud";
+      useSeedFallback?: boolean;
     },
   ) => void;
   syncMetadata: CloudSyncMetadata;
@@ -216,6 +217,7 @@ export function CloudModePanel({
         activateDataView: false,
         dataMode: "cloud",
         toastMessage: "已从云端恢复当前账号的数据。",
+        useSeedFallback: false,
       });
       setCloudSummary(result.summary);
       updateSyncMetadata({

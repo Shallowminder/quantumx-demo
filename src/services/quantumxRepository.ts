@@ -9,6 +9,10 @@ import {
   TOPICS_STORAGE_KEY,
   writeStoredValue,
 } from "../lib/persistence";
+import {
+  migrateLocalSnapshotToSupabase,
+  restoreSnapshotFromSupabase,
+} from "./cloudMigration";
 import type { QuantumXDataSnapshot, SavedDistill, Thought, Topic } from "../types";
 
 export interface QuantumXRepository {
@@ -66,3 +70,38 @@ export function createLocalQuantumXRepository(): QuantumXRepository {
 }
 
 export const localQuantumXRepository = createLocalQuantumXRepository();
+
+export function createSupabaseQuantumXRepository(): QuantumXRepository {
+  return {
+    async loadSnapshot(fallback) {
+      try {
+        const result = await restoreSnapshotFromSupabase();
+        return result.snapshot;
+      } catch {
+        return fallback;
+      }
+    },
+
+    async saveSnapshot(snapshot) {
+      await migrateLocalSnapshotToSupabase(snapshot);
+    },
+
+    async saveThoughts() {
+      throw new Error("Supabase repository requires saveSnapshot().");
+    },
+
+    async saveTopics() {
+      throw new Error("Supabase repository requires saveSnapshot().");
+    },
+
+    async saveDistills() {
+      throw new Error("Supabase repository requires saveSnapshot().");
+    },
+
+    async saveCaptureDraft() {
+      throw new Error("Supabase repository requires saveSnapshot().");
+    },
+  };
+}
+
+export const supabaseQuantumXRepository = createSupabaseQuantumXRepository();

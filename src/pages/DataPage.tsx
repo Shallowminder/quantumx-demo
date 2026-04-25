@@ -44,6 +44,7 @@ interface DataPageProps {
       activateDataView?: boolean;
       toastMessage?: string;
       dataMode?: "local" | "cloud";
+      useSeedFallback?: boolean;
     },
   ) => void;
   onSyncMetadataChange: (metadata: CloudSyncMetadata) => void;
