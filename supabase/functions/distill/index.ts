@@ -23,6 +23,14 @@ interface DistillRequestBody {
   thoughts?: DistillThought[];
 }
 
+interface ChatCompletionResponse {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -36,6 +44,10 @@ function jsonResponse(body: unknown, status = 200) {
       "Content-Type": "application/json",
     },
   });
+}
+
+function normalizeBaseUrl(baseUrl: string) {
+  return baseUrl.replace(/\/+$/, "");
 }
 
 function buildPrompt(outputType: DistillOutputType, topic: DistillTopic, thoughts: DistillThought[]) {
@@ -72,15 +84,22 @@ ${sources}
 7. 如果是观点卡片，输出 3-5 张观点卡片，每张包含观点、依据和可延展方向。`;
 }
 
-async function generateWithOpenAI(prompt: string) {
-  const apiKey = Deno.env.get("OPENAI_API_KEY");
-  const model = Deno.env.get("OPENAI_DISTILL_MODEL") ?? "gpt-4.1-mini";
+async function generateWithCompatibleChatApi(prompt: string) {
+  const apiKey = Deno.env.get("AI_API_KEY") ?? Deno.env.get("OPENAI_API_KEY");
+  const baseUrl = normalizeBaseUrl(
+    Deno.env.get("AI_BASE_URL") ?? Deno.env.get("OPENAI_BASE_URL") ?? "https://api.openai.com/v1",
+  );
+  const model =
+    Deno.env.get("AI_MODEL") ??
+    Deno.env.get("OPENAI_DISTILL_MODEL") ??
+    "gpt-4.1-mini";
+  const provider = Deno.env.get("AI_PROVIDER") ?? "openai-compatible";
 
   if (!apiKey) {
-    throw new Error("OPENAI_API_KEY is not configured.");
+    throw new Error("AI_API_KEY is not configured.");
   }
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
+  const response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -88,21 +107,31 @@ async function generateWithOpenAI(prompt: string) {
     },
     body: JSON.stringify({
       model,
-      input: prompt,
+      messages: [
+        {
+          role: "system",
+          content:
+            "你是一个谨慎、具体、尊重来源材料的中文个人知识管理助手。输出必须是 Markdown。",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
       temperature: 0.5,
     }),
   });
 
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(`OpenAI request failed: ${response.status} ${detail}`);
+    throw new Error(`${provider} request failed: ${response.status} ${detail}`);
   }
 
-  const data = await response.json();
-  const content = data.output_text;
+  const data = (await response.json()) as ChatCompletionResponse;
+  const content = data.choices?.[0]?.message?.content;
 
   if (typeof content !== "string" || content.trim().length === 0) {
-    throw new Error("OpenAI response did not include output_text.");
+    throw new Error(`${provider} response did not include message content.`);
   }
 
   return content.trim();
@@ -128,7 +157,7 @@ Deno.serve(async (request) => {
     }
 
     const prompt = buildPrompt(outputType, topic, thoughts);
-    const content = await generateWithOpenAI(prompt);
+    const content = await generateWithCompatibleChatApi(prompt);
 
     return jsonResponse({
       title: `${topic.name} · ${outputType}`,
