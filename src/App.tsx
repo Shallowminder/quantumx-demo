@@ -11,6 +11,7 @@ import {
   writeScopedCloudSyncMetadata,
 } from "./lib/persistence";
 import {
+  fetchCloudSnapshotSummary,
   summarizeSnapshot,
 } from "./services/cloudMigration";
 import {
@@ -63,6 +64,15 @@ function createSnapshotSignature(snapshot: QuantumXDataSnapshot) {
   return JSON.stringify(snapshot);
 }
 
+function snapshotHasContent(snapshot: QuantumXDataSnapshot) {
+  return (
+    snapshot.thoughts.length > 0 ||
+    snapshot.topics.length > 0 ||
+    snapshot.savedDistills.length > 0 ||
+    snapshot.captureDraft.trim().length > 0
+  );
+}
+
 const seedSnapshot: QuantumXDataSnapshot = {
   thoughts: seedThoughts,
   topics: seedTopics,
@@ -108,6 +118,7 @@ export default function App() {
   const cloudSyncTimerRef = useRef<number | null>(null);
   const hasShownCloudSyncErrorRef = useRef(false);
   const handledAuthCallbackRef = useRef(false);
+  const cloudBootstrapSessionRef = useRef<string | null>(null);
   const currentStorageScope = getStorageScope(authState.session?.user.id);
   const localQuantumXRepository = useMemo(
     () => createLocalQuantumXRepository(currentStorageScope),
@@ -396,43 +407,116 @@ export default function App() {
       return;
     }
 
+    if (snapshotScope !== currentStorageScope) {
+      return;
+    }
+
     const hasPreviousCloudLink =
       Boolean(cloudSyncMetadata.lastPushedAt) ||
       Boolean(cloudSyncMetadata.lastPulledAt) ||
       Boolean(cloudSyncMetadata.lastKnownCloudSummary);
 
-    if (!hasPreviousCloudLink || hydratedSessionId === sessionId) {
-      if (!hasPreviousCloudLink) {
-        setDataMode("local");
-      }
+    if (hydratedSessionId === sessionId) {
+      return;
+    }
+
+    if (cloudBootstrapSessionRef.current === sessionId) {
       return;
     }
 
     let cancelled = false;
+    cloudBootstrapSessionRef.current = sessionId;
 
-    void supabaseQuantumXRepository
-      .loadSnapshot(seedSnapshot)
-      .then((snapshot) => {
-        if (cancelled) return;
-        importData(snapshot, {
-          activateDataView: false,
-          dataMode: "cloud",
-          storageScope: currentStorageScope,
-          toastMessage: "已自动读取当前账号的云端数据。",
-          useSeedFallback: false,
+    if (hasPreviousCloudLink) {
+      void supabaseQuantumXRepository
+        .loadSnapshot(seedSnapshot)
+        .then((snapshot) => {
+          if (cancelled) return;
+          importData(snapshot, {
+            activateDataView: false,
+            dataMode: "cloud",
+            storageScope: currentStorageScope,
+            toastMessage: "已自动读取当前账号的云端数据。",
+            useSeedFallback: false,
+          });
+          setHydratedSessionId(sessionId);
+          cloudBootstrapSessionRef.current = null;
+        })
+        .catch(() => {
+          if (cancelled) return;
+          setDataMode("local");
+          setCloudSyncState("error");
+          cloudBootstrapSessionRef.current = null;
         });
-        setHydratedSessionId(sessionId);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setDataMode("local");
-        setCloudSyncState("error");
-      });
+    } else {
+      void fetchCloudSnapshotSummary()
+        .then((summary) => {
+          if (cancelled) return;
+
+          setCloudMetadataScope(currentStorageScope);
+          setCloudSyncMetadata((current) => ({
+            ...current,
+            lastKnownCloudSummary: summary,
+          }));
+
+          const cloudHasData =
+            summary.thoughts > 0 ||
+            summary.topics > 0 ||
+            summary.drafts > 0 ||
+            summary.hasCaptureDraft;
+          const localHasData = snapshotHasContent(currentSnapshot);
+
+          if (cloudHasData && !localHasData) {
+            return supabaseQuantumXRepository.loadSnapshot(seedSnapshot).then((snapshot) => {
+              if (cancelled) return;
+              importData(snapshot, {
+                activateDataView: false,
+                dataMode: "cloud",
+                storageScope: currentStorageScope,
+                toastMessage: "当前账号在云端已有内容，已自动带到这台设备。",
+                useSeedFallback: false,
+              });
+              setHydratedSessionId(sessionId);
+              cloudBootstrapSessionRef.current = null;
+            });
+          }
+
+          if (cloudHasData && localHasData) {
+            setToast({
+              message: "当前账号的云端已经有内容，这台设备本地也有记录。请在数据与隐私页选择同步或恢复。",
+            });
+          } else if (!cloudHasData) {
+            setDataMode("local");
+          }
+
+          setHydratedSessionId(sessionId);
+          cloudBootstrapSessionRef.current = null;
+        })
+        .catch(() => {
+          if (cancelled) return;
+          setDataMode("local");
+          setCloudSyncState("error");
+          cloudBootstrapSessionRef.current = null;
+        });
+    }
 
     return () => {
       cancelled = true;
+      if (cloudBootstrapSessionRef.current === sessionId) {
+        cloudBootstrapSessionRef.current = null;
+      }
     };
-  }, [authState.session, hydratedSessionId, seedSnapshot]);
+  }, [
+    authState.session,
+    cloudSyncMetadata.lastKnownCloudSummary,
+    cloudSyncMetadata.lastPulledAt,
+    cloudSyncMetadata.lastPushedAt,
+    currentSnapshot,
+    currentStorageScope,
+    hydratedSessionId,
+    seedSnapshot,
+    snapshotScope,
+  ]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
