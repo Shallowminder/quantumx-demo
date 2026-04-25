@@ -26,6 +26,7 @@ import type {
 } from "../types";
 
 interface CloudModePanelProps {
+  dataMode: "local" | "cloud";
   snapshot: QuantumXDataSnapshot;
   onImportCloudSnapshot: (
     snapshot: QuantumXDataSnapshot,
@@ -40,6 +41,7 @@ interface CloudModePanelProps {
 }
 
 export function CloudModePanel({
+  dataMode,
   snapshot,
   onImportCloudSnapshot,
   syncMetadata,
@@ -183,6 +185,11 @@ export function CloudModePanel({
     setMessage("");
     try {
       const result = await migrateLocalSnapshotToSupabase(snapshot);
+      onImportCloudSnapshot(snapshot, {
+        activateDataView: false,
+        dataMode: "cloud",
+        toastMessage: "已切换到云端模式，后续修改会自动同步。",
+      });
       setCloudSummary(result.summary);
       updateSyncMetadata({
         lastPushedAt: new Date().toISOString(),
@@ -288,7 +295,10 @@ export function CloudModePanel({
             </span>
           </div>
           <p className="mb-4 text-sm leading-7 text-muted">
-            账号会话已准备好。你可以把当前浏览器里的本地数据同步到 Supabase。
+            账号会话已准备好。
+            {dataMode === "cloud"
+              ? " 当前正在使用云端模式，后续修改会自动同步到 Supabase。"
+              : " 你可以先把当前浏览器里的本地数据同步到 Supabase，再切换到云端模式。"}
           </p>
           <div className="mb-4 grid gap-3 sm:grid-cols-2">
             <div className="rounded-lg bg-canvas px-3 py-3 text-sm leading-6 text-muted">

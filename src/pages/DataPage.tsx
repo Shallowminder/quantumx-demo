@@ -220,6 +220,7 @@ export function DataPage({
 
         <aside className="space-y-4">
           <CloudModePanel
+            dataMode={dataMode}
             snapshot={snapshot}
             onImportCloudSnapshot={onImportData}
             syncMetadata={cloudSyncMetadata}

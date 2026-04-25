@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MobileNav } from "./components/MobileNav";
 import { Sidebar } from "./components/Sidebar";
 import { thoughts as seedThoughts, topics as seedTopics } from "./data/mockData";
@@ -15,7 +15,10 @@ import {
   THOUGHTS_STORAGE_KEY,
   TOPICS_STORAGE_KEY,
 } from "./lib/persistence";
-import { restoreSnapshotFromSupabase } from "./services/cloudMigration";
+import {
+  migrateLocalSnapshotToSupabase,
+  restoreSnapshotFromSupabase,
+} from "./services/cloudMigration";
 import { authRepository } from "./services/authRepository";
 import { DataPage } from "./pages/DataPage";
 import { DistillPage } from "./pages/DistillPage";
@@ -51,6 +54,10 @@ type ImportDataOptions = {
   dataMode?: DataMode;
 };
 
+function createSnapshotSignature(snapshot: QuantumXDataSnapshot) {
+  return JSON.stringify(snapshot);
+}
+
 export default function App() {
   const initialCloudSyncMetadata = normalizeCloudSyncMetadata(
     readStoredValue(CLOUD_SYNC_METADATA_STORAGE_KEY, {}),
@@ -80,6 +87,9 @@ export default function App() {
   const [hydratedSessionId, setHydratedSessionId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [focusCaptureSignal, setFocusCaptureSignal] = useState(0);
+  const lastCloudSyncedSignatureRef = useRef<string | null>(null);
+  const cloudSyncTimerRef = useRef<number | null>(null);
+  const hasShownCloudSyncErrorRef = useRef(false);
 
   const selectedThought = useMemo(() => {
     return (
@@ -88,6 +98,11 @@ export default function App() {
       seedThoughts[0]
     );
   }, [selectedThoughtId, thoughts]);
+
+  const currentSnapshot = useMemo(
+    () => ({ thoughts, topics, savedDistills, captureDraft }),
+    [captureDraft, savedDistills, thoughts, topics],
+  );
 
   function navigate(view: ViewKey) {
     setActiveView(view);
@@ -242,6 +257,12 @@ export default function App() {
     setSelectedThoughtId(nextThoughts[0].id);
     setSelectedTopicId(nextTopics[0].id);
     setDataMode(options?.dataMode ?? "local");
+    if (options?.dataMode === "cloud") {
+      lastCloudSyncedSignatureRef.current = createSnapshotSignature(snapshot);
+      hasShownCloudSyncErrorRef.current = false;
+    } else {
+      lastCloudSyncedSignatureRef.current = null;
+    }
     if (options?.activateDataView ?? true) {
       setActiveView("data");
     }
@@ -285,6 +306,7 @@ export default function App() {
     if (!sessionId) {
       setDataMode("local");
       setHydratedSessionId(null);
+      lastCloudSyncedSignatureRef.current = null;
       return;
     }
 
@@ -335,6 +357,53 @@ export default function App() {
       // Ignore local persistence failures and keep the in-memory state usable.
     }
   }, [cloudSyncMetadata]);
+
+  useEffect(() => {
+    const sessionId = authState.session?.user.id;
+    if (dataMode !== "cloud" || !sessionId) {
+      if (cloudSyncTimerRef.current) {
+        window.clearTimeout(cloudSyncTimerRef.current);
+        cloudSyncTimerRef.current = null;
+      }
+      return;
+    }
+
+    const signature = createSnapshotSignature(currentSnapshot);
+    if (lastCloudSyncedSignatureRef.current === signature) {
+      return;
+    }
+
+    if (cloudSyncTimerRef.current) {
+      window.clearTimeout(cloudSyncTimerRef.current);
+    }
+
+    cloudSyncTimerRef.current = window.setTimeout(() => {
+      void migrateLocalSnapshotToSupabase(currentSnapshot)
+        .then((result) => {
+          lastCloudSyncedSignatureRef.current = signature;
+          hasShownCloudSyncErrorRef.current = false;
+          setCloudSyncMetadata((current) => ({
+            ...current,
+            lastPushedAt: new Date().toISOString(),
+            lastKnownCloudSummary: result.summary,
+          }));
+        })
+        .catch(() => {
+          if (hasShownCloudSyncErrorRef.current) return;
+          hasShownCloudSyncErrorRef.current = true;
+          setToast({
+            message: "云端自动同步暂时失败，当前修改仍保存在这个浏览器里。",
+          });
+        });
+    }, 1200);
+
+    return () => {
+      if (cloudSyncTimerRef.current) {
+        window.clearTimeout(cloudSyncTimerRef.current);
+        cloudSyncTimerRef.current = null;
+      }
+    };
+  }, [authState.session, currentSnapshot, dataMode]);
 
   useEffect(() => {
     void localQuantumXRepository.saveThoughts(thoughts);
