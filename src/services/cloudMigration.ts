@@ -1,8 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseClient } from "./supabaseClient";
-import type { QuantumXDataSnapshot, Thought, Topic } from "../types";
+import type {
+  QuantumXDataSnapshot,
+  SnapshotSummary,
+  Thought,
+  Topic,
+} from "../types";
 
 export interface CloudMigrationResult {
+  summary: SnapshotSummary;
   thoughts: number;
   topics: number;
   links: number;
@@ -12,6 +18,7 @@ export interface CloudMigrationResult {
 
 export interface CloudRestoreResult {
   snapshot: QuantumXDataSnapshot;
+  summary: SnapshotSummary;
   thoughts: number;
   topics: number;
   drafts: number;
@@ -61,6 +68,26 @@ interface DraftRow {
   source_thought_ids: string[] | null;
   created_at: string;
   updated_at: string;
+}
+
+function latestActivity(values: Array<string | undefined>) {
+  return values
+    .filter((value): value is string => Boolean(value))
+    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+}
+
+export function summarizeSnapshot(snapshot: QuantumXDataSnapshot): SnapshotSummary {
+  return {
+    thoughts: snapshot.thoughts.length,
+    topics: snapshot.topics.length,
+    drafts: snapshot.savedDistills.length,
+    hasCaptureDraft: snapshot.captureDraft.trim().length > 0,
+    latestActivityAt: latestActivity([
+      ...snapshot.thoughts.map((thought) => thought.createdAt),
+      ...snapshot.topics.map((topic) => topic.updatedAt),
+      ...snapshot.savedDistills.map((draft) => draft.updatedAt ?? draft.createdAt),
+    ]),
+  };
 }
 
 function mapRows(rows: ClientMappedRow[]) {
@@ -291,8 +318,10 @@ export async function migrateLocalSnapshotToSupabase(
     topicIdMap,
   );
   const captureDraft = await upsertCaptureDraft(supabase, userId, snapshot);
+  const summary = summarizeSnapshot(snapshot);
 
   return {
+    summary,
     thoughts: thoughtIdMap.size,
     topics: topicIdMap.size,
     links,
@@ -433,12 +462,90 @@ export async function restoreSnapshotFromSupabase(): Promise<CloudRestoreResult>
     savedDistills,
     captureDraft: captureDraftResponse.data?.content ?? "",
   };
+  const summary = summarizeSnapshot(snapshot);
 
   return {
     snapshot,
+    summary,
     thoughts: thoughts.length,
     topics: topics.length,
     drafts: savedDistills.length,
     captureDraft: snapshot.captureDraft.trim().length > 0,
+  };
+}
+
+export async function fetchCloudSnapshotSummary(): Promise<SnapshotSummary> {
+  const supabase = await getSupabaseClient();
+  if (!supabase) {
+    throw new Error("Supabase is not configured.");
+  }
+
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
+  const userId = sessionData.session?.user.id;
+  if (!userId) {
+    throw new Error("You need to sign in before reading cloud data.");
+  }
+
+  const [thoughtsCount, topicsCount, draftsCount, captureDraftResponse, latestThought, latestTopic, latestDraft] =
+    await Promise.all([
+      supabase
+        .from("thoughts")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId),
+      supabase
+        .from("topics")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId),
+      supabase
+        .from("distill_drafts")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId),
+      supabase
+        .from("capture_drafts")
+        .select("content")
+        .eq("user_id", userId)
+        .maybeSingle(),
+      supabase
+        .from("thoughts")
+        .select("created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("topics")
+        .select("updated_at")
+        .eq("user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("distill_drafts")
+        .select("updated_at")
+        .eq("user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+
+  if (thoughtsCount.error) throw thoughtsCount.error;
+  if (topicsCount.error) throw topicsCount.error;
+  if (draftsCount.error) throw draftsCount.error;
+  if (captureDraftResponse.error) throw captureDraftResponse.error;
+  if (latestThought.error) throw latestThought.error;
+  if (latestTopic.error) throw latestTopic.error;
+  if (latestDraft.error) throw latestDraft.error;
+
+  return {
+    thoughts: thoughtsCount.count ?? 0,
+    topics: topicsCount.count ?? 0,
+    drafts: draftsCount.count ?? 0,
+    hasCaptureDraft: (captureDraftResponse.data?.content ?? "").trim().length > 0,
+    latestActivityAt: latestActivity([
+      latestThought.data?.created_at,
+      latestTopic.data?.updated_at,
+      latestDraft.data?.updated_at,
+    ]),
   };
 }

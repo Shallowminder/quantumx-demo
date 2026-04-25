@@ -1,4 +1,5 @@
 import type {
+  CloudSyncMetadata,
   QuantumXDataExport,
   QuantumXDataSnapshot,
   SavedDistill,
@@ -10,6 +11,7 @@ export const THOUGHTS_STORAGE_KEY = "quantumx.thoughts";
 export const TOPICS_STORAGE_KEY = "quantumx.topics";
 export const CAPTURE_DRAFT_STORAGE_KEY = "quantumx.captureDraft";
 export const DISTILLS_STORAGE_KEY = "quantumx.distills";
+export const CLOUD_SYNC_METADATA_STORAGE_KEY = "quantumx.cloudSyncMetadata";
 
 export function readStoredValue<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -134,4 +136,22 @@ export function getStorageSizeLabel(snapshot: QuantumXDataSnapshot): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+export function normalizeCloudSyncMetadata(
+  metadata: Partial<CloudSyncMetadata> | null | undefined,
+): CloudSyncMetadata {
+  if (!metadata || typeof metadata !== "object") return {};
+
+  return {
+    lastPushedAt:
+      typeof metadata.lastPushedAt === "string" ? metadata.lastPushedAt : undefined,
+    lastPulledAt:
+      typeof metadata.lastPulledAt === "string" ? metadata.lastPulledAt : undefined,
+    lastKnownCloudSummary:
+      metadata.lastKnownCloudSummary &&
+      typeof metadata.lastKnownCloudSummary === "object"
+        ? metadata.lastKnownCloudSummary
+        : undefined,
+  };
 }

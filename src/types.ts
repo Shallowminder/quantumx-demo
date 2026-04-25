@@ -97,10 +97,24 @@ export interface QuantumXDataSnapshot {
   captureDraft: string;
 }
 
+export interface SnapshotSummary {
+  thoughts: number;
+  topics: number;
+  drafts: number;
+  hasCaptureDraft: boolean;
+  latestActivityAt?: string;
+}
+
 export interface QuantumXDataExport {
   app: "QuantumX";
   version: 1;
   exportedAt: string;
   note: string;
   data: QuantumXDataSnapshot;
+}
+
+export interface CloudSyncMetadata {
+  lastPushedAt?: string;
+  lastPulledAt?: string;
+  lastKnownCloudSummary?: SnapshotSummary;
 }

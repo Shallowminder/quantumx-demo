@@ -4,17 +4,31 @@ import {
   Cloud,
   Download,
   CloudUpload,
+  RefreshCcw,
   LogOut,
   Mail,
   ShieldCheck,
 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
+import { formatDayLabel } from "../lib/date";
+import {
+  CLOUD_SYNC_METADATA_STORAGE_KEY,
+  normalizeCloudSyncMetadata,
+  readStoredValue,
+  writeStoredValue,
+} from "../lib/persistence";
 import { authRepository } from "../services/authRepository";
 import {
+  fetchCloudSnapshotSummary,
   migrateLocalSnapshotToSupabase,
   restoreSnapshotFromSupabase,
+  summarizeSnapshot,
 } from "../services/cloudMigration";
-import type { QuantumXDataSnapshot } from "../types";
+import type {
+  CloudSyncMetadata,
+  QuantumXDataSnapshot,
+  SnapshotSummary,
+} from "../types";
 
 interface CloudModePanelProps {
   snapshot: QuantumXDataSnapshot;
@@ -30,6 +44,11 @@ export function CloudModePanel({
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [cloudSummary, setCloudSummary] = useState<SnapshotSummary | null>(null);
+  const [syncMetadata, setSyncMetadata] = useState<CloudSyncMetadata>(() =>
+    normalizeCloudSyncMetadata(readStoredValue(CLOUD_SYNC_METADATA_STORAGE_KEY, {})),
+  );
+  const localSummary = summarizeSnapshot(snapshot);
 
   useEffect(() => {
     let mounted = true;
@@ -57,6 +76,33 @@ export function CloudModePanel({
     };
   }, []);
 
+  useEffect(() => {
+    if (!configured || !session) return;
+
+    let cancelled = false;
+    void fetchCloudSnapshotSummary()
+      .then((summary) => {
+        if (cancelled) return;
+        setCloudSummary(summary);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setCloudSummary(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [configured, session]);
+
+  useEffect(() => {
+    writeStoredValue(CLOUD_SYNC_METADATA_STORAGE_KEY, syncMetadata);
+  }, [syncMetadata]);
+
+  function updateSyncMetadata(next: Partial<CloudSyncMetadata>) {
+    setSyncMetadata((current) => ({ ...current, ...next }));
+  }
+
   async function sendMagicLink() {
     const cleanEmail = email.trim();
     if (!cleanEmail) return;
@@ -78,6 +124,11 @@ export function CloudModePanel({
     setMessage("");
     try {
       const result = await migrateLocalSnapshotToSupabase(snapshot);
+      setCloudSummary(result.summary);
+      updateSyncMetadata({
+        lastPushedAt: new Date().toISOString(),
+        lastKnownCloudSummary: result.summary,
+      });
       setMessage(
         `已同步 ${result.thoughts} 条记录、${result.topics} 个主题、${result.drafts} 份草稿和 ${result.links} 个主题关系。`,
       );
@@ -99,11 +150,31 @@ export function CloudModePanel({
     try {
       const result = await restoreSnapshotFromSupabase();
       onImportCloudSnapshot(result.snapshot);
+      setCloudSummary(result.summary);
+      updateSyncMetadata({
+        lastPulledAt: new Date().toISOString(),
+        lastKnownCloudSummary: result.summary,
+      });
       setMessage(
         `已从云端恢复 ${result.thoughts} 条记录、${result.topics} 个主题和 ${result.drafts} 份草稿。`,
       );
     } catch {
       setMessage("恢复失败。请确认 Supabase 已有数据，且当前账号有读取权限。");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function refreshCloudSummary() {
+    if (!session) return;
+    setBusy(true);
+    try {
+      const summary = await fetchCloudSnapshotSummary();
+      setCloudSummary(summary);
+      updateSyncMetadata({ lastKnownCloudSummary: summary });
+      setMessage("已刷新云端摘要。");
+    } catch {
+      setMessage("暂时无法读取云端摘要，请稍后再试。");
     } finally {
       setBusy(false);
     }
@@ -159,6 +230,57 @@ export function CloudModePanel({
           <p className="mb-4 text-sm leading-7 text-muted">
             账号会话已准备好。你可以把当前浏览器里的本地数据同步到 Supabase。
           </p>
+          <div className="mb-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-lg bg-canvas px-3 py-3 text-sm leading-6 text-muted">
+              <div className="mb-1 text-xs text-muted">本地</div>
+              <div className="font-medium text-ink">
+                {localSummary.thoughts} 条记录 · {localSummary.topics} 个主题 · {localSummary.drafts} 份草稿
+              </div>
+              <div className="mt-1 text-xs">
+                {localSummary.latestActivityAt
+                  ? `最近活动：${formatDayLabel(localSummary.latestActivityAt)}`
+                  : "还没有本地活动"}
+              </div>
+            </div>
+            <div className="rounded-lg bg-canvas px-3 py-3 text-sm leading-6 text-muted">
+              <div className="mb-1 flex items-center justify-between gap-2">
+                <span className="text-xs text-muted">云端</span>
+                <button
+                  className="inline-flex items-center gap-1 text-[11px] text-muted transition hover:text-ink disabled:opacity-60"
+                  disabled={busy}
+                  type="button"
+                  onClick={() => void refreshCloudSummary()}
+                >
+                  <RefreshCcw size={11} strokeWidth={1.8} />
+                  刷新
+                </button>
+              </div>
+              <div className="font-medium text-ink">
+                {cloudSummary
+                  ? `${cloudSummary.thoughts} 条记录 · ${cloudSummary.topics} 个主题 · ${cloudSummary.drafts} 份草稿`
+                  : "还没有读取云端摘要"}
+              </div>
+              <div className="mt-1 text-xs">
+                {cloudSummary?.latestActivityAt
+                  ? `最近活动：${formatDayLabel(cloudSummary.latestActivityAt)}`
+                  : "还没有云端活动"}
+              </div>
+            </div>
+          </div>
+          <div className="mb-4 rounded-lg border border-line bg-white px-3 py-3 text-xs leading-6 text-muted">
+            <div>
+              最近上传：
+              {syncMetadata.lastPushedAt
+                ? formatDayLabel(syncMetadata.lastPushedAt)
+                : "还没有上传到云端"}
+            </div>
+            <div>
+              最近恢复：
+              {syncMetadata.lastPulledAt
+                ? formatDayLabel(syncMetadata.lastPulledAt)
+                : "还没有从云端恢复"}
+            </div>
+          </div>
           <div className="flex flex-wrap gap-2">
             <button
               className="inline-flex items-center gap-2 rounded-md bg-ink px-3 py-2 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
