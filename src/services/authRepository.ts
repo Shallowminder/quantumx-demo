@@ -1,5 +1,6 @@
 import type { Session } from "@supabase/supabase-js";
 import {
+  authRedirectPath,
   getSupabaseClient,
   isSupabaseConfigured,
   isWeChatConfigured,
@@ -18,6 +19,17 @@ export interface AuthRepository {
   signInWithWeChat(): Promise<void>;
   signOut(): Promise<void>;
   onAuthChange(callback: (session: Session | null) => void): () => void;
+}
+
+export function getAuthRedirectUrl() {
+  if (typeof window === "undefined") {
+    return authRedirectPath;
+  }
+  return new URL(authRedirectPath, window.location.origin).toString();
+}
+
+export function isAuthCallbackPath(pathname: string) {
+  return pathname === authRedirectPath;
 }
 
 export function createSupabaseAuthRepository(): AuthRepository {
@@ -42,7 +54,7 @@ export function createSupabaseAuthRepository(): AuthRepository {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: getAuthRedirectUrl(),
         },
       });
       if (error) throw error;
@@ -64,7 +76,7 @@ export function createSupabaseAuthRepository(): AuthRepository {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: getAuthRedirectUrl(),
           skipBrowserRedirect: true,
         },
       });
@@ -91,7 +103,7 @@ export function createSupabaseAuthRepository(): AuthRepository {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: getAuthRedirectUrl(),
         },
       });
       if (error) throw error;
@@ -123,4 +135,9 @@ export function createSupabaseAuthRepository(): AuthRepository {
 }
 
 export const authRepository = createSupabaseAuthRepository();
-export { isSupabaseConfigured, isWeChatConfigured, weChatProviderId };
+export {
+  authRedirectPath,
+  isSupabaseConfigured,
+  isWeChatConfigured,
+  weChatProviderId,
+};

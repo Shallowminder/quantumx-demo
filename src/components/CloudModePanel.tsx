@@ -15,7 +15,9 @@ import {
 import type { Session } from "@supabase/supabase-js";
 import { formatDateTime, formatDayLabel } from "../lib/date";
 import {
+  authRedirectPath,
   authRepository,
+  getAuthRedirectUrl,
   isWeChatConfigured,
   weChatProviderId,
 } from "../services/authRepository";
@@ -68,6 +70,7 @@ export function CloudModePanel({
   const qrScriptRequestedRef = useRef(false);
   const localSummary = summarizeSnapshot(snapshot);
   const effectiveCloudSummary = cloudSummary ?? syncMetadata.lastKnownCloudSummary ?? null;
+  const callbackUrl = getAuthRedirectUrl();
   const weChatQrParams = useMemo(() => {
     if (!wechatQrUrl) return null;
 
@@ -140,6 +143,15 @@ export function CloudModePanel({
 
   function updateSyncMetadata(next: Partial<CloudSyncMetadata>) {
     onSyncMetadataChange({ ...syncMetadata, ...next });
+  }
+
+  async function copyCallbackUrl() {
+    try {
+      await navigator.clipboard.writeText(callbackUrl);
+      setMessage("回调地址已复制，可以直接贴到 Supabase 或微信开放平台里。");
+    } catch {
+      setMessage("复制失败了，不过你可以直接手动复制下面这条回调地址。");
+    }
   }
 
   useEffect(() => {
@@ -592,6 +604,32 @@ export function CloudModePanel({
             </code>{" "}
             形式的 provider 标识发起登录。
           </p>
+          <div className="mt-3 rounded-lg border border-line bg-canvas/70 px-3 py-3 text-xs leading-6 text-muted">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-medium text-ink">当前登录回调地址</span>
+              <button
+                className="rounded-md border border-line bg-white px-2.5 py-1 text-[11px] text-ink transition hover:bg-canvas"
+                type="button"
+                onClick={() => void copyCallbackUrl()}
+              >
+                复制
+              </button>
+            </div>
+            <div className="mt-2 break-all rounded-md bg-white px-2.5 py-2 font-mono text-[11px] text-ink">
+              {callbackUrl}
+            </div>
+            <div className="mt-2">
+              你可以在环境变量里调整回调路径：
+              <code className="mx-1 rounded bg-white px-1 py-0.5 text-[11px] text-ink">
+                VITE_SUPABASE_AUTH_REDIRECT_PATH
+              </code>
+              当前值是
+              <code className="ml-1 rounded bg-white px-1 py-0.5 text-[11px] text-ink">
+                {authRedirectPath}
+              </code>
+              。
+            </div>
+          </div>
           {isWeChatConfigured && (
             <div className="mt-4 rounded-xl border border-line bg-canvas/70 p-4">
               <div className="mb-2 text-sm font-medium text-ink">微信扫码登录</div>

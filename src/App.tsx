@@ -18,7 +18,11 @@ import {
 import {
   summarizeSnapshot,
 } from "./services/cloudMigration";
-import { authRepository } from "./services/authRepository";
+import {
+  authRedirectPath,
+  authRepository,
+  isAuthCallbackPath,
+} from "./services/authRepository";
 import { DataPage } from "./pages/DataPage";
 import { DistillPage } from "./pages/DistillPage";
 import { InsightsPage } from "./pages/InsightsPage";
@@ -103,6 +107,7 @@ export default function App() {
   const lastCloudSyncedSignatureRef = useRef<string | null>(null);
   const cloudSyncTimerRef = useRef<number | null>(null);
   const hasShownCloudSyncErrorRef = useRef(false);
+  const handledAuthCallbackRef = useRef(false);
 
   const selectedThought = useMemo(() => {
     return (
@@ -116,6 +121,9 @@ export default function App() {
     () => ({ thoughts, topics, savedDistills, captureDraft }),
     [captureDraft, savedDistills, thoughts, topics],
   );
+  const isOnAuthCallback =
+    typeof window !== "undefined" &&
+    isAuthCallbackPath(window.location.pathname);
 
   function navigate(view: ViewKey) {
     setActiveView(view);
@@ -322,6 +330,30 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!isAuthCallbackPath(window.location.pathname)) return;
+    if (handledAuthCallbackRef.current) return;
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const authError =
+      searchParams.get("error_description") ??
+      searchParams.get("error") ??
+      hashParams.get("error_description") ??
+      hashParams.get("error");
+
+    setActiveView("data");
+
+    if (!authError) return;
+
+    handledAuthCallbackRef.current = true;
+    setToast({
+      message: `登录没有完成：${decodeURIComponent(authError)}`,
+    });
+    window.history.replaceState({}, "", "/");
+  }, []);
+
+  useEffect(() => {
     const sessionId = authState.session?.user.id;
 
     if (!sessionId) {
@@ -368,6 +400,20 @@ export default function App() {
       cancelled = true;
     };
   }, [authState.session, hydratedSessionId, seedSnapshot]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!authState.session) return;
+    if (!isAuthCallbackPath(window.location.pathname)) return;
+    if (handledAuthCallbackRef.current) return;
+
+    handledAuthCallbackRef.current = true;
+    setActiveView("data");
+    setToast({
+      message: "登录成功，已经回到 QuantumX。接下来可以继续同步或恢复数据。",
+    });
+    window.history.replaceState({}, "", "/");
+  }, [authState.session]);
 
   useEffect(() => {
     try {
@@ -467,6 +513,15 @@ export default function App() {
       <div className="mx-auto flex min-h-screen max-w-[1480px] bg-canvas/70">
         <Sidebar activeView={activeView} onNavigate={navigate} />
         <main className="min-w-0 flex-1 px-4 pb-24 pt-4 sm:px-6 lg:px-8 lg:pb-8">
+          {isOnAuthCallback && !authState.session && (
+            <div className="mb-4 rounded-xl border border-sage/20 bg-white/80 px-4 py-3 text-sm text-muted shadow-sm">
+              正在完成登录回调。回调路径是{" "}
+              <code className="rounded bg-canvas px-1.5 py-0.5 text-[11px] text-ink">
+                {authRedirectPath}
+              </code>
+              ，如果页面停在这里太久，通常说明 Supabase 或微信开放平台的回调配置还没对齐。
+            </div>
+          )}
           {activeView === "today" && (
             <TodayPage
               draft={captureDraft}
