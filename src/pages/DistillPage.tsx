@@ -4,12 +4,15 @@ import {
   CheckCircle2,
   Copy,
   FilePenLine,
+  LoaderCircle,
   Save,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { TopicBadge } from "../components/TopicBadge";
 import { SourceComposition } from "../components/SourceComposition";
 import { formatMonthDay } from "../lib/date";
+import { generateCloudDistill } from "../services/distillRepository";
 import type {
   DistillOutputType,
   SavedDistill,
@@ -95,6 +98,8 @@ export function DistillPage({
   const [selectedTopicId, setSelectedTopicId] = useState(topics[0]?.id ?? "");
   const [outputType, setOutputType] = useState<DistillOutputType>("文章提纲");
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationMessage, setGenerationMessage] = useState("");
   const selectedTopic =
     topics.find((topic) => topic.id === selectedTopicId) ?? topics[0];
   if (!selectedTopic) {
@@ -149,6 +154,42 @@ export function DistillPage({
     );
   }
 
+  async function generateDistill() {
+    if (selectedThoughts.length === 0) return;
+
+    setIsGenerating(true);
+    setGenerationMessage("");
+    setActiveDraftId(null);
+
+    const fallbackContent = buildDistillContent(
+      selectedTopic,
+      selectedThoughts,
+      outputType,
+    );
+
+    try {
+      const result = await generateCloudDistill({
+        outputType,
+        topic: selectedTopic,
+        thoughts: selectedThoughts,
+      });
+
+      if (result) {
+        setEditableContent(result.content);
+        setGenerationMessage("已使用云端 AI 生成，可继续编辑后保存。");
+        return;
+      }
+
+      setEditableContent(fallbackContent);
+      setGenerationMessage("当前未登录或未配置云端 AI，已使用本地模板生成。");
+    } catch {
+      setEditableContent(fallbackContent);
+      setGenerationMessage("云端 AI 暂时不可用，已使用本地模板生成。");
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+
   function saveDraft() {
     if (selectedThoughts.length === 0) return;
 
@@ -185,6 +226,7 @@ export function DistillPage({
     setOutputType(draft.outputType);
     setSelectedThoughtIds(draft.sourceThoughtIds);
     setEditableContent(draft.content);
+    setGenerationMessage("");
   }
 
   async function copyMarkdown() {
@@ -219,6 +261,7 @@ export function DistillPage({
                 onClick={() => {
                   setActiveDraftId(null);
                   setSelectedTopicId(topic.id);
+                  setGenerationMessage("");
                 }}
               >
                 <div className="mb-2 flex items-center justify-between gap-3">
@@ -342,15 +385,30 @@ export function DistillPage({
               这份内容来自你选中的 {selectedThoughts.length} 条记录，可以继续编辑后保存。
             </p>
           </div>
-          <button
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
-            disabled={selectedThoughts.length === 0}
-            type="button"
-            onClick={saveDraft}
-          >
-            <Save size={16} strokeWidth={1.8} />
-            {activeDraftId ? "更新草稿" : "保存草稿"}
-          </button>
+          <div className="flex flex-wrap gap-2 sm:justify-end">
+            <button
+              className="inline-flex items-center justify-center gap-2 rounded-md border border-line bg-canvas px-4 py-2 text-sm font-medium text-ink transition hover:bg-white disabled:bg-stone-100 disabled:text-muted"
+              disabled={selectedThoughts.length === 0 || isGenerating}
+              type="button"
+              onClick={() => void generateDistill()}
+            >
+              {isGenerating ? (
+                <LoaderCircle className="animate-spin" size={16} strokeWidth={1.8} />
+              ) : (
+                <Sparkles size={16} strokeWidth={1.8} />
+              )}
+              {isGenerating ? "生成中" : "AI 生成"}
+            </button>
+            <button
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+              disabled={selectedThoughts.length === 0}
+              type="button"
+              onClick={saveDraft}
+            >
+              <Save size={16} strokeWidth={1.8} />
+              {activeDraftId ? "更新草稿" : "保存草稿"}
+            </button>
+          </div>
         </div>
 
         <div className="mb-4 flex flex-wrap gap-2">
@@ -366,6 +424,7 @@ export function DistillPage({
               onClick={() => {
                 setActiveDraftId(null);
                 setOutputType(type);
+                setGenerationMessage("");
               }}
             >
               {type}
@@ -380,6 +439,12 @@ export function DistillPage({
             topics={topics}
           />
         </div>
+
+        {generationMessage && (
+          <div className="mb-4 rounded-lg border border-sage/20 bg-sage/10 px-4 py-3 text-sm leading-6 text-ink">
+            {generationMessage}
+          </div>
+        )}
 
         <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
           <FilePenLine size={16} strokeWidth={1.8} />
