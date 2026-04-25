@@ -12,6 +12,34 @@ export const TOPICS_STORAGE_KEY = "quantumx.topics";
 export const CAPTURE_DRAFT_STORAGE_KEY = "quantumx.captureDraft";
 export const DISTILLS_STORAGE_KEY = "quantumx.distills";
 export const CLOUD_SYNC_METADATA_STORAGE_KEY = "quantumx.cloudSyncMetadata";
+export const ANONYMOUS_STORAGE_SCOPE = "anonymous";
+
+function buildScopedKey(baseKey: string, scope: string) {
+  return `${baseKey}.${encodeURIComponent(scope)}`;
+}
+
+function hasStoredKey(key: string) {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(key) !== null;
+  } catch {
+    return false;
+  }
+}
+
+export function getStorageScope(userId?: string | null) {
+  return userId ? `user:${userId}` : ANONYMOUS_STORAGE_SCOPE;
+}
+
+export function getScopedStorageKeys(scope: string) {
+  return {
+    thoughts: buildScopedKey(THOUGHTS_STORAGE_KEY, scope),
+    topics: buildScopedKey(TOPICS_STORAGE_KEY, scope),
+    captureDraft: buildScopedKey(CAPTURE_DRAFT_STORAGE_KEY, scope),
+    distills: buildScopedKey(DISTILLS_STORAGE_KEY, scope),
+    cloudSyncMetadata: buildScopedKey(CLOUD_SYNC_METADATA_STORAGE_KEY, scope),
+  };
+}
 
 export function readStoredValue<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -27,6 +55,51 @@ export function readStoredValue<T>(key: string, fallback: T): T {
 export function writeStoredValue<T>(key: string, value: T) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(key, JSON.stringify(value));
+}
+
+export function readScopedSnapshot(
+  scope: string,
+  fallback: QuantumXDataSnapshot,
+): QuantumXDataSnapshot {
+  const keys = getScopedStorageKeys(scope);
+  const allowLegacyFallback = scope === ANONYMOUS_STORAGE_SCOPE;
+
+  const thoughtsFallback =
+    allowLegacyFallback && !hasStoredKey(keys.thoughts)
+      ? readStoredValue(THOUGHTS_STORAGE_KEY, fallback.thoughts)
+      : fallback.thoughts;
+  const topicsFallback =
+    allowLegacyFallback && !hasStoredKey(keys.topics)
+      ? readStoredValue(TOPICS_STORAGE_KEY, fallback.topics)
+      : fallback.topics;
+  const distillsFallback =
+    allowLegacyFallback && !hasStoredKey(keys.distills)
+      ? readStoredValue(DISTILLS_STORAGE_KEY, fallback.savedDistills)
+      : fallback.savedDistills;
+  const captureDraftFallback =
+    allowLegacyFallback && !hasStoredKey(keys.captureDraft)
+      ? readStoredValue(CAPTURE_DRAFT_STORAGE_KEY, fallback.captureDraft)
+      : fallback.captureDraft;
+
+  return {
+    thoughts: normalizeThoughts(readStoredValue(keys.thoughts, thoughtsFallback)),
+    topics: normalizeTopics(readStoredValue(keys.topics, topicsFallback)),
+    savedDistills: normalizeDistills(
+      readStoredValue(keys.distills, distillsFallback),
+    ),
+    captureDraft: readStoredValue(keys.captureDraft, captureDraftFallback),
+  };
+}
+
+export function writeScopedSnapshot(
+  scope: string,
+  snapshot: QuantumXDataSnapshot,
+) {
+  const keys = getScopedStorageKeys(scope);
+  writeStoredValue(keys.thoughts, snapshot.thoughts);
+  writeStoredValue(keys.topics, snapshot.topics);
+  writeStoredValue(keys.distills, snapshot.savedDistills);
+  writeStoredValue(keys.captureDraft, snapshot.captureDraft);
 }
 
 export function normalizeThoughts(storedThoughts: Thought[]): Thought[] {
@@ -154,4 +227,25 @@ export function normalizeCloudSyncMetadata(
         ? metadata.lastKnownCloudSummary
         : undefined,
   };
+}
+
+export function readScopedCloudSyncMetadata(scope: string): CloudSyncMetadata {
+  const keys = getScopedStorageKeys(scope);
+  const allowLegacyFallback = scope === ANONYMOUS_STORAGE_SCOPE;
+  const fallback =
+    allowLegacyFallback && !hasStoredKey(keys.cloudSyncMetadata)
+      ? readStoredValue(CLOUD_SYNC_METADATA_STORAGE_KEY, {})
+      : {};
+
+  return normalizeCloudSyncMetadata(
+    readStoredValue(keys.cloudSyncMetadata, fallback),
+  );
+}
+
+export function writeScopedCloudSyncMetadata(
+  scope: string,
+  metadata: CloudSyncMetadata,
+) {
+  const keys = getScopedStorageKeys(scope);
+  writeStoredValue(keys.cloudSyncMetadata, metadata);
 }

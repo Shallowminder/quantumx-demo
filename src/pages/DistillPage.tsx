@@ -92,11 +92,21 @@ export function DistillPage({
   onSaveDistill,
   onUpdateDistill,
 }: DistillPageProps) {
-  const [selectedTopicId, setSelectedTopicId] = useState(topics[0].id);
+  const [selectedTopicId, setSelectedTopicId] = useState(topics[0]?.id ?? "");
   const [outputType, setOutputType] = useState<DistillOutputType>("文章提纲");
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   const selectedTopic =
     topics.find((topic) => topic.id === selectedTopicId) ?? topics[0];
+  if (!selectedTopic) {
+    return (
+      <div className="rounded-xl border border-line bg-white p-6 shadow-soft">
+        <div className="mb-2 text-sm font-semibold text-ink">还没有可蒸馏的主题</div>
+        <p className="text-sm leading-7 text-muted">
+          蒸馏输出需要先有主题和来源记录。你可以先回到 Today 记录一点内容，或者在主题页先新建一个主题。
+        </p>
+      </div>
+    );
+  }
   const sourceThoughts = useMemo(
     () =>
       thoughts.filter(

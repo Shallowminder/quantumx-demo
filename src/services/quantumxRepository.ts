@@ -1,13 +1,6 @@
 import {
-  CAPTURE_DRAFT_STORAGE_KEY,
-  DISTILLS_STORAGE_KEY,
-  normalizeDistills,
-  normalizeThoughts,
-  normalizeTopics,
-  readStoredValue,
-  THOUGHTS_STORAGE_KEY,
-  TOPICS_STORAGE_KEY,
-  writeStoredValue,
+  readScopedSnapshot,
+  writeScopedSnapshot,
 } from "../lib/persistence";
 import {
   migrateLocalSnapshotToSupabase,
@@ -24,52 +17,57 @@ export interface QuantumXRepository {
   saveCaptureDraft(captureDraft: string): Promise<void>;
 }
 
-export function createLocalQuantumXRepository(): QuantumXRepository {
+export function createLocalQuantumXRepository(scope: string): QuantumXRepository {
   return {
     async loadSnapshot(fallback) {
-      return {
-        thoughts: normalizeThoughts(
-          readStoredValue(THOUGHTS_STORAGE_KEY, fallback.thoughts),
-        ),
-        topics: normalizeTopics(
-          readStoredValue(TOPICS_STORAGE_KEY, fallback.topics),
-        ),
-        savedDistills: normalizeDistills(
-          readStoredValue(DISTILLS_STORAGE_KEY, fallback.savedDistills),
-        ),
-        captureDraft: readStoredValue(
-          CAPTURE_DRAFT_STORAGE_KEY,
-          fallback.captureDraft,
-        ),
-      };
+      return readScopedSnapshot(scope, fallback);
     },
 
     async saveSnapshot(snapshot) {
-      writeStoredValue(THOUGHTS_STORAGE_KEY, snapshot.thoughts);
-      writeStoredValue(TOPICS_STORAGE_KEY, snapshot.topics);
-      writeStoredValue(DISTILLS_STORAGE_KEY, snapshot.savedDistills);
-      writeStoredValue(CAPTURE_DRAFT_STORAGE_KEY, snapshot.captureDraft);
+      writeScopedSnapshot(scope, snapshot);
     },
 
     async saveThoughts(thoughts) {
-      writeStoredValue(THOUGHTS_STORAGE_KEY, thoughts);
+      const current = readScopedSnapshot(scope, {
+        thoughts: [],
+        topics: [],
+        savedDistills: [],
+        captureDraft: "",
+      });
+      writeScopedSnapshot(scope, { ...current, thoughts });
     },
 
     async saveTopics(topics) {
-      writeStoredValue(TOPICS_STORAGE_KEY, topics);
+      const current = readScopedSnapshot(scope, {
+        thoughts: [],
+        topics: [],
+        savedDistills: [],
+        captureDraft: "",
+      });
+      writeScopedSnapshot(scope, { ...current, topics });
     },
 
     async saveDistills(savedDistills) {
-      writeStoredValue(DISTILLS_STORAGE_KEY, savedDistills);
+      const current = readScopedSnapshot(scope, {
+        thoughts: [],
+        topics: [],
+        savedDistills: [],
+        captureDraft: "",
+      });
+      writeScopedSnapshot(scope, { ...current, savedDistills });
     },
 
     async saveCaptureDraft(captureDraft) {
-      writeStoredValue(CAPTURE_DRAFT_STORAGE_KEY, captureDraft);
+      const current = readScopedSnapshot(scope, {
+        thoughts: [],
+        topics: [],
+        savedDistills: [],
+        captureDraft: "",
+      });
+      writeScopedSnapshot(scope, { ...current, captureDraft });
     },
   };
 }
-
-export const localQuantumXRepository = createLocalQuantumXRepository();
 
 export function createSupabaseQuantumXRepository(): QuantumXRepository {
   return {

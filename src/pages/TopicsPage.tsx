@@ -37,7 +37,7 @@ export function TopicsPage({
       (thought) =>
         topic.thoughtIds.includes(thought.id) || thought.topicIds.includes(topic.id),
     );
-  const topicThoughts = getTopicThoughts(selectedTopic);
+  const topicThoughts = selectedTopic ? getTopicThoughts(selectedTopic) : [];
   const sortedTopicThoughts = [...topicThoughts].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
@@ -46,23 +46,58 @@ export function TopicsPage({
   )[0];
   const latestThought = sortedTopicThoughts[0];
   const inboxCount = topicThoughts.filter((thought) => thought.status === "inbox").length;
-  const unattachedThoughts = thoughts
+  const unattachedThoughts = selectedTopic
+    ? thoughts
     .filter(
       (thought) =>
         thought.status === "inbox" && !thought.topicIds.includes(selectedTopic.id),
     )
-    .slice(0, 4);
+    .slice(0, 4)
+    : [];
   const growingQuestions = Array.from(
     new Set(topicThoughts.flatMap((thought) => thought.questions)),
   ).slice(0, 4);
   const mergeSuggestion =
-    selectedTopic.id === "ai-tools"
+    selectedTopic?.id === "ai-tools"
       ? "「AI 工具使用」和「写作方法」有几条记录都在讨论从素材到输出，后续可能适合合并部分材料。"
       : "暂时没有强合并建议，这个主题边界还比较清楚。";
 
   useEffect(() => {
-    setTopicNameDraft(selectedTopic.name);
-  }, [selectedTopic.name]);
+    setTopicNameDraft(selectedTopic?.name ?? "");
+  }, [selectedTopic?.name]);
+
+  if (!selectedTopic) {
+    return (
+      <div className="rounded-xl border border-line bg-white p-6 shadow-soft">
+        <div className="mb-2 text-sm font-semibold text-ink">还没有主题</div>
+        <p className="text-sm leading-7 text-muted">
+          当前账号在这台设备上的本地主题还是空的。你可以先记录几条想法，让系统开始归类，或者手动新建一个主题。
+        </p>
+        <form
+          className="mt-4 flex gap-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onAddTopic(newTopicName);
+            setNewTopicName("");
+          }}
+        >
+          <input
+            className="min-w-0 flex-1 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink outline-none transition focus:border-sage/50 focus:bg-white"
+            placeholder="例如：注意力管理"
+            value={newTopicName}
+            onChange={(event) => setNewTopicName(event.target.value)}
+          />
+          <button
+            aria-label="新建主题"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-ink text-white transition hover:bg-black"
+            type="submit"
+          >
+            <Plus size={16} strokeWidth={1.8} />
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">

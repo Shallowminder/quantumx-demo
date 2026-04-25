@@ -38,7 +38,7 @@ export function TodayPage({
     day: "numeric",
   });
   const relatedMatches = useMemo(() => {
-    const input = draft.trim().length > 0 ? draft : thoughts[0];
+    const input = draft.trim().length > 0 ? draft : thoughts[0]?.content ?? "";
     return findRelatedMemoryMatches(input, thoughts, topics, 5);
   }, [draft, thoughts, topics]);
 
@@ -88,6 +88,15 @@ export function TodayPage({
           }}
           onDraftChange={onDraftChange}
         />
+
+        {thoughts.length === 0 && (
+          <section className="mt-4 rounded-xl border border-line bg-white p-5 shadow-sm">
+            <div className="mb-2 text-sm font-semibold text-ink">先从第一条想法开始</div>
+            <p className="text-sm leading-7 text-muted">
+              这台设备当前还没有本地记录。你可以先写下一句最近在想的事，或者先去右侧登录后从云端恢复已有内容。
+            </p>
+          </section>
+        )}
 
         {!briefDismissed && briefThought && (
           <section className="mt-4 rounded-xl border border-line bg-white p-4 shadow-sm">
@@ -173,14 +182,20 @@ export function TodayPage({
             <span className="text-sm text-muted">自动关联，不强制分类</span>
           </div>
           <div className="space-y-3">
-            {todayThoughts.map((thought) => (
-              <ThoughtCard
-                key={thought.id}
-                thought={thought}
-                topics={topics}
-                onOpen={onOpenThought}
-              />
-            ))}
+            {todayThoughts.length > 0 ? (
+              todayThoughts.map((thought) => (
+                <ThoughtCard
+                  key={thought.id}
+                  thought={thought}
+                  topics={topics}
+                  onOpen={onOpenThought}
+                />
+              ))
+            ) : (
+              <div className="rounded-xl border border-line bg-white p-4 text-sm leading-7 text-muted">
+                还没有最近记录。先写下一句，QuantumX 才会开始把旧想法、主题和后续整理慢慢带出来。
+              </div>
+            )}
           </div>
         </div>
 

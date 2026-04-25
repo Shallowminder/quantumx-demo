@@ -4,16 +4,11 @@ import { Sidebar } from "./components/Sidebar";
 import { thoughts as seedThoughts, topics as seedTopics } from "./data/mockData";
 import { createCapturedThought } from "./lib/memory";
 import {
-  CAPTURE_DRAFT_STORAGE_KEY,
-  CLOUD_SYNC_METADATA_STORAGE_KEY,
-  DISTILLS_STORAGE_KEY,
-  normalizeCloudSyncMetadata,
-  normalizeDistills,
-  normalizeThoughts,
-  normalizeTopics,
-  readStoredValue,
-  THOUGHTS_STORAGE_KEY,
-  TOPICS_STORAGE_KEY,
+  ANONYMOUS_STORAGE_SCOPE,
+  getStorageScope,
+  readScopedCloudSyncMetadata,
+  readScopedSnapshot,
+  writeScopedCloudSyncMetadata,
 } from "./lib/persistence";
 import {
   summarizeSnapshot,
@@ -32,7 +27,7 @@ import { ThoughtDetailPage } from "./pages/ThoughtDetailPage";
 import { TodayPage } from "./pages/TodayPage";
 import { TopicsPage } from "./pages/TopicsPage";
 import {
-  localQuantumXRepository,
+  createLocalQuantumXRepository,
   supabaseQuantumXRepository,
 } from "./services/quantumxRepository";
 import type {
@@ -60,6 +55,8 @@ type ImportDataOptions = {
   toastMessage?: string;
   dataMode?: DataMode;
   useSeedFallback?: boolean;
+  silent?: boolean;
+  storageScope?: string;
 };
 
 function createSnapshotSignature(snapshot: QuantumXDataSnapshot) {
@@ -73,24 +70,25 @@ const seedSnapshot: QuantumXDataSnapshot = {
   captureDraft: "",
 };
 
+const emptySnapshot: QuantumXDataSnapshot = {
+  thoughts: [],
+  topics: [],
+  savedDistills: [],
+  captureDraft: "",
+};
+
 export default function App() {
-  const initialCloudSyncMetadata = normalizeCloudSyncMetadata(
-    readStoredValue(CLOUD_SYNC_METADATA_STORAGE_KEY, {}),
-  );
+  const initialStorageScope = ANONYMOUS_STORAGE_SCOPE;
+  const initialSnapshot = readScopedSnapshot(initialStorageScope, seedSnapshot);
+  const initialCloudSyncMetadata = readScopedCloudSyncMetadata(initialStorageScope);
   const [activeView, setActiveView] = useState<ViewKey>("today");
-  const [thoughts, setThoughts] = useState<Thought[]>(() =>
-    normalizeThoughts(readStoredValue(THOUGHTS_STORAGE_KEY, seedThoughts)),
-  );
-  const [topics, setTopics] = useState<Topic[]>(() =>
-    normalizeTopics(readStoredValue(TOPICS_STORAGE_KEY, seedTopics)),
-  );
+  const [thoughts, setThoughts] = useState<Thought[]>(() => initialSnapshot.thoughts);
+  const [topics, setTopics] = useState<Topic[]>(() => initialSnapshot.topics);
   const [selectedThoughtId, setSelectedThoughtId] = useState(seedThoughts[0].id);
   const [selectedTopicId, setSelectedTopicId] = useState(seedTopics[0].id);
-  const [captureDraft, setCaptureDraft] = useState(() =>
-    readStoredValue(CAPTURE_DRAFT_STORAGE_KEY, ""),
-  );
+  const [captureDraft, setCaptureDraft] = useState(() => initialSnapshot.captureDraft);
   const [savedDistills, setSavedDistills] = useState<SavedDistill[]>(() =>
-    normalizeDistills(readStoredValue(DISTILLS_STORAGE_KEY, [])),
+    initialSnapshot.savedDistills,
   );
   const [authState, setAuthState] = useState<AuthState>({
     configured: false,
@@ -98,16 +96,24 @@ export default function App() {
   });
   const [cloudSyncMetadata, setCloudSyncMetadata] =
     useState<CloudSyncMetadata>(initialCloudSyncMetadata);
+  const [cloudMetadataScope, setCloudMetadataScope] = useState(initialStorageScope);
   const [dataMode, setDataMode] = useState<DataMode>("local");
   const [cloudSyncState, setCloudSyncState] =
     useState<CloudSyncState>("local");
   const [hydratedSessionId, setHydratedSessionId] = useState<string | null>(null);
+  const [snapshotScope, setSnapshotScope] = useState(initialStorageScope);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [focusCaptureSignal, setFocusCaptureSignal] = useState(0);
   const lastCloudSyncedSignatureRef = useRef<string | null>(null);
   const cloudSyncTimerRef = useRef<number | null>(null);
   const hasShownCloudSyncErrorRef = useRef(false);
   const handledAuthCallbackRef = useRef(false);
+  const currentStorageScope = getStorageScope(authState.session?.user.id);
+  const localQuantumXRepository = useMemo(
+    () => createLocalQuantumXRepository(currentStorageScope),
+    [currentStorageScope],
+  );
+  const previousStorageScopeRef = useRef(currentStorageScope);
 
   const selectedThought = useMemo(() => {
     return (
@@ -281,8 +287,9 @@ export default function App() {
     setTopics(nextTopics);
     setSavedDistills(snapshot.savedDistills);
     setCaptureDraft(snapshot.captureDraft);
-    setSelectedThoughtId(nextThoughts[0].id);
-    setSelectedTopicId(nextTopics[0].id);
+    setSnapshotScope(options?.storageScope ?? currentStorageScope);
+    setSelectedThoughtId(nextThoughts[0]?.id ?? seedThoughts[0].id);
+    setSelectedTopicId(nextTopics[0]?.id ?? seedTopics[0].id);
     setDataMode(options?.dataMode ?? "local");
     if (options?.dataMode === "cloud") {
       lastCloudSyncedSignatureRef.current = createSnapshotSignature(snapshot);
@@ -294,6 +301,9 @@ export default function App() {
     }
     if (options?.activateDataView ?? true) {
       setActiveView("data");
+    }
+    if (options?.silent) {
+      return;
     }
     if (options?.toastMessage) {
       setToast({ message: options.toastMessage });
@@ -354,6 +364,28 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (previousStorageScopeRef.current === currentStorageScope) return;
+
+    previousStorageScopeRef.current = currentStorageScope;
+    setHydratedSessionId(null);
+
+    const fallbackSnapshot = authState.session ? emptySnapshot : seedSnapshot;
+    const scopedMetadata = readScopedCloudSyncMetadata(currentStorageScope);
+    setCloudMetadataScope(currentStorageScope);
+    setCloudSyncMetadata(scopedMetadata);
+
+    void localQuantumXRepository.loadSnapshot(fallbackSnapshot).then((snapshot) => {
+      importData(snapshot, {
+        activateDataView: false,
+        dataMode: "local",
+        storageScope: currentStorageScope,
+        useSeedFallback: !authState.session,
+        silent: true,
+      });
+    });
+  }, [authState.session, currentStorageScope, localQuantumXRepository]);
+
+  useEffect(() => {
     const sessionId = authState.session?.user.id;
 
     if (!sessionId) {
@@ -385,6 +417,7 @@ export default function App() {
         importData(snapshot, {
           activateDataView: false,
           dataMode: "cloud",
+          storageScope: currentStorageScope,
           toastMessage: "已自动读取当前账号的云端数据。",
           useSeedFallback: false,
         });
@@ -416,19 +449,13 @@ export default function App() {
   }, [authState.session]);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(
-        CLOUD_SYNC_METADATA_STORAGE_KEY,
-        JSON.stringify(cloudSyncMetadata),
-      );
-    } catch {
-      // Ignore local persistence failures and keep the in-memory state usable.
-    }
-  }, [cloudSyncMetadata]);
+    if (cloudMetadataScope !== currentStorageScope) return;
+    writeScopedCloudSyncMetadata(currentStorageScope, cloudSyncMetadata);
+  }, [cloudMetadataScope, cloudSyncMetadata, currentStorageScope]);
 
   useEffect(() => {
     const sessionId = authState.session?.user.id;
-    if (dataMode !== "cloud" || !sessionId) {
+    if (dataMode !== "cloud" || !sessionId || snapshotScope !== currentStorageScope) {
       if (cloudSyncTimerRef.current) {
         window.clearTimeout(cloudSyncTimerRef.current);
         cloudSyncTimerRef.current = null;
@@ -483,11 +510,12 @@ export default function App() {
         cloudSyncTimerRef.current = null;
       }
     };
-  }, [authState.session, cloudSyncState, currentSnapshot, dataMode]);
+  }, [authState.session, cloudSyncState, currentSnapshot, currentStorageScope, dataMode, snapshotScope]);
 
   useEffect(() => {
+    if (snapshotScope !== currentStorageScope) return;
     void localQuantumXRepository.saveSnapshot(currentSnapshot);
-  }, [currentSnapshot]);
+  }, [currentSnapshot, currentStorageScope, localQuantumXRepository, snapshotScope]);
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -571,7 +599,7 @@ export default function App() {
               onAttachThoughtToTopic={attachThoughtToTopic}
               onContinueFromThought={continueFromThought}
               onGenerateFromThought={(thought) => {
-                setSelectedTopicId(thought.topicIds[0] ?? topics[0].id);
+                setSelectedTopicId(thought.topicIds[0] ?? topics[0]?.id ?? seedTopics[0].id);
                 setActiveView("distill");
               }}
               onOpenThought={openThought}
