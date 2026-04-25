@@ -185,8 +185,8 @@ export function DataPage({
           数据与隐私
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-          QuantumX 当前把记录保存在这个浏览器里。正式云同步上线前，你可以在这里备份、
-          迁移和恢复自己的思考数据。邮箱登录入口也在这一页右侧，不需要再去别的地方找。
+         QuantumX 默认先把记录保存在这个浏览器里。配置 Supabase 并登录后，你可以在这里备份、
+迁移、恢复数据，并切换到本地优先的云端同步模式。邮箱登录入口也在这一页右侧，不需要再去别的地方找。
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
           <span className="inline-flex items-center gap-1 rounded-full border border-line bg-white px-3 py-1.5 text-muted">
@@ -313,7 +313,7 @@ export function DataPage({
               当前保存方式
             </div>
             <p className="text-sm leading-7 text-muted">
-              数据只存在当前浏览器的 localStorage。换设备不会自动同步，清理浏览器数据会删除记录。
+              未登录或未切换到云端模式时，数据只存在当前浏览器的 localStorage。登录并同步后，QuantumX 会继续先写本地，再把整份 snapshot upsert 到 Supabase。
             </p>
           </div>
 

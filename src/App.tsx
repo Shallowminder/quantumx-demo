@@ -73,6 +73,22 @@ function snapshotHasContent(snapshot: QuantumXDataSnapshot) {
   );
 }
 
+function isSeedOnlySnapshot(snapshot: QuantumXDataSnapshot) {
+  return (
+    snapshot.captureDraft.trim().length === 0 &&
+    snapshot.savedDistills.length === 0 &&
+    createSnapshotSignature({
+      thoughts: snapshot.thoughts,
+      topics: snapshot.topics,
+      savedDistills: [],
+      captureDraft: "",
+    }) === createSnapshotSignature(seedSnapshot)
+  );
+}
+
+function snapshotHasUserContent(snapshot: QuantumXDataSnapshot) {
+  return snapshotHasContent(snapshot) && !isSeedOnlySnapshot(snapshot);
+}
 const seedSnapshot: QuantumXDataSnapshot = {
   thoughts: seedThoughts,
   topics: seedTopics,
@@ -464,7 +480,7 @@ export default function App() {
             summary.topics > 0 ||
             summary.drafts > 0 ||
             summary.hasCaptureDraft;
-          const localHasData = snapshotHasContent(currentSnapshot);
+          const localHasData = snapshotHasUserContent(currentSnapshot);
 
           if (cloudHasData && !localHasData) {
             return supabaseQuantumXRepository.loadSnapshot(seedSnapshot).then((snapshot) => {
