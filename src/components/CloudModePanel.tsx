@@ -8,11 +8,16 @@ import {
   RefreshCcw,
   LogOut,
   Mail,
+  MessageCircleMore,
   ShieldCheck,
 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { formatDateTime, formatDayLabel } from "../lib/date";
-import { authRepository } from "../services/authRepository";
+import {
+  authRepository,
+  isWeChatConfigured,
+  weChatProviderId,
+} from "../services/authRepository";
 import {
   fetchCloudSnapshotSummary,
   migrateLocalSnapshotToSupabase,
@@ -179,6 +184,20 @@ export function CloudModePanel({
     }
   }
 
+  async function signInWithWeChat() {
+    setBusy(true);
+    setMessage("");
+    try {
+      await authRepository.signInWithWeChat();
+    } catch {
+      setMessage(
+        "微信登录暂时还没配置好。请先在 Supabase 的 Custom OAuth Providers 里创建微信 provider，再回到这里重试。",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function syncToCloud() {
     if (!confirmSyncToCloud()) return;
 
@@ -276,6 +295,8 @@ export function CloudModePanel({
           VITE_SUPABASE_URL
           <br />
           VITE_SUPABASE_ANON_KEY
+          <br />
+          VITE_SUPABASE_WECHAT_PROVIDER
         </div>
       </section>
     );
@@ -398,8 +419,8 @@ export function CloudModePanel({
       ) : (
         <div>
           <p className="mb-4 text-sm leading-7 text-muted">
-            使用邮箱登录后，QuantumX 就可以把本地数据和云端用户绑定。
-            当前版本先完成身份入口，数据同步会在下一步接上。
+            你现在可以先用邮箱魔法链接登录，也可以接入微信 OAuth。
+            微信登录会通过 Supabase 的自定义 OAuth provider 进入，不是内建 provider。
           </p>
           <div className="flex gap-2">
             <label className="relative min-w-0 flex-1">
@@ -425,6 +446,29 @@ export function CloudModePanel({
               发送
             </button>
           </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              className="inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:bg-white disabled:opacity-60"
+              disabled={busy || !isWeChatConfigured}
+              type="button"
+              onClick={() => void signInWithWeChat()}
+            >
+              <MessageCircleMore size={15} strokeWidth={1.8} />
+              微信登录
+            </button>
+            <span className="inline-flex items-center rounded-md bg-canvas px-3 py-2 text-xs text-muted">
+              {isWeChatConfigured
+                ? `当前 provider：${weChatProviderId}`
+                : "请先配置 VITE_SUPABASE_WECHAT_PROVIDER，例如 custom:wechat"}
+            </span>
+          </div>
+          <p className="mt-3 text-xs leading-6 text-muted">
+            如果你在 Supabase 里把微信配置成自定义 OAuth provider，前端会使用{" "}
+            <code className="rounded bg-canvas px-1 py-0.5 text-[11px]">
+              custom:...
+            </code>{" "}
+            形式的 provider 标识发起登录。
+          </p>
         </div>
       )}
 

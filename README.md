@@ -66,6 +66,7 @@ npm run preview
 
 - `docs/supabase-schema.sql`：账号、记录、主题、草稿、召回反馈和 RLS 策略草案。
 - `.env.example`：未来接 Supabase 所需的环境变量模板。
+- `.env.example`：未来接 Supabase 所需的环境变量模板，包含微信自定义 OAuth provider 标识。
 - `src/services/quantumxRepository.ts`：数据仓储接口，当前已经包含 localStorage 实现和 Supabase 读取实现，主链路开始向 repository 统一。
 - `src/services/supabaseClient.ts`：可选 Supabase client。没有环境变量时不会启用云端能力。
 - `src/services/authRepository.ts`：邮箱 magic link 登录入口。当前只准备身份会话，数据同步仍保持本地模式。
@@ -82,6 +83,7 @@ cp .env.example .env.local
 ```bash
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
+VITE_SUPABASE_WECHAT_PROVIDER=custom:wechat
 ```
 
 不要把 `.env.local` 提交到 Git。
@@ -92,6 +94,28 @@ VITE_SUPABASE_ANON_KEY=
 切到云端模式后，当前浏览器里的编辑会继续先落到本地，再自动 upsert 到 Supabase，尽量让记录和草稿保持跟账号一致。
 云端读取现在也开始通过 repository 接口走主链路，后续把 Today / Topics / Distill / Search 全部收口到统一数据层会更顺。
 本地缓存保存和云端自动同步也开始按整份 snapshot 走 repository，App 里的持久化细节在逐步收拢。
+
+## WeChat Login
+
+Supabase 当前没有把微信列在内建 Social Auth provider 里；官方推荐的做法是使用 Custom OAuth/OIDC Provider。你可以在 Supabase Dashboard 里新建一个自定义 provider，例如：
+
+```text
+custom:wechat
+```
+
+然后把同样的标识填到：
+
+```bash
+VITE_SUPABASE_WECHAT_PROVIDER=custom:wechat
+```
+
+前端会通过 `supabase.auth.signInWithOAuth({ provider: 'custom:wechat' })` 发起登录。  
+对应的 Supabase 官方文档：
+
+- [Auth providers overview](https://supabase.com/docs/guides/auth)
+- [Custom OAuth/OIDC Providers](https://supabase.com/docs/guides/auth/custom-oauth-providers)
+
+微信 provider 还需要你在 Supabase 里填写微信开放平台提供的 Client ID / Client Secret，以及使用 Supabase Dashboard 显示的 callback URL 去微信侧完成回调配置。
 
 当前同步是本地到云端的单向迁移，不是完整双向实时同步。重复点击会按 `client_id`
 更新同一批本地数据，不会为同一条本地记录无限创建重复行。

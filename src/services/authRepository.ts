@@ -1,5 +1,10 @@
 import type { Session } from "@supabase/supabase-js";
-import { getSupabaseClient, isSupabaseConfigured } from "./supabaseClient";
+import {
+  getSupabaseClient,
+  isSupabaseConfigured,
+  isWeChatConfigured,
+  weChatProviderId,
+} from "./supabaseClient";
 
 export interface AuthState {
   configured: boolean;
@@ -9,6 +14,7 @@ export interface AuthState {
 export interface AuthRepository {
   getState(): Promise<AuthState>;
   sendMagicLink(email: string): Promise<void>;
+  signInWithWeChat(): Promise<void>;
   signOut(): Promise<void>;
   onAuthChange(callback: (session: Session | null) => void): () => void;
 }
@@ -41,6 +47,28 @@ export function createSupabaseAuthRepository(): AuthRepository {
       if (error) throw error;
     },
 
+    async signInWithWeChat() {
+      const supabase = await getSupabaseClient();
+      if (!supabase) {
+        throw new Error("Supabase is not configured.");
+      }
+      if (!isWeChatConfigured || !weChatProviderId) {
+        throw new Error("WeChat OAuth provider is not configured.");
+      }
+
+      const provider = weChatProviderId as Parameters<
+        typeof supabase.auth.signInWithOAuth
+      >[0]["provider"];
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+      if (error) throw error;
+    },
+
     async signOut() {
       const supabase = await getSupabaseClient();
       if (!supabase) return;
@@ -67,4 +95,4 @@ export function createSupabaseAuthRepository(): AuthRepository {
 }
 
 export const authRepository = createSupabaseAuthRepository();
-export { isSupabaseConfigured };
+export { isSupabaseConfigured, isWeChatConfigured, weChatProviderId };
