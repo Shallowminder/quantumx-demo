@@ -31,7 +31,7 @@ QuantumX 是一个 AI Native 的个人思考沉淀工具 Demo。它面向学生�
 - 数据备份：在「数据与隐私」里可以下载 JSON 备份，也可以从备份恢复本地记录。
 - 数据层准备：localStorage 读写已集中到独立 helper，后续接账号、数据库和云同步时更容易替换。
 - 本地搜索：新增「找回想法」页面，先用全文匹配跑通搜索体验。
-- 语义召回第一版：新增 `thought_embeddings` 表、`recall` Edge Function 和前端调用路径；已登录云端用户会优先尝试语义召回，失败时自动回退到本地规则召回。
+- 语义召回第一版：新增 `thought_embeddings` 表、`recall` / `embed-thoughts` Edge Functions 和前端调用路径；已登录云端用户会优先尝试语义召回，失败时自动回退到本地规则召回。
 - 云同步准备：新增 Supabase schema 草案、环境变量模板和 repository 接口，本地模式仍然默认可用。
 
 ## 技术栈
@@ -75,6 +75,7 @@ npm run preview
 - `src/services/authRepository.ts`：邮箱 magic link 登录入口。当前只准备身份会话，数据同步仍保持本地模式。
 - `src/services/cloudMigration.ts`：把当前浏览器里的本地记录、主题、草稿和快速记录草稿迁移到 Supabase。
 - `src/services/recallRepository.ts`：调用 `recall` Edge Function；如果云端不可用或函数未部署，自动回退到本地规则召回。
+- `src/services/embeddingRepository.ts`：在云端同步成功后，后台预热最近一批 thought embeddings，减少首次语义召回时的等待。
 
 如果要启用云端语义召回，还需要在 Supabase Edge Function Secrets 中补齐 embedding 配置：
 
@@ -85,7 +86,7 @@ EMBEDDING_MODEL=
 EMBEDDING_PROVIDER=openai-compatible
 ```
 
-`recall` 函数会在查询时按需为缺失或过期的 thought embedding 重新生成向量，并把结果存回 `thought_embeddings`。如果这些 secrets 没填，函数会自动回退到服务端 lexical recall，不会让前端相关旧想法失效。
+`recall` 函数会在查询时按需为缺失或过期的 thought embedding 重新生成向量，并把结果存回 `thought_embeddings`。`embed-thoughts` 则会在云端同步成功后后台预热最近 thoughts 的 embedding。 如果这些 secrets 没填，函数会自动回退到服务端 lexical recall，不会让前端相关旧想法失效。
 
 如果要开始接 Supabase，先复制环境变量模板：
 
@@ -157,7 +158,7 @@ QuantumX 是纯前端本地优先 Demo，没有后端、数据库、账号系统
 当前版本已经从展示型 Demo 进入本地可用原型阶段。要继续落地成可长期使用的产品，建议按这个顺序推进：
 
 1. 账号与云数据库：根据 `docs/supabase-schema.sql` 接入 Supabase / PostgreSQL，保存用户、记录、主题、草稿和反馈。
-2. 真实召回：继续把当前第一版语义召回从 query-time embedding 补成保存 thought 后的后台生成、批量回填和更稳定的排序。
+2. 真实召回：继续把当前第一版语义召回从“同步后预热 + query-time 补全”推进到保存 thought 后的即时后台生成、批量回填和更稳定的排序。
 3. AI 蒸馏服务：在服务端调用 LLM 生成摘要、主题建议、提纲和每周回顾。
 4. 数据安全：提供导出、删除账号、备份恢复、隐私说明和错误监控。
 5. 国内可访问部署：如果面向国内朋友试用，优先考虑 EdgeOne Pages 或国内静态托管 + CDN。

@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
+import { embedTexts, hashText } from "../_shared/embeddings.ts";
 
 type RecallKind = "direct" | "similar" | "counterpoint";
 
@@ -60,15 +61,6 @@ const queryKeywordBank = [
 
 function normalize(text: string) {
   return text.toLowerCase().replace(/\s+/g, "");
-}
-
-function hashText(input: string) {
-  let hash = 2166136261;
-  for (let index = 0; index < input.length; index += 1) {
-    hash ^= input.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return `${hash >>> 0}`;
 }
 
 function cosineSimilarity(a: number[], b: number[]) {
@@ -151,43 +143,6 @@ function buildReason(
   }
 
   return `${timeLabel}，像是同一个问题的另一种表达。`;
-}
-
-async function embedTexts(texts: string[]) {
-  const apiKey = Deno.env.get("EMBEDDING_API_KEY")?.trim();
-  const baseUrl =
-    Deno.env.get("EMBEDDING_BASE_URL")?.trim() ?? "https://api.openai.com/v1";
-  const model = Deno.env.get("EMBEDDING_MODEL")?.trim();
-
-  if (!apiKey || !model) return null;
-
-  const response = await fetch(`${baseUrl.replace(/\/$/, "")}/embeddings`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      input: texts,
-    }),
-  });
-
-  if (!response.ok) {
-    const message = await response.text();
-    throw new Error(`Embedding request failed: ${response.status} ${message}`);
-  }
-
-  const data = await response.json();
-  const embeddings = Array.isArray(data.data)
-    ? data.data.map((item: { embedding?: number[] }) => item.embedding ?? [])
-    : [];
-
-  return {
-    provider: Deno.env.get("EMBEDDING_PROVIDER")?.trim() ?? "openai-compatible",
-    model,
-    embeddings,
-  };
 }
 
 serve(async (request) => {

@@ -14,6 +14,7 @@ import {
   fetchCloudSnapshotSummary,
   summarizeSnapshot,
 } from "./services/cloudMigration";
+import { primeThoughtEmbeddings } from "./services/embeddingRepository";
 import {
   authRedirectPath,
   authRepository,
@@ -593,6 +594,11 @@ export default function App() {
             lastPushedAt: new Date().toISOString(),
             lastKnownCloudSummary: summary,
           }));
+          void primeThoughtEmbeddings(
+            currentSnapshot.thoughts.slice(0, 12).map((thought) => thought.id),
+          ).catch(() => {
+            // Keep sync flow quiet when embedding warm-up fails.
+          });
         })
         .catch(() => {
           setCloudSyncState("error");
