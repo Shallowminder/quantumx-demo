@@ -65,7 +65,7 @@ export function InsightsPage({
         {insightMetrics.map((metric) => (
           <div
             key={metric.label}
-            className="rounded-xl border border-line bg-white p-5 shadow-sm"
+            className="frost-panel rounded-[24px] p-5"
           >
             <div className="mb-2 text-sm text-muted">{metric.label}</div>
             <div className="mb-2 text-3xl font-semibold tracking-normal text-ink">
@@ -89,7 +89,7 @@ export function InsightsPage({
       </div>
 
       <section className="mt-5 grid gap-4 md:grid-cols-2">
-        <article className="rounded-xl border border-line bg-white p-5 shadow-soft">
+        <article className="frost-panel-strong rounded-[26px] p-5">
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
             <Sparkles size={17} strokeWidth={1.8} />
             本周你反复在想什么
@@ -98,7 +98,7 @@ export function InsightsPage({
             你这周最活跃的主题是「{topTopic?.name ?? "长期主题"}」。记录里更关心的不是收集更多材料，而是把已有材料整理成可以继续写的结构。
           </p>
           <button
-            className="mt-4 inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:border-sage/40 hover:bg-white"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
             type="button"
             onClick={() => topTopic && onOpenTopic(topTopic.id)}
           >
@@ -107,7 +107,7 @@ export function InsightsPage({
           </button>
         </article>
 
-        <article className="rounded-xl border border-line bg-white p-5 shadow-soft">
+        <article className="frost-panel-strong rounded-[26px] p-5">
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
             <RotateCcw size={17} strokeWidth={1.8} />
             本周被重新激活的旧想法
@@ -116,7 +116,7 @@ export function InsightsPage({
             「{reactivatedThought?.summary ?? "旧记录"}」最近又和新的记录连上了。它适合被放进一篇短文，或者作为下次复盘的开头。
           </p>
           <button
-            className="mt-4 inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:border-sage/40 hover:bg-white"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
             type="button"
             onClick={() => onNavigate("today")}
           >
@@ -127,7 +127,7 @@ export function InsightsPage({
       </section>
 
       <section className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="rounded-xl border border-line bg-white p-5 shadow-sm">
+        <div className="frost-panel rounded-[26px] p-5">
           <div className="mb-5 flex items-center gap-2 text-sm font-semibold text-ink">
             <CircleHelp size={17} strokeWidth={1.8} />
             本周值得继续写的问题
@@ -136,7 +136,7 @@ export function InsightsPage({
             {continueQuestions.map((item) => {
               const topic = topics.find((candidate) => candidate.id === item.topicId);
               return (
-                <article key={item.id} className="rounded-lg border border-line bg-canvas p-4">
+                <article key={item.id} className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-4">
                   <div className="mb-2 text-xs font-medium text-muted">
                     {topic?.name ?? "长期主题"}
                   </div>
@@ -159,7 +159,7 @@ export function InsightsPage({
         </div>
 
         <div className="space-y-5">
-          <div className="rounded-xl border border-line bg-white p-5 shadow-sm">
+          <div className="frost-panel rounded-[26px] p-5">
             <div className="mb-5 flex items-center gap-2 text-sm font-semibold text-ink">
               <Layers3 size={17} strokeWidth={1.8} />
               本周可以整理的主题
@@ -178,7 +178,7 @@ export function InsightsPage({
                       {count} 条 · {inboxCount} 条待整理
                     </span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-canvas">
+                  <div className="h-2 overflow-hidden rounded-full bg-[rgba(247,244,238,0.92)]">
                     <div
                       className="h-full rounded-full bg-sage/70"
                       style={{ width: `${Math.max(20, (count / thoughts.length) * 100)}%` }}
@@ -189,7 +189,7 @@ export function InsightsPage({
             </div>
           </div>
 
-          <div className="rounded-xl border border-line bg-white p-5 shadow-sm">
+          <div className="frost-panel rounded-[26px] p-5">
             <div className="mb-5 flex items-center gap-2 text-sm font-semibold text-ink">
               <BarChart3 size={17} strokeWidth={1.8} />
               记录节奏
@@ -197,7 +197,7 @@ export function InsightsPage({
             <div className="flex h-40 items-end gap-3">
               {weekBars.map((item) => (
                 <div key={item.day} className="flex flex-1 flex-col items-center gap-2">
-                  <div className="flex h-28 w-full items-end rounded-md bg-canvas px-2 pb-2">
+                  <div className="flex h-28 w-full items-end rounded-[14px] bg-[rgba(247,244,238,0.92)] px-2 pb-2">
                     <div
                       className="w-full rounded bg-clay/55"
                       style={{ height: `${Math.max(18, (item.count / maxCount) * 100)}%` }}

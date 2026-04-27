@@ -15,7 +15,7 @@ export function SevenDayTrace({
   const total = days.reduce((sum, day) => sum + day.count, 0);
 
   return (
-    <section className="rounded-xl border border-line bg-white p-5 shadow-sm">
+    <section className="frost-panel rounded-[24px] p-5">
       <div className="mb-2 text-sm font-semibold text-ink">
         最近 7 天的思考痕迹
       </div>
@@ -32,7 +32,7 @@ export function SevenDayTrace({
               <div
                 className={`mx-auto h-4 w-4 rounded-full border ${
                   level === "empty"
-                    ? "border-line bg-white"
+                    ? "border-line bg-white/80"
                     : level === "light"
                       ? "border-sage/30 bg-sage/25"
                       : "border-sage/50 bg-sage"

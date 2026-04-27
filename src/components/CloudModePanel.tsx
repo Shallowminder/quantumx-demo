@@ -417,7 +417,7 @@ export function CloudModePanel({
               strokeWidth={1.8}
             />
             <input
-              className="w-full rounded-md border border-line bg-canvas py-2 pl-9 pr-3 text-sm text-ink outline-none transition focus:border-sage/45 focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-[18px] border border-transparent bg-[rgba(247,244,238,0.94)] py-2.5 pl-9 pr-3 text-sm text-ink outline-none transition focus:border-white focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
               disabled={disabled}
               placeholder="邮箱地址"
               type="email"
@@ -426,7 +426,7 @@ export function CloudModePanel({
             />
           </label>
           <button
-            className="rounded-md bg-ink px-3 py-2 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+            className="rounded-xl bg-ink px-3.5 py-2.5 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
             disabled={disabled || busy || email.trim().length === 0}
             type="button"
             onClick={() => void sendMagicLink()}
@@ -469,7 +469,7 @@ export function CloudModePanel({
             : "当前本地和云端都还比较空，你可以先记录一点内容，再决定是否需要同步。";
 
     return (
-      <div className="mb-4 rounded-xl border border-sage/20 bg-sage/10 px-4 py-4 text-sm text-ink">
+      <div className="mb-4 rounded-[22px] border border-sage/15 bg-sage/10 px-4 py-4 text-sm text-ink">
         <div className="mb-1 flex items-center gap-2 font-medium">
           <CheckCircle2 size={15} strokeWidth={1.8} />
           登录成功，下一步这样做会更顺
@@ -478,7 +478,7 @@ export function CloudModePanel({
         <p className="mt-2 text-xs leading-6 text-muted">{detail}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
-            className="inline-flex items-center gap-2 rounded-md bg-ink px-3 py-2 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+            className="inline-flex items-center gap-2 rounded-xl bg-ink px-3.5 py-2.5 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
             disabled={busy}
             type="button"
             onClick={() => void syncToCloud()}
@@ -487,7 +487,7 @@ export function CloudModePanel({
             把这台设备同步到云端
           </button>
           <button
-            className="inline-flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2 text-sm text-ink transition hover:bg-canvas disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-xl bg-white/80 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
             disabled={busy}
             type="button"
             onClick={() => void restoreFromCloud()}
@@ -502,7 +502,7 @@ export function CloudModePanel({
 
   if (!configured) {
     return (
-      <section className="rounded-[1.25rem] bg-white p-5 shadow-sm">
+      <section className="frost-panel rounded-[26px] p-5">
         <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
           <ShieldCheck size={16} strokeWidth={1.8} />
           邮箱登录
@@ -511,13 +511,13 @@ export function CloudModePanel({
 入口就在这里。当前部署如果还没有配置 Supabase 环境变量，发送按钮会暂时不可用；
 配好后，邮箱登录会直接接入本地优先的云端同步链路。
         </p>
-        <div className="mt-4 rounded-xl border border-line bg-canvas/70 p-4">
+        <div className="mt-4 rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
           {renderEmailLogin(
             true,
             "输入邮箱后本应发送一封 magic link 登录邮件。现在你在网站里看不到可用状态，不是你没找到入口，而是这台部署环境还没配置云端登录。",
           )}
         </div>
-        <div className="mt-4 rounded-lg bg-canvas px-3 py-2 font-mono text-xs leading-6 text-muted">
+        <div className="mt-4 rounded-[18px] bg-[rgba(247,244,238,0.92)] px-3 py-2 font-mono text-xs leading-6 text-muted">
           VITE_SUPABASE_URL
           <br />
           VITE_SUPABASE_ANON_KEY
@@ -530,7 +530,7 @@ export function CloudModePanel({
   }
 
   return (
-    <section className="rounded-[1.25rem] bg-white p-5 shadow-sm">
+    <section className="frost-panel rounded-[26px] p-5">
       <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
         <ShieldCheck size={16} strokeWidth={1.8} />
         云端身份
@@ -538,7 +538,7 @@ export function CloudModePanel({
 
       {session ? (
         <div>
-          <div className="mb-3 rounded-lg bg-sage/10 px-3 py-2 text-sm leading-6 text-ink">
+          <div className="mb-3 rounded-[18px] bg-sage/10 px-3 py-2.5 text-sm leading-6 text-ink">
             <span className="inline-flex items-center gap-1.5">
               <CheckCircle2 size={15} strokeWidth={1.8} />
               已登录：{session.user.email ?? "当前用户"}
@@ -552,7 +552,7 @@ export function CloudModePanel({
               : " 你可以先把当前浏览器里的本地数据同步到 Supabase，再切换到云端模式。"}
           </p>
           <div className="mb-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-lg bg-canvas px-3 py-3 text-sm leading-6 text-muted">
+            <div className="rounded-[20px] bg-[rgba(247,244,238,0.92)] px-3.5 py-3.5 text-sm leading-6 text-muted">
               <div className="mb-1 text-xs text-muted">本地</div>
               <div className="font-medium text-ink">
                 {localSummary.thoughts} 条记录 · {localSummary.topics} 个主题 · {localSummary.drafts} 份草稿
@@ -563,7 +563,7 @@ export function CloudModePanel({
                   : "还没有本地活动"}
               </div>
             </div>
-            <div className="rounded-lg bg-canvas px-3 py-3 text-sm leading-6 text-muted">
+            <div className="rounded-[20px] bg-[rgba(247,244,238,0.92)] px-3.5 py-3.5 text-sm leading-6 text-muted">
               <div className="mb-1 flex items-center justify-between gap-2">
                 <span className="text-xs text-muted">云端</span>
                 <button
@@ -588,7 +588,7 @@ export function CloudModePanel({
               </div>
             </div>
           </div>
-          <div className="mb-4 rounded-lg border border-line bg-white px-3 py-3 text-xs leading-6 text-muted">
+          <div className="mb-4 rounded-[18px] bg-white/80 px-3.5 py-3 text-xs leading-6 text-muted ring-1 ring-line/70">
             <div>
               最近上传：
               {syncMetadata.lastPushedAt
@@ -602,7 +602,7 @@ export function CloudModePanel({
                 : "还没有从云端恢复"}
             </div>
           </div>
-          <div className="mb-4 rounded-lg border border-amber/25 bg-amber/10 px-3 py-3 text-sm leading-6 text-ink">
+          <div className="mb-4 rounded-[20px] border border-amber/20 bg-amber/10 px-3.5 py-3.5 text-sm leading-6 text-ink">
             <div className="mb-1 flex items-center gap-2 font-medium">
               <AlertTriangle size={15} strokeWidth={1.8} />
               同步建议
@@ -616,7 +616,7 @@ export function CloudModePanel({
           </div>
           <div className="flex flex-wrap gap-2">
             <button
-              className="inline-flex items-center gap-2 rounded-md bg-ink px-3 py-2 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+              className="inline-flex items-center gap-2 rounded-xl bg-ink px-3.5 py-2.5 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
               disabled={busy}
               type="button"
               onClick={() => void syncToCloud()}
@@ -625,7 +625,7 @@ export function CloudModePanel({
               同步到云端
             </button>
             <button
-              className="inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:bg-white disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white disabled:opacity-60"
               disabled={busy}
               type="button"
               onClick={() => void restoreFromCloud()}
@@ -634,7 +634,7 @@ export function CloudModePanel({
               从云端恢复
             </button>
             <button
-              className="inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:bg-white disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-xl bg-white/80 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
               disabled={busy}
               type="button"
               onClick={() => void signOut()}
@@ -650,24 +650,24 @@ export function CloudModePanel({
             先用邮箱登录最省心。输入邮箱后，QuantumX 会发一封登录邮件给你；
             点开邮件里的链接，就能把这台设备和你的云端账号连起来。
           </p>
-          <div className="rounded-xl border border-line bg-canvas/70 p-4">
+          <div className="rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
             {renderEmailLogin(
               false,
               "发送后请去邮箱里点开登录链接。如果没收到，可以稍等几十秒，或者检查垃圾邮件。",
             )}
           </div>
-          <div className="mt-3 rounded-lg border border-line bg-canvas/70 px-3 py-3 text-xs leading-6 text-muted">
+          <div className="mt-3 rounded-[20px] bg-[rgba(247,244,238,0.92)] px-3.5 py-3 text-xs leading-6 text-muted">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-medium text-ink">当前登录回调地址</span>
               <button
-                className="rounded-md border border-line bg-white px-2.5 py-1 text-[11px] text-ink transition hover:bg-canvas"
+                className="rounded-lg bg-white/85 px-2.5 py-1 text-[11px] text-ink ring-1 ring-line/70 transition hover:bg-white"
                 type="button"
                 onClick={() => void copyCallbackUrl()}
               >
                 复制
               </button>
             </div>
-            <div className="mt-2 break-all rounded-md bg-white px-2.5 py-2 font-mono text-[11px] text-ink">
+            <div className="mt-2 break-all rounded-[14px] bg-white/85 px-2.5 py-2 font-mono text-[11px] text-ink ring-1 ring-line/70">
               {callbackUrl}
             </div>
             <div className="mt-2">
@@ -683,14 +683,14 @@ export function CloudModePanel({
             </div>
           </div>
           {isWeChatConfigured && (
-            <div className="mt-4 rounded-xl border border-line bg-canvas/70 p-4">
+            <div className="mt-4 rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
               <div className="mb-2 text-sm font-medium text-ink">其他登录方式（可选）</div>
               <p className="mb-3 text-xs leading-6 text-muted">
                 微信登录还可以保留在这里，但我们现在主推邮箱登录。只有在你已经把微信 provider 配好时，这部分才会显示。
               </p>
               <div className="mb-3 flex flex-wrap gap-2">
                 <button
-                  className="inline-flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2 text-sm text-ink transition hover:bg-canvas disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white/85 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
                   disabled={busy}
                   type="button"
                   onClick={() => void signInWithWeChat()}
@@ -699,7 +699,7 @@ export function CloudModePanel({
                   微信登录
                 </button>
                 <button
-                  className="inline-flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2 text-sm text-ink transition hover:bg-canvas disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white/85 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
                   disabled={busy}
                   type="button"
                   onClick={() => void prepareWeChatQr()}
@@ -707,12 +707,12 @@ export function CloudModePanel({
                   <QrCode size={15} strokeWidth={1.8} />
                   二维码登录
                 </button>
-                <span className="inline-flex items-center rounded-md bg-white px-3 py-2 text-xs text-muted">
+                <span className="inline-flex items-center rounded-xl bg-white/80 px-3 py-2 text-xs text-muted ring-1 ring-line/70">
                   当前 provider：{weChatProviderId}
                 </span>
               </div>
               <div
-                className="mx-auto flex min-h-[240px] max-w-[240px] items-center justify-center rounded-xl bg-white p-3 shadow-sm"
+                className="mx-auto flex min-h-[240px] max-w-[240px] items-center justify-center rounded-[20px] bg-white/90 p-3 ring-1 ring-line/70"
                 id={qrContainerId}
               >
                 {wechatQrState === "idle" && (
@@ -734,7 +734,7 @@ export function CloudModePanel({
               {wechatQrUrl && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
-                    className="inline-flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2 text-xs text-ink transition hover:bg-canvas"
+                    className="inline-flex items-center gap-2 rounded-lg bg-white/85 px-3 py-2 text-xs text-ink ring-1 ring-line/70 transition hover:bg-white"
                     type="button"
                     onClick={() => void prepareWeChatQr()}
                   >
@@ -742,7 +742,7 @@ export function CloudModePanel({
                     刷新二维码
                   </button>
                   <a
-                    className="inline-flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2 text-xs text-ink transition hover:bg-canvas"
+                    className="inline-flex items-center gap-2 rounded-lg bg-white/85 px-3 py-2 text-xs text-ink ring-1 ring-line/70 transition hover:bg-white"
                     href={wechatQrUrl}
                   >
                     <MessageCircleMore size={13} strokeWidth={1.8} />
@@ -756,7 +756,7 @@ export function CloudModePanel({
       )}
 
       {message && (
-        <div className="mt-4 rounded-lg border border-line bg-canvas px-3 py-2 text-sm leading-6 text-muted">
+        <div className="mt-4 rounded-[18px] bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm leading-6 text-muted">
           {message}
         </div>
       )}

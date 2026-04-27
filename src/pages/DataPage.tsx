@@ -176,7 +176,7 @@ export function DataPage({
 
   return (
     <div className="mx-auto max-w-5xl">
-      <header className="mb-8 rounded-[1.35rem] bg-white/60 px-6 py-7 shadow-sm sm:px-8">
+      <header className="frost-panel-strong mb-8 rounded-[28px] px-6 py-7 sm:px-8">
         <div className="mb-3 flex items-center gap-2 text-sm text-muted">
           <ShieldCheck size={16} strokeWidth={1.8} />
           本地优先
@@ -185,41 +185,41 @@ export function DataPage({
           数据与隐私
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-         QuantumX 默认先把记录保存在这个浏览器里。配置 Supabase 并登录后，你可以在这里备份、
-迁移、恢复数据，并切换到本地优先的云端同步模式。邮箱登录入口也在这一页右侧，不需要再去别的地方找。
+          QuantumX 默认先把记录保存在这个浏览器里。配置 Supabase 并登录后，你可以在这里备份、
+          迁移、恢复数据，并切换到本地优先的云端同步模式。邮箱登录入口也在这一页右侧，不需要再去别的地方找。
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
-          <span className="inline-flex items-center gap-1 rounded-full border border-line bg-white px-3 py-1.5 text-muted">
+          <span className="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1.5 text-muted">
             <Cloud size={12} strokeWidth={1.8} />
             当前数据源：{dataMode === "cloud" ? "云端读取" : "本地读取"}
           </span>
-          <span className="rounded-full border border-line bg-white px-3 py-1.5 text-muted">
+          <span className="rounded-full bg-white/80 px-3 py-1.5 text-muted">
             云端登录：{authState.session ? "已连接" : authState.configured ? "未登录" : "未配置"}
           </span>
         </div>
       </header>
 
       <section className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl bg-white/75 p-4 shadow-sm">
+        <div className="frost-panel rounded-[22px] p-4">
           <div className="mb-1 text-xs text-muted">记录</div>
           <div className="text-2xl font-semibold text-ink">{thoughts.length}</div>
         </div>
-        <div className="rounded-xl bg-white/75 p-4 shadow-sm">
+        <div className="frost-panel rounded-[22px] p-4">
           <div className="mb-1 text-xs text-muted">已整理</div>
           <div className="text-2xl font-semibold text-ink">{organizedCount}</div>
         </div>
-        <div className="rounded-xl bg-white/75 p-4 shadow-sm">
+        <div className="frost-panel rounded-[22px] p-4">
           <div className="mb-1 text-xs text-muted">主题</div>
           <div className="text-2xl font-semibold text-ink">{topics.length}</div>
         </div>
-        <div className="rounded-xl bg-white/75 p-4 shadow-sm">
+        <div className="frost-panel rounded-[22px] p-4">
           <div className="mb-1 text-xs text-muted">草稿</div>
           <div className="text-2xl font-semibold text-ink">{savedDistills.length}</div>
         </div>
       </section>
 
       <section
-        className={`mb-6 rounded-[1.1rem] border px-4 py-3 shadow-sm sm:px-5 ${syncStatus.tone}`}
+        className={`mb-6 rounded-[22px] border px-4 py-3 shadow-sm sm:px-5 ${syncStatus.tone}`}
       >
         <div className="flex items-start gap-3">
           <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/70">
@@ -237,7 +237,7 @@ export function DataPage({
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <section className="rounded-[1.25rem] bg-white p-5 shadow-soft sm:p-6">
+        <section className="frost-panel-strong rounded-[26px] p-5 sm:p-6">
           <div className="mb-5 flex items-start gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sage/10 text-sage">
               <Database size={19} strokeWidth={1.8} />
@@ -250,7 +250,7 @@ export function DataPage({
             </div>
           </div>
 
-          <div className="mb-5 rounded-xl bg-canvas px-4 py-3 text-sm leading-7 text-muted">
+          <div className="mb-5 rounded-[22px] bg-[rgba(247,244,238,0.92)] px-4 py-3 text-sm leading-7 text-muted">
             <div className="flex flex-wrap gap-x-5 gap-y-1">
               <span>当前大小：{dataSize}</span>
               <span>
@@ -272,7 +272,7 @@ export function DataPage({
               下载备份
             </button>
             <button
-              className="inline-flex items-center gap-2 rounded-md border border-line bg-canvas px-4 py-2 text-sm font-medium text-ink transition hover:border-sage/40 hover:bg-white"
+              className="inline-flex items-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-4 py-2.5 text-sm font-medium text-ink transition hover:bg-white"
               type="button"
               onClick={() => inputRef.current?.click()}
             >
@@ -307,7 +307,7 @@ export function DataPage({
             onSyncMetadataChange={onSyncMetadataChange}
           />
 
-          <div className="rounded-[1.25rem] bg-white p-5 shadow-sm">
+          <div className="frost-panel rounded-[26px] p-5">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
               <HardDrive size={16} strokeWidth={1.8} />
               当前保存方式
@@ -317,7 +317,7 @@ export function DataPage({
             </p>
           </div>
 
-          <div className="rounded-[1.25rem] bg-white p-5 shadow-sm">
+          <div className="frost-panel rounded-[26px] p-5">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
               <CheckCircle2 size={16} strokeWidth={1.8} />
               下一步落地

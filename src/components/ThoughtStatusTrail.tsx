@@ -21,7 +21,7 @@ export function ThoughtStatusTrail({ thought }: { thought: Thought }) {
   const currentIndex = getStatusIndex(thought);
 
   return (
-    <section className="rounded-xl border border-line bg-white p-5 shadow-sm">
+    <section className="frost-panel rounded-[24px] p-5">
       <div className="mb-4 text-sm font-semibold text-ink">这条想法走到哪了</div>
       <div className="grid gap-3 sm:grid-cols-5">
         {steps.map((step, index) => {
@@ -41,7 +41,7 @@ export function ThoughtStatusTrail({ thought }: { thought: Thought }) {
                 className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border ${
                   active
                     ? "border-sage/40 bg-sage/10 text-sage"
-                    : "border-line bg-canvas text-muted"
+                    : "border-line bg-[rgba(247,244,238,0.92)] text-muted"
                 }`}
               >
                 <Icon size={15} strokeWidth={1.8} />
