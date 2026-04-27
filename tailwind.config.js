@@ -4,15 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        paper: "#F7F4EE",
-        canvas: "#FBFAF7",
-        ink: "#252521",
-        muted: "#6F706B",
-        line: "#E5E0D6",
-        sage: "#66786A",
-        mist: "#E9EEF0",
-        clay: "#B37A54",
-        amber: "#D8B56D",
+        paper: "rgb(var(--paper-rgb) / <alpha-value>)",
+        canvas: "rgb(var(--canvas-rgb) / <alpha-value>)",
+        ink: "rgb(var(--ink-rgb) / <alpha-value>)",
+        muted: "rgb(var(--muted-rgb) / <alpha-value>)",
+        line: "rgb(var(--line-rgb) / <alpha-value>)",
+        sage: "rgb(var(--sage-rgb) / <alpha-value>)",
+        mist: "rgb(var(--mist-rgb) / <alpha-value>)",
+        clay: "rgb(var(--clay-rgb) / <alpha-value>)",
+        amber: "rgb(var(--amber-rgb) / <alpha-value>)",
       },
       fontFamily: {
         sans: [

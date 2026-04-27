@@ -9,7 +9,9 @@ import {
   NotebookPen,
   Search,
 } from "lucide-react";
+import type { ResolvedTheme, ThemePreference } from "../lib/theme";
 import type { ViewKey } from "../types";
+import { ThemeToggle } from "./ThemeToggle";
 
 const primaryNavItems = [
   { key: "today" as const, label: "今日", icon: NotebookPen },
@@ -32,9 +34,15 @@ function resolveActiveKey(activeView: ViewKey) {
 export function MobileNav({
   activeView,
   onNavigate,
+  preference,
+  resolvedTheme,
+  onThemePreferenceChange,
 }: {
   activeView: ViewKey;
   onNavigate: (view: ViewKey) => void;
+  preference: ThemePreference;
+  resolvedTheme: ResolvedTheme;
+  onThemePreferenceChange: (preference: ThemePreference) => void;
 }) {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const resolvedActiveKey = resolveActiveKey(activeView);
@@ -53,7 +61,7 @@ export function MobileNav({
         <>
           <button
             aria-label="关闭更多导航"
-            className="fixed inset-0 z-30 bg-[rgba(28,28,26,0.12)] backdrop-blur-[2px] lg:hidden"
+            className="theme-overlay-dim fixed inset-0 z-30 backdrop-blur-[2px] lg:hidden"
             type="button"
             onClick={() => setIsMoreOpen(false)}
           />
@@ -71,7 +79,7 @@ export function MobileNav({
                     key={item.key}
                     className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition ${
                       active
-                        ? "bg-[rgba(255,255,255,0.92)] text-ink shadow-[0_12px_28px_rgba(37,37,33,0.08)]"
+                        ? "theme-surface-ghost-strong text-ink shadow-[0_12px_28px_rgba(37,37,33,0.08)]"
                         : "text-muted hover:bg-white/60 hover:text-ink"
                     }`}
                     type="button"
@@ -80,7 +88,7 @@ export function MobileNav({
                       onNavigate(item.key);
                     }}
                   >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[rgba(255,255,255,0.78)] text-ink">
+                    <div className="theme-surface-ghost flex h-9 w-9 items-center justify-center rounded-2xl text-ink">
                       <Icon size={18} strokeWidth={1.8} />
                     </div>
                     <div>
@@ -90,6 +98,14 @@ export function MobileNav({
                   </button>
                 );
               })}
+            </div>
+            <div className="soft-divider mt-3 border-t px-3 pb-2 pt-4">
+              <ThemeToggle
+                compact
+                preference={preference}
+                resolvedTheme={resolvedTheme}
+                onChange={onThemePreferenceChange}
+              />
             </div>
           </div>
         </>
@@ -106,7 +122,7 @@ export function MobileNav({
                 key={item.key}
                 className={`flex min-h-[62px] flex-col items-center justify-center gap-1 rounded-[22px] px-2 py-2 text-[11px] transition ${
                   active
-                    ? "bg-[rgba(255,255,255,0.92)] text-ink shadow-[0_10px_28px_rgba(37,37,33,0.08)]"
+                    ? "theme-surface-ghost-strong text-ink shadow-[0_10px_28px_rgba(37,37,33,0.08)]"
                     : "text-muted"
                 }`}
                 type="button"
@@ -121,7 +137,7 @@ export function MobileNav({
           <button
             className={`flex min-h-[62px] flex-col items-center justify-center gap-1 rounded-[22px] px-2 py-2 text-[11px] transition ${
               isMoreOpen || isOverflowActive
-                ? "bg-[rgba(255,255,255,0.92)] text-ink shadow-[0_10px_28px_rgba(37,37,33,0.08)]"
+                ? "theme-surface-ghost-strong text-ink shadow-[0_10px_28px_rgba(37,37,33,0.08)]"
                 : "text-muted"
             }`}
             type="button"

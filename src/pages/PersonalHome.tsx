@@ -33,7 +33,7 @@ export function PersonalHome({
 
   return (
     <div className="mx-auto max-w-6xl">
-      <section className="relative overflow-hidden rounded-[28px] bg-white/60 px-5 py-9 shadow-[0_22px_70px_rgba(45,43,37,0.06)] ring-1 ring-line/60 sm:px-8 sm:py-12">
+      <section className="frost-panel-strong relative overflow-hidden rounded-[28px] px-5 py-9 sm:px-8 sm:py-12">
         <div className="pointer-events-none absolute inset-x-10 top-0 h-28 rounded-full bg-sage/10 blur-3xl" />
         <div className="relative max-w-3xl">
           <div className="mb-5 inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-ink text-white">
@@ -50,7 +50,7 @@ export function PersonalHome({
               你已经留下了 {summary.thoughtCount} 条想法，其中 {summary.organizedCount} 条被整理进主题，{summary.draftCount} 份变成了草稿。{topTopicText}
             </p>
           ) : (
-            <div className="mt-6 rounded-2xl bg-canvas/80 p-5">
+            <div className="theme-surface-soft mt-6 rounded-2xl p-5">
               <p className="text-sm leading-7 text-muted">
                 这里会慢慢变成你的思考主页。先从今天的一句话开始。
               </p>

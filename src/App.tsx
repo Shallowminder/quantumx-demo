@@ -4,6 +4,13 @@ import { Sidebar } from "./components/Sidebar";
 import { thoughts as seedThoughts, topics as seedTopics } from "./data/mockData";
 import { createCapturedThought } from "./lib/memory";
 import {
+  readThemePreference,
+  resolveTheme,
+  writeThemePreference,
+  type ResolvedTheme,
+  type ThemePreference,
+} from "./lib/theme";
+import {
   ANONYMOUS_STORAGE_SCOPE,
   getStorageScope,
   readScopedCloudSyncMetadata,
@@ -131,6 +138,12 @@ export default function App() {
   const [snapshotScope, setSnapshotScope] = useState(initialStorageScope);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [focusCaptureSignal, setFocusCaptureSignal] = useState(0);
+  const [themePreference, setThemePreference] = useState<ThemePreference>(() =>
+    readThemePreference(),
+  );
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
+    resolveTheme(readThemePreference()),
+  );
   const lastCloudSyncedSignatureRef = useRef<string | null>(null);
   const cloudSyncTimerRef = useRef<number | null>(null);
   const hasShownCloudSyncErrorRef = useRef(false);
@@ -642,15 +655,52 @@ export default function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const updateResolvedTheme = () => {
+      setResolvedTheme(resolveTheme(themePreference));
+    };
+
+    updateResolvedTheme();
+
+    const handleChange = () => {
+      if (themePreference === "system") {
+        updateResolvedTheme();
+      }
+    };
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
+
+    mediaQuery.addListener(handleChange);
+    return () => mediaQuery.removeListener(handleChange);
+  }, [themePreference]);
+
+  useEffect(() => {
+    writeThemePreference(themePreference);
+    document.documentElement.dataset.theme = resolvedTheme;
+    document.documentElement.style.colorScheme = resolvedTheme;
+  }, [resolvedTheme, themePreference]);
+
   return (
     <div className="min-h-screen bg-transparent text-ink">
-      <div className="mx-auto flex min-h-screen max-w-[1520px] bg-[rgba(250,249,245,0.32)]">
-        <Sidebar activeView={activeView} onNavigate={navigate} />
+      <div className="theme-app-shell mx-auto flex min-h-screen max-w-[1520px]">
+        <Sidebar
+          activeView={activeView}
+          onNavigate={navigate}
+          onThemePreferenceChange={setThemePreference}
+          preference={themePreference}
+          resolvedTheme={resolvedTheme}
+        />
         <main className="min-w-0 flex-1 px-4 pb-24 pt-5 sm:px-6 lg:px-9 lg:pb-10">
           {isOnAuthCallback && !authState.session && (
             <div className="frost-panel mb-5 rounded-[22px] px-4 py-3 text-sm text-muted">
               正在完成登录回调。回调路径是{" "}
-              <code className="rounded-xl bg-[rgba(247,244,238,0.88)] px-2 py-1 text-[11px] text-ink">
+              <code className="theme-surface-soft rounded-xl px-2 py-1 text-[11px] text-ink">
                 {authRedirectPath}
               </code>
               ，如果页面停在这里太久，通常说明 Supabase 或微信开放平台的回调配置还没对齐。
@@ -765,13 +815,19 @@ export default function App() {
           )}
         </main>
       </div>
-      <MobileNav activeView={activeView} onNavigate={navigate} />
+      <MobileNav
+        activeView={activeView}
+        onNavigate={navigate}
+        onThemePreferenceChange={setThemePreference}
+        preference={themePreference}
+        resolvedTheme={resolvedTheme}
+      />
       {toast && (
         <div className="frost-panel-strong fixed bottom-20 left-1/2 z-30 flex w-[min(92vw,480px)] -translate-x-1/2 items-center justify-between gap-3 rounded-[24px] px-4 py-3 text-sm text-ink lg:bottom-6">
           <span>{toast.message}</span>
           {toast.actionLabel && toast.onAction && (
             <button
-              className="shrink-0 rounded-xl bg-[rgba(247,244,238,0.92)] px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-white"
+              className="theme-surface-soft shrink-0 rounded-xl px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-white"
               type="button"
               onClick={toast.onAction}
             >

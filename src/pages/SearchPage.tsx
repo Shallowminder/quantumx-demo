@@ -74,7 +74,7 @@ export function SearchPage({
 
   return (
     <div className="mx-auto max-w-6xl">
-      <header className="mb-6 rounded-[1.35rem] bg-white/60 px-6 py-7 shadow-sm sm:px-8">
+      <header className="frost-panel-strong mb-6 rounded-[28px] px-6 py-7 sm:px-8">
         <div className="mb-3 flex items-center gap-2 text-sm text-muted">
           <Search size={16} strokeWidth={1.8} />
           本地搜索
@@ -88,7 +88,7 @@ export function SearchPage({
         </p>
       </header>
 
-      <section className="mb-5 rounded-[1.25rem] bg-white p-4 shadow-soft sm:p-5">
+      <section className="frost-panel rounded-[26px] p-4 sm:p-5">
         <label className="relative block">
           <Search
             className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted"
@@ -96,7 +96,7 @@ export function SearchPage({
             strokeWidth={1.8}
           />
           <input
-            className="w-full rounded-xl border border-line bg-canvas py-4 pl-11 pr-4 text-[15px] text-ink outline-none transition placeholder:text-muted focus:border-sage/45 focus:bg-white"
+            className="theme-surface-input w-full rounded-xl border border-transparent py-4 pl-11 pr-4 text-[15px] text-ink outline-none transition placeholder:text-muted focus:border-white focus:bg-white"
             placeholder="搜索旧记录、主题、草稿，比如：AI 工具、写作方法、复盘..."
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -107,7 +107,7 @@ export function SearchPage({
           {suggestions.map((suggestion) => (
             <button
               key={suggestion}
-              className="rounded-full border border-line bg-canvas px-3 py-1.5 text-sm text-muted transition hover:border-sage/40 hover:bg-white hover:text-ink"
+              className="theme-surface-soft rounded-full border border-transparent px-3 py-1.5 text-sm text-muted transition hover:bg-white hover:text-ink"
               type="button"
               onClick={() => setQuery(suggestion)}
             >
@@ -123,7 +123,7 @@ export function SearchPage({
               类型
             </span>
             <select
-              className="w-full rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink outline-none focus:border-sage/45"
+              className="theme-surface-soft w-full rounded-lg border border-transparent px-3 py-2 text-sm text-ink outline-none focus:border-white"
               value={filters.kind}
               onChange={(event) =>
                 setFilters((current) => ({
@@ -141,7 +141,7 @@ export function SearchPage({
           <label className="block">
             <span className="mb-1 block text-xs text-muted">主题</span>
             <select
-              className="w-full rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink outline-none focus:border-sage/45"
+              className="theme-surface-soft w-full rounded-lg border border-transparent px-3 py-2 text-sm text-ink outline-none focus:border-white"
               value={filters.topicId}
               onChange={(event) =>
                 setFilters((current) => ({
@@ -162,7 +162,7 @@ export function SearchPage({
           <label className="block">
             <span className="mb-1 block text-xs text-muted">想法状态</span>
             <select
-              className="w-full rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink outline-none focus:border-sage/45"
+              className="theme-surface-soft w-full rounded-lg border border-transparent px-3 py-2 text-sm text-ink outline-none focus:border-white"
               value={filters.status}
               onChange={(event) =>
                 setFilters((current) => ({
@@ -192,8 +192,8 @@ export function SearchPage({
           </div>
 
           {results.length === 0 ? (
-            <div className="rounded-[1.25rem] bg-white p-8 text-center shadow-sm">
-              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-canvas text-muted">
+            <div className="frost-panel rounded-[26px] p-8 text-center">
+              <div className="theme-surface-soft mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl text-muted">
                 <Search size={18} strokeWidth={1.8} />
               </div>
               <p className="text-sm leading-7 text-muted">
@@ -214,7 +214,7 @@ export function SearchPage({
                 return (
                   <article
                     key={`${result.kind}-${result.id}`}
-                    className="rounded-[1.05rem] bg-white p-4 shadow-sm transition hover:shadow-soft"
+                    className="frost-panel rounded-[22px] p-4 transition hover:bg-white/88"
                   >
                     <button
                       className="w-full text-left"
@@ -255,7 +255,7 @@ export function SearchPage({
                       ))}
                     </div>
 
-                    <div className="mt-4 rounded-lg bg-canvas px-3 py-2 text-xs leading-5 text-muted">
+                    <div className="theme-surface-soft mt-4 rounded-lg px-3 py-2 text-xs leading-5 text-muted">
                       {result.reasons.length > 0
                         ? result.reasons.slice(0, 2).join(" · ")
                         : "最近更新"}
@@ -263,7 +263,7 @@ export function SearchPage({
 
                     {sourceThought && (
                       <button
-                        className="mt-3 inline-flex items-center gap-1 rounded-md border border-line bg-white px-2.5 py-1.5 text-xs text-muted transition hover:border-sage/40 hover:text-ink"
+                        className="theme-surface-ghost mt-3 inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs text-muted transition hover:bg-white hover:text-ink"
                         type="button"
                         onClick={() => onContinueFromThought(sourceThought)}
                       >

@@ -7,11 +7,16 @@ import {
   NotebookPen,
   Search,
 } from "lucide-react";
+import type { ResolvedTheme, ThemePreference } from "../lib/theme";
 import type { ViewKey } from "../types";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface SidebarProps {
   activeView: ViewKey;
   onNavigate: (view: ViewKey) => void;
+  preference: ThemePreference;
+  resolvedTheme: ResolvedTheme;
+  onThemePreferenceChange: (preference: ThemePreference) => void;
 }
 
 const navItems: Array<{
@@ -28,9 +33,15 @@ const navItems: Array<{
   { key: "data", label: "数据与隐私", icon: Database },
 ];
 
-export function Sidebar({ activeView, onNavigate }: SidebarProps) {
+export function Sidebar({
+  activeView,
+  onNavigate,
+  preference,
+  resolvedTheme,
+  onThemePreferenceChange,
+}: SidebarProps) {
   return (
-    <aside className="hidden w-[272px] shrink-0 border-r border-white/60 bg-[rgba(248,246,241,0.72)] px-5 py-6 backdrop-blur-2xl lg:flex lg:flex-col">
+    <aside className="theme-sidebar hidden w-[272px] shrink-0 border-r px-5 py-6 backdrop-blur-2xl lg:flex lg:flex-col">
       <div className="mb-8 flex items-center gap-3 px-2">
         <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-ink text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_10px_24px_rgba(37,37,33,0.12)]">
           <NotebookPen size={18} strokeWidth={1.8} />
@@ -66,11 +77,21 @@ export function Sidebar({ activeView, onNavigate }: SidebarProps) {
         })}
       </nav>
 
-      <div className="frost-panel mt-auto rounded-[24px] p-4 text-sm text-muted">
-        <div className="mb-1.5 font-medium text-ink">本周提醒</div>
-        <p className="leading-6">
-          有 7 条记录已经和旧想法形成关联，适合做一次轻量整理。
-        </p>
+      <div className="mt-auto space-y-4">
+        <div className="frost-panel rounded-[24px] p-4 text-sm text-muted">
+          <div className="mb-1.5 font-medium text-ink">本周提醒</div>
+          <p className="leading-6">
+            有 7 条记录已经和旧想法形成关联，适合做一次轻量整理。
+          </p>
+        </div>
+
+        <div className="frost-panel rounded-[24px] p-4">
+          <ThemeToggle
+            preference={preference}
+            resolvedTheme={resolvedTheme}
+            onChange={onThemePreferenceChange}
+          />
+        </div>
       </div>
     </aside>
   );
