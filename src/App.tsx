@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MobileNav } from "./components/MobileNav";
 import { Sidebar } from "./components/Sidebar";
+import { AccountMenu } from "./components/AccountMenu";
 import { thoughts as seedThoughts, topics as seedTopics } from "./data/mockData";
 import { createCapturedThought } from "./lib/memory";
 import {
@@ -692,11 +693,19 @@ export default function App() {
         <Sidebar
           activeView={activeView}
           onNavigate={navigate}
+          onOpenData={() => navigate("data")}
           onThemePreferenceChange={setThemePreference}
           preference={themePreference}
           resolvedTheme={resolvedTheme}
         />
         <main className="min-w-0 flex-1 px-4 pb-24 pt-5 sm:px-6 lg:px-9 lg:pb-10">
+          <div className="mb-5 flex items-center justify-between lg:hidden">
+            <AccountMenu compact onOpenData={() => navigate("data")} />
+            <div className="text-right">
+              <div className="text-[15px] font-semibold text-ink">QuantumX</div>
+              <div className="text-[11px] text-muted">个人思考沉淀工具</div>
+            </div>
+          </div>
           {isOnAuthCallback && !authState.session && (
             <div className="frost-panel mb-5 rounded-[22px] px-4 py-3 text-sm text-muted">
               正在完成登录回调。回调路径是{" "}

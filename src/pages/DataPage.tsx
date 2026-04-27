@@ -186,7 +186,7 @@ export function DataPage({
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
           QuantumX 默认先把记录保存在这个浏览器里。配置 Supabase 并登录后，你可以在这里备份、
-          迁移、恢复数据，并切换到本地优先的云端同步模式。邮箱登录入口也在这一页右侧，不需要再去别的地方找。
+          迁移、恢复数据，并切换到本地优先的云端同步模式。邮箱登录已经移动到左上角头像入口里，这里主要负责同步、恢复和备份。
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
           <span className="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1.5 text-muted">
@@ -300,6 +300,7 @@ export function DataPage({
 
         <aside className="space-y-4">
           <CloudModePanel
+            authEntry="avatar"
             dataMode={dataMode}
             snapshot={snapshot}
             onImportCloudSnapshot={onImportData}

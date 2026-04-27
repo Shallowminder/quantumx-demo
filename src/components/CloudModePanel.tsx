@@ -34,6 +34,7 @@ import type {
 } from "../types";
 
 interface CloudModePanelProps {
+  authEntry?: "inline" | "avatar";
   dataMode: "local" | "cloud";
   snapshot: QuantumXDataSnapshot;
   onImportCloudSnapshot: (
@@ -50,6 +51,7 @@ interface CloudModePanelProps {
 }
 
 export function CloudModePanel({
+  authEntry = "inline",
   dataMode,
   snapshot,
   onImportCloudSnapshot,
@@ -501,6 +503,20 @@ export function CloudModePanel({
   }
 
   if (!configured) {
+    if (authEntry === "avatar") {
+      return (
+        <section className="frost-panel rounded-[26px] p-5">
+          <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
+            <ShieldCheck size={16} strokeWidth={1.8} />
+            云端身份
+          </div>
+          <p className="text-sm leading-7 text-muted">
+            当前部署还没有把云端登录完整接起来。等 Supabase 环境变量配置完成后，左上角头像入口会直接提供邮箱登录；这里继续负责同步、恢复和备份说明。
+          </p>
+        </section>
+      );
+    }
+
     return (
       <section className="frost-panel rounded-[26px] p-5">
         <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
@@ -646,108 +662,131 @@ export function CloudModePanel({
         </div>
       ) : (
         <div>
-          <p className="mb-4 text-sm leading-7 text-muted">
-            先用邮箱登录最省心。输入邮箱后，QuantumX 会发一封登录邮件给你；
-            点开邮件里的链接，就能把这台设备和你的云端账号连起来。
-          </p>
-          <div className="rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
-            {renderEmailLogin(
-              false,
-              "发送后请去邮箱里点开登录链接。如果没收到，可以稍等几十秒，或者检查垃圾邮件。",
-            )}
-          </div>
-          <div className="mt-3 rounded-[20px] bg-[rgba(247,244,238,0.92)] px-3.5 py-3 text-xs leading-6 text-muted">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-medium text-ink">当前登录回调地址</span>
-              <button
-                className="rounded-lg bg-white/85 px-2.5 py-1 text-[11px] text-ink ring-1 ring-line/70 transition hover:bg-white"
-                type="button"
-                onClick={() => void copyCallbackUrl()}
-              >
-                复制
-              </button>
-            </div>
-            <div className="mt-2 break-all rounded-[14px] bg-white/85 px-2.5 py-2 font-mono text-[11px] text-ink ring-1 ring-line/70">
-              {callbackUrl}
-            </div>
-            <div className="mt-2">
-              你可以在环境变量里调整回调路径：
-              <code className="mx-1 rounded bg-white px-1 py-0.5 text-[11px] text-ink">
-                VITE_SUPABASE_AUTH_REDIRECT_PATH
-              </code>
-              当前值是
-              <code className="ml-1 rounded bg-white px-1 py-0.5 text-[11px] text-ink">
-                {authRedirectPath}
-              </code>
-              。
-            </div>
-          </div>
-          {isWeChatConfigured && (
-            <div className="mt-4 rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
-              <div className="mb-2 text-sm font-medium text-ink">其他登录方式（可选）</div>
-              <p className="mb-3 text-xs leading-6 text-muted">
-                微信登录还可以保留在这里，但我们现在主推邮箱登录。只有在你已经把微信 provider 配好时，这部分才会显示。
+          {authEntry === "avatar" ? (
+            <div>
+              <p className="mb-4 text-sm leading-7 text-muted">
+                邮箱登录已经移到左上角头像入口里。先从那里连上你的账号，这里就会自动切换成同步、恢复和云端状态管理。
               </p>
-              <div className="mb-3 flex flex-wrap gap-2">
-                <button
-                  className="inline-flex items-center gap-2 rounded-xl bg-white/85 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
-                  disabled={busy}
-                  type="button"
-                  onClick={() => void signInWithWeChat()}
-                >
-                  <MessageCircleMore size={15} strokeWidth={1.8} />
-                  微信登录
-                </button>
-                <button
-                  className="inline-flex items-center gap-2 rounded-xl bg-white/85 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
-                  disabled={busy}
-                  type="button"
-                  onClick={() => void prepareWeChatQr()}
-                >
-                  <QrCode size={15} strokeWidth={1.8} />
-                  二维码登录
-                </button>
-                <span className="inline-flex items-center rounded-xl bg-white/80 px-3 py-2 text-xs text-muted ring-1 ring-line/70">
-                  当前 provider：{weChatProviderId}
-                </span>
+              <div className="mt-3 rounded-[20px] bg-[rgba(247,244,238,0.92)] px-3.5 py-3 text-xs leading-6 text-muted">
+                <div className="font-medium text-ink">当前登录回调地址</div>
+                <div className="mt-2 break-all rounded-[14px] bg-white/85 px-2.5 py-2 font-mono text-[11px] text-ink ring-1 ring-line/70">
+                  {callbackUrl}
+                </div>
+                <div className="mt-2">
+                  如果之后要继续调整回调路径，当前值是
+                  <code className="ml-1 rounded bg-white px-1 py-0.5 text-[11px] text-ink">
+                    {authRedirectPath}
+                  </code>
+                  。
+                </div>
               </div>
-              <div
-                className="mx-auto flex min-h-[240px] max-w-[240px] items-center justify-center rounded-[20px] bg-white/90 p-3 ring-1 ring-line/70"
-                id={qrContainerId}
-              >
-                {wechatQrState === "idle" && (
-                  <div className="px-4 text-center text-xs leading-6 text-muted">
-                    点击上面的「二维码登录」后，这里会生成可扫码的登录二维码。
-                  </div>
-                )}
-                {wechatQrState === "loading" && (
-                  <div className="px-4 text-center text-xs leading-6 text-muted">
-                    正在生成微信扫码二维码…
-                  </div>
-                )}
-                {wechatQrState === "error" && (
-                  <div className="px-4 text-center text-xs leading-6 text-muted">
-                    暂时没能渲染二维码。你可以先用「微信登录」直接跳到微信授权页。
-                  </div>
+            </div>
+          ) : (
+            <div>
+              <p className="mb-4 text-sm leading-7 text-muted">
+                先用邮箱登录最省心。输入邮箱后，QuantumX 会发一封登录邮件给你；
+                点开邮件里的链接，就能把这台设备和你的云端账号连起来。
+              </p>
+              <div className="rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
+                {renderEmailLogin(
+                  false,
+                  "发送后请去邮箱里点开登录链接。如果没收到，可以稍等几十秒，或者检查垃圾邮件。",
                 )}
               </div>
-              {wechatQrUrl && (
-                <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 rounded-[20px] bg-[rgba(247,244,238,0.92)] px-3.5 py-3 text-xs leading-6 text-muted">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-medium text-ink">当前登录回调地址</span>
                   <button
-                    className="inline-flex items-center gap-2 rounded-lg bg-white/85 px-3 py-2 text-xs text-ink ring-1 ring-line/70 transition hover:bg-white"
+                    className="rounded-lg bg-white/85 px-2.5 py-1 text-[11px] text-ink ring-1 ring-line/70 transition hover:bg-white"
                     type="button"
-                    onClick={() => void prepareWeChatQr()}
+                    onClick={() => void copyCallbackUrl()}
                   >
-                    <RefreshCcw size={13} strokeWidth={1.8} />
-                    刷新二维码
+                    复制
                   </button>
-                  <a
-                    className="inline-flex items-center gap-2 rounded-lg bg-white/85 px-3 py-2 text-xs text-ink ring-1 ring-line/70 transition hover:bg-white"
-                    href={wechatQrUrl}
+                </div>
+                <div className="mt-2 break-all rounded-[14px] bg-white/85 px-2.5 py-2 font-mono text-[11px] text-ink ring-1 ring-line/70">
+                  {callbackUrl}
+                </div>
+                <div className="mt-2">
+                  你可以在环境变量里调整回调路径：
+                  <code className="mx-1 rounded bg-white px-1 py-0.5 text-[11px] text-ink">
+                    VITE_SUPABASE_AUTH_REDIRECT_PATH
+                  </code>
+                  当前值是
+                  <code className="ml-1 rounded bg-white px-1 py-0.5 text-[11px] text-ink">
+                    {authRedirectPath}
+                  </code>
+                  。
+                </div>
+              </div>
+              {isWeChatConfigured && (
+                <div className="mt-4 rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
+                  <div className="mb-2 text-sm font-medium text-ink">其他登录方式（可选）</div>
+                  <p className="mb-3 text-xs leading-6 text-muted">
+                    微信登录还可以保留在这里，但我们现在主推邮箱登录。只有在你已经把微信 provider 配好时，这部分才会显示。
+                  </p>
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    <button
+                      className="inline-flex items-center gap-2 rounded-xl bg-white/85 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
+                      disabled={busy}
+                      type="button"
+                      onClick={() => void signInWithWeChat()}
+                    >
+                      <MessageCircleMore size={15} strokeWidth={1.8} />
+                      微信登录
+                    </button>
+                    <button
+                      className="inline-flex items-center gap-2 rounded-xl bg-white/85 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
+                      disabled={busy}
+                      type="button"
+                      onClick={() => void prepareWeChatQr()}
+                    >
+                      <QrCode size={15} strokeWidth={1.8} />
+                      二维码登录
+                    </button>
+                    <span className="inline-flex items-center rounded-xl bg-white/80 px-3 py-2 text-xs text-muted ring-1 ring-line/70">
+                      当前 provider：{weChatProviderId}
+                    </span>
+                  </div>
+                  <div
+                    className="mx-auto flex min-h-[240px] max-w-[240px] items-center justify-center rounded-[20px] bg-white/90 p-3 ring-1 ring-line/70"
+                    id={qrContainerId}
                   >
-                    <MessageCircleMore size={13} strokeWidth={1.8} />
-                    打开微信授权页
-                  </a>
+                    {wechatQrState === "idle" && (
+                      <div className="px-4 text-center text-xs leading-6 text-muted">
+                        点击上面的「二维码登录」后，这里会生成可扫码的登录二维码。
+                      </div>
+                    )}
+                    {wechatQrState === "loading" && (
+                      <div className="px-4 text-center text-xs leading-6 text-muted">
+                        正在生成微信扫码二维码…
+                      </div>
+                    )}
+                    {wechatQrState === "error" && (
+                      <div className="px-4 text-center text-xs leading-6 text-muted">
+                        暂时没能渲染二维码。你可以先用「微信登录」直接跳到微信授权页。
+                      </div>
+                    )}
+                  </div>
+                  {wechatQrUrl && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        className="inline-flex items-center gap-2 rounded-lg bg-white/85 px-3 py-2 text-xs text-ink ring-1 ring-line/70 transition hover:bg-white"
+                        type="button"
+                        onClick={() => void prepareWeChatQr()}
+                      >
+                        <RefreshCcw size={13} strokeWidth={1.8} />
+                        刷新二维码
+                      </button>
+                      <a
+                        className="inline-flex items-center gap-2 rounded-lg bg-white/85 px-3 py-2 text-xs text-ink ring-1 ring-line/70 transition hover:bg-white"
+                        href={wechatQrUrl}
+                      >
+                        <MessageCircleMore size={13} strokeWidth={1.8} />
+                        打开微信授权页
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

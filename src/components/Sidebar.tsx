@@ -9,11 +9,13 @@ import {
 } from "lucide-react";
 import type { ResolvedTheme, ThemePreference } from "../lib/theme";
 import type { ViewKey } from "../types";
+import { AccountMenu } from "./AccountMenu";
 import { ThemeToggle } from "./ThemeToggle";
 
 interface SidebarProps {
   activeView: ViewKey;
   onNavigate: (view: ViewKey) => void;
+  onOpenData: () => void;
   preference: ThemePreference;
   resolvedTheme: ResolvedTheme;
   onThemePreferenceChange: (preference: ThemePreference) => void;
@@ -36,6 +38,7 @@ const navItems: Array<{
 export function Sidebar({
   activeView,
   onNavigate,
+  onOpenData,
   preference,
   resolvedTheme,
   onThemePreferenceChange,
@@ -43,14 +46,17 @@ export function Sidebar({
   return (
     <aside className="theme-sidebar hidden w-[272px] shrink-0 border-r px-5 py-6 backdrop-blur-2xl lg:flex lg:flex-col">
       <div className="mb-8 flex items-center gap-3 px-2">
-        <div className="theme-brand-mark flex h-10 w-10 items-center justify-center rounded-2xl">
-          <NotebookPen size={18} strokeWidth={1.8} />
-        </div>
-        <div>
-          <div className="text-[16px] font-semibold tracking-normal text-ink">
-            QuantumX
+        <AccountMenu onOpenData={onOpenData} />
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="theme-brand-mark flex h-10 w-10 items-center justify-center rounded-2xl">
+            <NotebookPen size={18} strokeWidth={1.8} />
           </div>
-          <div className="mt-0.5 text-[12px] text-muted">个人思考沉淀工具</div>
+          <div className="min-w-0">
+            <div className="text-[16px] font-semibold tracking-normal text-ink">
+              QuantumX
+            </div>
+            <div className="mt-0.5 text-[12px] text-muted">个人思考沉淀工具</div>
+          </div>
         </div>
       </div>
 
