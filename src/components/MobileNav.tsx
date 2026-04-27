@@ -9,7 +9,11 @@ import {
   NotebookPen,
   Search,
 } from "lucide-react";
-import type { ResolvedTheme, ThemePreference } from "../lib/theme";
+import type {
+  ResolvedTheme,
+  StylePreference,
+  ThemePreference,
+} from "../lib/theme";
 import type { ViewKey } from "../types";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -36,13 +40,17 @@ export function MobileNav({
   onNavigate,
   preference,
   resolvedTheme,
+  stylePreference,
   onThemePreferenceChange,
+  onStylePreferenceChange,
 }: {
   activeView: ViewKey;
   onNavigate: (view: ViewKey) => void;
   preference: ThemePreference;
   resolvedTheme: ResolvedTheme;
+  stylePreference: StylePreference;
   onThemePreferenceChange: (preference: ThemePreference) => void;
+  onStylePreferenceChange: (preference: StylePreference) => void;
 }) {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const resolvedActiveKey = resolveActiveKey(activeView);
@@ -102,9 +110,11 @@ export function MobileNav({
             <div className="soft-divider mt-3 border-t px-3 pb-2 pt-4">
               <ThemeToggle
                 compact
+                stylePreference={stylePreference}
                 preference={preference}
                 resolvedTheme={resolvedTheme}
-                onChange={onThemePreferenceChange}
+                onAppearanceChange={onThemePreferenceChange}
+                onStyleChange={onStylePreferenceChange}
               />
             </div>
           </div>

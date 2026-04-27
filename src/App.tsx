@@ -5,10 +5,13 @@ import { AccountMenu } from "./components/AccountMenu";
 import { thoughts as seedThoughts, topics as seedTopics } from "./data/mockData";
 import { createCapturedThought } from "./lib/memory";
 import {
+  readStylePreference,
   readThemePreference,
   resolveTheme,
+  writeStylePreference,
   writeThemePreference,
   type ResolvedTheme,
+  type StylePreference,
   type ThemePreference,
 } from "./lib/theme";
 import {
@@ -141,6 +144,9 @@ export default function App() {
   const [focusCaptureSignal, setFocusCaptureSignal] = useState(0);
   const [themePreference, setThemePreference] = useState<ThemePreference>(() =>
     readThemePreference(),
+  );
+  const [stylePreference, setStylePreference] = useState<StylePreference>(() =>
+    readStylePreference(),
   );
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
     resolveTheme(readThemePreference()),
@@ -683,9 +689,11 @@ export default function App() {
 
   useEffect(() => {
     writeThemePreference(themePreference);
+    writeStylePreference(stylePreference);
     document.documentElement.dataset.theme = resolvedTheme;
+    document.documentElement.dataset.style = stylePreference;
     document.documentElement.style.colorScheme = resolvedTheme;
-  }, [resolvedTheme, themePreference]);
+  }, [resolvedTheme, stylePreference, themePreference]);
 
   return (
     <div className="min-h-screen bg-transparent text-ink">
@@ -694,9 +702,11 @@ export default function App() {
           activeView={activeView}
           onNavigate={navigate}
           onOpenData={() => navigate("data")}
+          onStylePreferenceChange={setStylePreference}
           onThemePreferenceChange={setThemePreference}
           preference={themePreference}
           resolvedTheme={resolvedTheme}
+          stylePreference={stylePreference}
         />
         <main className="min-w-0 flex-1 px-4 pb-24 pt-5 sm:px-6 lg:px-9 lg:pb-10">
           <div className="mb-5 flex items-center justify-between lg:hidden">
@@ -827,9 +837,11 @@ export default function App() {
       <MobileNav
         activeView={activeView}
         onNavigate={navigate}
+        onStylePreferenceChange={setStylePreference}
         onThemePreferenceChange={setThemePreference}
         preference={themePreference}
         resolvedTheme={resolvedTheme}
+        stylePreference={stylePreference}
       />
       {toast && (
         <div className="frost-panel-strong fixed bottom-20 left-1/2 z-30 flex w-[min(92vw,480px)] -translate-x-1/2 items-center justify-between gap-3 rounded-[24px] px-4 py-3 text-sm text-ink lg:bottom-6">

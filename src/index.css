@@ -3,33 +3,33 @@
 @tailwind utilities;
 
 :root {
-  --paper-rgb: 246 242 235;
-  --canvas-rgb: 251 249 245;
-  --ink-rgb: 31 30 27;
-  --muted-rgb: 112 109 103;
-  --line-rgb: 226 220 210;
-  --sage-rgb: 95 115 101;
-  --mist-rgb: 231 235 237;
-  --clay-rgb: 171 118 83;
-  --amber-rgb: 208 173 105;
-  --app-shell-rgb: 249 247 242;
-  --sidebar-rgb: 247 243 236;
+  --paper-rgb: 242 245 249;
+  --canvas-rgb: 247 249 252;
+  --ink-rgb: 29 38 52;
+  --muted-rgb: 111 124 141;
+  --line-rgb: 214 223 234;
+  --sage-rgb: 87 115 110;
+  --mist-rgb: 224 231 240;
+  --clay-rgb: 158 124 97;
+  --amber-rgb: 203 168 107;
+  --app-shell-rgb: 244 247 251;
+  --sidebar-rgb: 238 243 248;
   --panel-rgb: 255 255 252;
   --panel-strong-rgb: 255 255 254;
-  --panel-border-rgb: 229 223 214;
-  --surface-soft-rgb: 247 243 236;
-  --surface-input-rgb: 245 240 232;
+  --panel-border-rgb: 215 223 234;
+  --surface-soft-rgb: 239 244 249;
+  --surface-input-rgb: 234 241 247;
   --surface-overlay-rgb: 255 255 255;
   --surface-strong-rgb: 255 255 252;
   --overlay-rgb: 28 28 26;
   --glow-rgb: 255 255 255;
-  --shadow-rgb: 37 37 33;
+  --shadow-rgb: 27 40 59;
   --highlight-rgb: 255 255 255;
-  --selection-rgb: 171 118 83;
-  --primary-rgb: 31 30 27;
-  --primary-hover-rgb: 20 19 17;
+  --selection-rgb: 90 119 164;
+  --primary-rgb: 29 45 68;
+  --primary-hover-rgb: 22 36 55;
   --primary-contrast-rgb: 255 255 255;
-  --primary-shadow-rgb: 37 37 33;
+  --primary-shadow-rgb: 27 40 59;
   color: rgb(var(--ink-rgb));
   background: rgb(var(--paper-rgb));
   color-scheme: light;
@@ -40,36 +40,162 @@
 }
 
 :root[data-theme="dark"] {
-  --paper-rgb: 24 22 20;
-  --canvas-rgb: 19 18 16;
-  --ink-rgb: 242 238 230;
-  --muted-rgb: 176 169 159;
-  --line-rgb: 73 68 62;
-  --sage-rgb: 148 171 155;
-  --mist-rgb: 69 74 79;
-  --clay-rgb: 204 154 115;
-  --amber-rgb: 217 188 129;
-  --app-shell-rgb: 21 19 18;
-  --sidebar-rgb: 30 28 25;
-  --panel-rgb: 35 32 29;
-  --panel-strong-rgb: 41 37 34;
-  --panel-border-rgb: 79 73 67;
-  --surface-soft-rgb: 49 45 41;
-  --surface-input-rgb: 53 49 45;
-  --surface-overlay-rgb: 61 56 50;
-  --surface-strong-rgb: 45 41 37;
-  --overlay-rgb: 6 6 6;
-  --glow-rgb: 88 104 95;
+  --paper-rgb: 14 18 24;
+  --canvas-rgb: 11 15 20;
+  --ink-rgb: 233 239 247;
+  --muted-rgb: 149 161 177;
+  --line-rgb: 61 74 92;
+  --sage-rgb: 139 167 162;
+  --mist-rgb: 78 92 111;
+  --clay-rgb: 201 158 122;
+  --amber-rgb: 218 189 133;
+  --app-shell-rgb: 12 16 22;
+  --sidebar-rgb: 18 24 32;
+  --panel-rgb: 24 31 41;
+  --panel-strong-rgb: 29 37 49;
+  --panel-border-rgb: 59 72 91;
+  --surface-soft-rgb: 31 39 51;
+  --surface-input-rgb: 35 45 58;
+  --surface-overlay-rgb: 40 49 62;
+  --surface-strong-rgb: 31 40 53;
+  --overlay-rgb: 4 8 12;
+  --glow-rgb: 88 116 150;
   --shadow-rgb: 0 0 0;
   --highlight-rgb: 255 255 255;
-  --selection-rgb: 204 154 115;
-  --primary-rgb: 242 238 230;
-  --primary-hover-rgb: 227 221 211;
-  --primary-contrast-rgb: 24 22 20;
+  --selection-rgb: 112 145 196;
+  --primary-rgb: 226 234 244;
+  --primary-hover-rgb: 207 219 235;
+  --primary-contrast-rgb: 14 18 24;
   --primary-shadow-rgb: 0 0 0;
   color: rgb(var(--ink-rgb));
   background: rgb(var(--paper-rgb));
   color-scheme: dark;
+}
+
+:root[data-style="cold-white"] {
+  --paper-rgb: 247 249 251;
+  --canvas-rgb: 250 251 253;
+  --ink-rgb: 36 43 52;
+  --muted-rgb: 119 129 141;
+  --line-rgb: 220 227 235;
+  --sage-rgb: 95 115 112;
+  --mist-rgb: 231 236 241;
+  --clay-rgb: 148 129 116;
+  --amber-rgb: 196 170 124;
+  --app-shell-rgb: 248 250 252;
+  --sidebar-rgb: 244 247 250;
+  --panel-border-rgb: 219 226 234;
+  --surface-soft-rgb: 243 247 250;
+  --surface-input-rgb: 239 244 248;
+  --primary-rgb: 43 52 64;
+  --primary-hover-rgb: 35 44 56;
+  --primary-shadow-rgb: 42 54 70;
+}
+
+:root[data-style="glass"] {
+  --paper-rgb: 245 245 247;
+  --canvas-rgb: 251 251 252;
+  --ink-rgb: 24 27 31;
+  --muted-rgb: 114 118 127;
+  --line-rgb: 222 224 229;
+  --sage-rgb: 101 109 117;
+  --mist-rgb: 229 232 237;
+  --clay-rgb: 146 125 118;
+  --amber-rgb: 195 173 127;
+  --app-shell-rgb: 247 247 249;
+  --sidebar-rgb: 241 242 245;
+  --surface-soft-rgb: 241 242 246;
+  --surface-input-rgb: 237 239 243;
+  --primary-rgb: 20 22 26;
+  --primary-hover-rgb: 10 12 15;
+  --primary-shadow-rgb: 18 22 28;
+}
+
+:root[data-style="dark-first"] {
+  --paper-rgb: 232 237 244;
+  --canvas-rgb: 239 243 248;
+  --ink-rgb: 28 38 51;
+  --muted-rgb: 103 118 135;
+  --line-rgb: 202 214 226;
+  --sage-rgb: 80 105 110;
+  --mist-rgb: 219 227 235;
+  --clay-rgb: 149 121 101;
+  --amber-rgb: 194 163 113;
+  --app-shell-rgb: 234 239 245;
+  --sidebar-rgb: 226 232 239;
+  --surface-soft-rgb: 228 234 241;
+  --surface-input-rgb: 219 227 236;
+  --primary-rgb: 18 26 38;
+  --primary-hover-rgb: 13 20 30;
+  --primary-shadow-rgb: 12 19 28;
+}
+
+:root[data-theme="dark"][data-style="cold-white"] {
+  --paper-rgb: 22 28 36;
+  --canvas-rgb: 19 24 31;
+  --ink-rgb: 233 237 242;
+  --muted-rgb: 158 167 178;
+  --line-rgb: 68 80 93;
+  --app-shell-rgb: 20 25 33;
+  --sidebar-rgb: 24 30 39;
+  --panel-rgb: 29 36 45;
+  --panel-strong-rgb: 34 41 52;
+  --panel-border-rgb: 70 82 96;
+  --surface-soft-rgb: 33 40 51;
+  --surface-input-rgb: 36 45 56;
+  --surface-overlay-rgb: 42 51 63;
+  --surface-strong-rgb: 35 44 56;
+  --primary-rgb: 238 242 247;
+  --primary-hover-rgb: 221 228 237;
+  --primary-contrast-rgb: 22 28 36;
+}
+
+:root[data-theme="dark"][data-style="glass"] {
+  --paper-rgb: 12 13 16;
+  --canvas-rgb: 9 10 12;
+  --ink-rgb: 239 241 244;
+  --muted-rgb: 161 166 173;
+  --line-rgb: 70 73 79;
+  --sage-rgb: 142 150 160;
+  --mist-rgb: 86 93 101;
+  --clay-rgb: 205 164 140;
+  --amber-rgb: 214 189 142;
+  --app-shell-rgb: 11 12 15;
+  --sidebar-rgb: 17 18 22;
+  --panel-rgb: 24 26 31;
+  --panel-strong-rgb: 29 32 37;
+  --panel-border-rgb: 69 72 79;
+  --surface-soft-rgb: 29 32 38;
+  --surface-input-rgb: 33 36 42;
+  --surface-overlay-rgb: 39 42 48;
+  --surface-strong-rgb: 31 34 40;
+  --primary-rgb: 244 246 249;
+  --primary-hover-rgb: 226 229 236;
+  --primary-contrast-rgb: 12 13 16;
+}
+
+:root[data-theme="dark"][data-style="dark-first"] {
+  --paper-rgb: 9 12 18;
+  --canvas-rgb: 7 10 15;
+  --ink-rgb: 236 242 248;
+  --muted-rgb: 146 159 176;
+  --line-rgb: 52 66 84;
+  --sage-rgb: 134 162 169;
+  --mist-rgb: 74 92 116;
+  --clay-rgb: 198 153 117;
+  --amber-rgb: 214 185 128;
+  --app-shell-rgb: 8 12 17;
+  --sidebar-rgb: 12 17 24;
+  --panel-rgb: 18 25 35;
+  --panel-strong-rgb: 23 31 43;
+  --panel-border-rgb: 53 68 88;
+  --surface-soft-rgb: 24 32 44;
+  --surface-input-rgb: 29 38 52;
+  --surface-overlay-rgb: 34 44 58;
+  --surface-strong-rgb: 27 36 49;
+  --primary-rgb: 228 236 246;
+  --primary-hover-rgb: 207 218 234;
+  --primary-contrast-rgb: 9 12 18;
 }
 
 * {
