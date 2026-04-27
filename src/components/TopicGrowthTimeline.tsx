@@ -17,12 +17,12 @@ export function TopicGrowthTimeline({
   const items = buildTopicTimeline(topic, thoughts, savedDistills);
 
   return (
-    <section className="mb-6 rounded-xl border border-line bg-white p-4 shadow-sm">
+    <section className="frost-panel mb-6 rounded-[24px] p-4">
       <div className="mb-4 text-sm font-semibold text-ink">
         这个主题是怎么长出来的
       </div>
       {items.length === 0 ? (
-        <p className="rounded-lg bg-canvas p-3 text-sm leading-6 text-muted">
+        <p className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-3 text-sm leading-6 text-muted">
           这个主题还没有足够记录。多写几条后，这里会显示它如何慢慢形成。
         </p>
       ) : (

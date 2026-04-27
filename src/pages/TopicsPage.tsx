@@ -68,7 +68,7 @@ export function TopicsPage({
 
   if (!selectedTopic) {
     return (
-      <div className="rounded-xl border border-line bg-white p-6 shadow-soft">
+      <div className="frost-panel-strong rounded-[28px] p-6">
         <div className="mb-2 text-sm font-semibold text-ink">还没有主题</div>
         <p className="text-sm leading-7 text-muted">
           当前账号在这台设备上的本地主题还是空的。你可以先记录几条想法，让系统开始归类，或者手动新建一个主题。
@@ -82,14 +82,14 @@ export function TopicsPage({
           }}
         >
           <input
-            className="min-w-0 flex-1 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink outline-none transition focus:border-sage/50 focus:bg-white"
+            className="min-w-0 flex-1 rounded-xl border border-transparent bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-white focus:bg-white"
             placeholder="例如：注意力管理"
             value={newTopicName}
             onChange={(event) => setNewTopicName(event.target.value)}
           />
           <button
             aria-label="新建主题"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-ink text-white transition hover:bg-black"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-ink text-white transition hover:bg-black"
             type="submit"
           >
             <Plus size={16} strokeWidth={1.8} />
@@ -100,9 +100,9 @@ export function TopicsPage({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
+    <div className="grid gap-7 xl:grid-cols-[410px_minmax(0,1fr)]">
       <section>
-        <header className="mb-5">
+        <header className="mb-6">
           <div className="mb-2 flex items-center gap-2 text-sm text-muted">
             <Layers3 size={16} strokeWidth={1.8} />
             自动归类
@@ -113,7 +113,7 @@ export function TopicsPage({
         </header>
 
         <form
-          className="mb-4 rounded-xl border border-line bg-white p-3 shadow-sm"
+          className="frost-panel mb-5 rounded-[24px] p-3.5"
           onSubmit={(event) => {
             event.preventDefault();
             onAddTopic(newTopicName);
@@ -123,14 +123,14 @@ export function TopicsPage({
           <div className="mb-2 text-sm font-semibold text-ink">新建主题</div>
           <div className="flex gap-2">
             <input
-              className="min-w-0 flex-1 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink outline-none transition focus:border-sage/50 focus:bg-white"
+              className="min-w-0 flex-1 rounded-xl border border-transparent bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-white focus:bg-white"
               placeholder="例如：注意力管理"
               value={newTopicName}
               onChange={(event) => setNewTopicName(event.target.value)}
             />
             <button
               aria-label="新建主题"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-ink text-white transition hover:bg-black"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-ink text-white transition hover:bg-black"
               type="submit"
             >
               <Plus size={16} strokeWidth={1.8} />
@@ -164,17 +164,17 @@ export function TopicsPage({
             return (
               <button
                 key={topic.id}
-                className={`w-full rounded-xl border p-4 text-left transition ${
+                className={`w-full rounded-[24px] p-4 text-left transition ${
                   active
-                    ? "border-sage/50 bg-white shadow-soft"
-                    : "border-line bg-white/75 hover:border-sage/35 hover:bg-white"
+                    ? "frost-panel-strong"
+                    : "frost-panel hover:bg-white/86"
                 }`}
                 type="button"
                 onClick={() => onSelectTopic(topic.id)}
               >
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <TopicBadge topic={topic} />
-                  <span className="rounded-full bg-paper px-2 py-1 text-xs text-muted">
+                  <span className="rounded-full bg-[rgba(247,244,238,0.92)] px-2.5 py-1 text-xs text-muted">
                     {topicRecords.length} 条记录
                   </span>
                 </div>
@@ -194,13 +194,13 @@ export function TopicsPage({
         </div>
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-5 shadow-soft sm:p-6">
-        <div className="mb-5 flex flex-col gap-3 border-b border-line pb-5 sm:flex-row sm:items-start sm:justify-between">
+      <section className="frost-panel-strong rounded-[30px] p-5 sm:p-6">
+        <div className="mb-6 flex flex-col gap-3 border-b border-white/70 pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <TopicBadge topic={selectedTopic} />
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
               <input
-                className="min-w-0 rounded-lg border border-transparent bg-transparent px-0 py-1 text-2xl font-semibold tracking-normal text-ink outline-none transition focus:border-line focus:bg-canvas focus:px-2"
+                className="min-w-0 rounded-[18px] border border-transparent bg-transparent px-0 py-1 text-2xl font-semibold tracking-normal text-ink outline-none transition focus:border-white focus:bg-[rgba(247,244,238,0.88)] focus:px-3"
                 value={topicNameDraft}
                 onChange={(event) => setTopicNameDraft(event.target.value)}
                 onBlur={() => onRenameTopic(selectedTopic.id, topicNameDraft)}
@@ -217,25 +217,25 @@ export function TopicsPage({
               {selectedTopic.description}
             </p>
           </div>
-          <div className="rounded-lg bg-canvas px-3 py-2 text-sm text-muted">
+          <div className="rounded-full bg-[rgba(247,244,238,0.92)] px-3.5 py-2 text-sm text-muted">
             {topicThoughts.length} 条相关记录
           </div>
         </div>
 
         <div className="mb-6 grid gap-3 md:grid-cols-3">
-          <div className="rounded-lg border border-line bg-canvas p-4">
+          <div className="rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
             <div className="mb-1 text-xs text-muted">最早记录</div>
             <div className="text-sm font-medium text-ink">
               {earliestThought ? formatMonthDay(earliestThought.createdAt) : "暂无"}
             </div>
           </div>
-          <div className="rounded-lg border border-line bg-canvas p-4">
+          <div className="rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
             <div className="mb-1 text-xs text-muted">最近更新</div>
             <div className="text-sm font-medium text-ink">
               {latestThought ? formatMonthDay(latestThought.createdAt) : "暂无"}
             </div>
           </div>
-          <div className="rounded-lg border border-line bg-canvas p-4">
+          <div className="rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
             <div className="mb-1 text-xs text-muted">待整理材料</div>
             <div className="text-sm font-medium text-ink">{inboxCount} 条</div>
           </div>
@@ -253,7 +253,7 @@ export function TopicsPage({
             {selectedTopic.signals.map((signal) => (
               <span
                 key={signal}
-                className="rounded-full border border-line bg-canvas px-3 py-1 text-sm text-muted"
+                className="rounded-full bg-[rgba(247,244,238,0.92)] px-3 py-1.5 text-sm text-muted"
               >
                 {signal}
               </span>
@@ -261,21 +261,21 @@ export function TopicsPage({
           </div>
         </div>
 
-        <div className="mb-6 rounded-xl border border-line bg-canvas p-4">
+        <div className="frost-panel mb-6 rounded-[24px] p-4">
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
             <Sprout size={16} strokeWidth={1.8} />
             正在长出的问题
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             {growingQuestions.map((question) => (
-              <div key={question} className="rounded-lg bg-white px-3 py-2 text-sm leading-6 text-ink">
+              <div key={question} className="rounded-[18px] bg-white/88 px-3 py-2.5 text-sm leading-6 text-ink">
                 {question}
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mb-6 rounded-xl border border-line bg-white p-4 shadow-sm">
+        <div className="frost-panel mb-6 rounded-[24px] p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-ink">
             <GitMerge size={16} strokeWidth={1.8} />
             主题整理建议
@@ -284,16 +284,16 @@ export function TopicsPage({
         </div>
 
         {unattachedThoughts.length > 0 && (
-          <div className="mb-6 rounded-xl border border-line bg-white p-4 shadow-sm">
+          <div className="frost-panel mb-6 rounded-[24px] p-4">
             <div className="mb-3 text-sm font-semibold text-ink">
               可以加入这个主题的想法
             </div>
             <div className="grid gap-2 md:grid-cols-2">
               {unattachedThoughts.map((thought) => (
-                <article key={thought.id} className="rounded-lg border border-line bg-canvas p-3">
+                <article key={thought.id} className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-3.5">
                   <p className="line-clamp-3 text-sm leading-6 text-ink">{thought.content}</p>
                   <button
-                    className="mt-3 rounded-md border border-line bg-white px-2.5 py-1.5 text-xs text-muted transition hover:text-ink"
+                    className="mt-3 rounded-xl bg-white/80 px-3 py-1.5 text-xs text-muted transition hover:bg-white hover:text-ink"
                     type="button"
                     onClick={() => onAttachThoughtToTopic(thought.id, selectedTopic.id)}
                   >
@@ -311,7 +311,7 @@ export function TopicsPage({
             {sortedTopicThoughts.map((thought) => (
               <button
                 key={thought.id}
-                className="w-full rounded-lg border border-line bg-canvas p-4 text-left transition hover:border-sage/35 hover:bg-white"
+                className="w-full rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4 text-left transition hover:bg-white"
                 type="button"
                 onClick={() => onOpenThought(thought.id)}
               >

@@ -20,7 +20,7 @@ export function SourceComposition({
   const maxCount = Math.max(1, ...composition.rows.map((row) => row.count));
 
   return (
-    <section className="rounded-xl border border-line bg-white p-4 shadow-sm">
+    <section className="frost-panel rounded-[24px] p-4">
       <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-ink">
         <FileText size={16} strokeWidth={1.8} />
         这份草稿从哪里来
@@ -30,7 +30,7 @@ export function SourceComposition({
       </p>
 
       {composition.rows.length === 0 ? (
-        <p className="rounded-lg bg-canvas p-3 text-sm text-muted">
+        <p className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-3 text-sm text-muted">
           先选择几条来源记录，系统会在这里显示它们来自哪些主题。
         </p>
       ) : (
@@ -41,7 +41,7 @@ export function SourceComposition({
                 <span>{row.topic.name}</span>
                 <span>{row.count} 条</span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-canvas">
+              <div className="h-2 overflow-hidden rounded-full bg-[rgba(247,244,238,0.92)]">
                 <div
                   className="h-full rounded-full bg-sage/70"
                   style={{ width: `${Math.max(18, (row.count / maxCount) * 100)}%` }}
@@ -53,7 +53,7 @@ export function SourceComposition({
       )}
 
       <button
-        className="mt-4 rounded-md border border-line bg-canvas px-3 py-2 text-sm text-muted transition hover:text-ink"
+        className="mt-4 rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-muted transition hover:bg-white hover:text-ink"
         type="button"
         onClick={() => setShowSources((value) => !value)}
       >
@@ -63,7 +63,7 @@ export function SourceComposition({
       {showSources && (
         <div className="mt-3 space-y-2">
           {sourceThoughts.map((thought) => (
-            <div key={thought.id} className="rounded-lg border border-line bg-canvas p-3">
+            <div key={thought.id} className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-3">
               <div className="mb-1 text-xs text-muted">
                 {formatMonthDay(thought.createdAt)} · {thought.source}
               </div>

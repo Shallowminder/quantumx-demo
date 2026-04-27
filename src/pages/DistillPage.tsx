@@ -104,7 +104,7 @@ export function DistillPage({
     topics.find((topic) => topic.id === selectedTopicId) ?? topics[0];
   if (!selectedTopic) {
     return (
-      <div className="rounded-xl border border-line bg-white p-6 shadow-soft">
+      <div className="frost-panel-strong rounded-[28px] p-6">
         <div className="mb-2 text-sm font-semibold text-ink">还没有可蒸馏的主题</div>
         <p className="text-sm leading-7 text-muted">
           蒸馏输出需要先有主题和来源记录。你可以先回到 Today 记录一点内容，或者在主题页先新建一个主题。
@@ -234,7 +234,7 @@ export function DistillPage({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
+    <div className="grid gap-7 xl:grid-cols-[380px_minmax(0,1fr)]">
       <section className="space-y-4">
         <header>
           <div className="mb-2 flex items-center gap-2 text-sm text-muted">
@@ -246,16 +246,16 @@ export function DistillPage({
           </h1>
         </header>
 
-        <div className="rounded-xl border border-line bg-white p-4 shadow-soft">
+        <div className="frost-panel rounded-[24px] p-4">
           <div className="mb-3 text-sm font-semibold text-ink">选择主题</div>
           <div className="space-y-2">
             {topics.map((topic) => (
               <button
                 key={topic.id}
-                className={`w-full rounded-lg border px-3 py-3 text-left transition ${
+                className={`w-full rounded-[20px] px-3.5 py-3.5 text-left transition ${
                   topic.id === selectedTopic.id
-                    ? "border-sage/50 bg-canvas"
-                    : "border-transparent hover:border-line hover:bg-canvas"
+                    ? "bg-[rgba(247,244,238,0.98)]"
+                    : "bg-white/55 hover:bg-white/88"
                 }`}
                 type="button"
                 onClick={() => {
@@ -274,7 +274,7 @@ export function DistillPage({
           </div>
         </div>
 
-        <div className="rounded-xl border border-line bg-white p-4 shadow-sm">
+        <div className="frost-panel rounded-[24px] p-4">
           <div className="mb-3 flex items-center justify-between">
             <div className="text-sm font-semibold text-ink">选择来源记录</div>
             <span className="text-xs text-muted">已选 {selectedThoughts.length} 条</span>
@@ -285,10 +285,10 @@ export function DistillPage({
               return (
                 <label
                   key={thought.id}
-                  className={`block rounded-lg border p-3 transition ${
+                  className={`block rounded-[20px] p-3.5 transition ${
                     checked
-                      ? "border-sage/50 bg-canvas"
-                      : "border-line bg-white hover:bg-canvas"
+                      ? "bg-[rgba(247,244,238,0.98)]"
+                      : "bg-white/55 hover:bg-white/88"
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -313,13 +313,13 @@ export function DistillPage({
           </div>
         </div>
 
-        <div className="rounded-xl border border-line bg-white p-4 shadow-sm">
+        <div className="frost-panel rounded-[24px] p-4">
           <div className="mb-3 flex items-center justify-between">
             <div className="text-sm font-semibold text-ink">草稿库</div>
             <span className="text-xs text-muted">{savedDistills.length} 份</span>
           </div>
           {savedDistills.length === 0 ? (
-            <p className="rounded-lg bg-canvas p-3 text-sm leading-6 text-muted">
+            <p className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-3 text-sm leading-6 text-muted">
               保存后的整理内容会出现在这里，可以回来继续编辑、复制或查看来源。
             </p>
           ) : (
@@ -327,10 +327,10 @@ export function DistillPage({
               {savedDistills.map((draft) => (
                 <article
                   key={draft.id}
-                  className={`rounded-lg border p-3 ${
+                  className={`rounded-[20px] p-3.5 ${
                     activeDraftId === draft.id
-                      ? "border-sage/50 bg-canvas"
-                      : "border-line bg-white"
+                      ? "bg-[rgba(247,244,238,0.98)]"
+                      : "bg-white/55"
                   }`}
                 >
                   <button
@@ -344,7 +344,7 @@ export function DistillPage({
                     </div>
                   </button>
                   <button
-                    className="mt-2 inline-flex items-center gap-1 rounded-md border border-line bg-canvas px-2 py-1 text-[11px] text-muted transition hover:text-ink"
+                    className="mt-2 inline-flex items-center gap-1 rounded-xl bg-[rgba(247,244,238,0.92)] px-2.5 py-1.5 text-[11px] text-muted transition hover:bg-white hover:text-ink"
                     type="button"
                     onClick={() => onDeleteDistill(draft.id)}
                   >
@@ -358,11 +358,11 @@ export function DistillPage({
         </div>
 
         {activeDraftId && (
-          <div className="rounded-xl border border-line bg-white p-4 shadow-sm">
+          <div className="frost-panel rounded-[24px] p-4">
             <div className="mb-3 text-sm font-semibold text-ink">当前草稿来源</div>
             <div className="space-y-2">
               {selectedThoughts.map((thought) => (
-                <div key={thought.id} className="rounded-lg bg-canvas p-3">
+                <div key={thought.id} className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-3">
                   <div className="mb-1 text-xs text-muted">
                     {formatMonthDay(thought.createdAt)} · {thought.source}
                   </div>
@@ -374,8 +374,8 @@ export function DistillPage({
         )}
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-5 shadow-soft sm:p-7">
-        <div className="mb-5 flex flex-col gap-3 border-b border-line pb-5 sm:flex-row sm:items-start sm:justify-between">
+      <section className="frost-panel-strong rounded-[30px] p-5 sm:p-7">
+        <div className="mb-6 flex flex-col gap-3 border-b border-white/70 pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <TopicBadge topic={selectedTopic} />
             <h2 className="mt-3 text-2xl font-semibold tracking-normal text-ink">
@@ -387,7 +387,7 @@ export function DistillPage({
           </div>
           <div className="flex flex-wrap gap-2 sm:justify-end">
             <button
-              className="inline-flex items-center justify-center gap-2 rounded-md border border-line bg-canvas px-4 py-2 text-sm font-medium text-ink transition hover:bg-white disabled:bg-stone-100 disabled:text-muted"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-4 py-2.5 text-sm font-medium text-ink transition hover:bg-white disabled:bg-stone-100 disabled:text-muted"
               disabled={selectedThoughts.length === 0 || isGenerating}
               type="button"
               onClick={() => void generateDistill()}
@@ -400,7 +400,7 @@ export function DistillPage({
               {isGenerating ? "生成中" : "AI 生成"}
             </button>
             <button
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
               disabled={selectedThoughts.length === 0}
               type="button"
               onClick={saveDraft}
@@ -415,10 +415,10 @@ export function DistillPage({
           {outputTypes.map((type) => (
             <button
               key={type}
-              className={`rounded-full border px-3 py-1.5 text-sm transition ${
+              className={`rounded-full px-3.5 py-2 text-sm transition ${
                 outputType === type
-                  ? "border-ink bg-ink text-white"
-                  : "border-line bg-canvas text-muted hover:text-ink"
+                  ? "bg-ink text-white"
+                  : "bg-[rgba(247,244,238,0.92)] text-muted hover:bg-white hover:text-ink"
               }`}
               type="button"
               onClick={() => {
@@ -441,7 +441,7 @@ export function DistillPage({
         </div>
 
         {generationMessage && (
-          <div className="mb-4 rounded-lg border border-sage/20 bg-sage/10 px-4 py-3 text-sm leading-6 text-ink">
+          <div className="mb-4 rounded-[20px] bg-sage/10 px-4 py-3 text-sm leading-6 text-ink">
             {generationMessage}
           </div>
         )}
@@ -450,7 +450,7 @@ export function DistillPage({
           <FilePenLine size={16} strokeWidth={1.8} />
           <span className="flex-1">可编辑输出</span>
           <button
-            className="inline-flex items-center gap-1 rounded-md border border-line bg-canvas px-2.5 py-1 text-xs text-muted transition hover:text-ink"
+            className="inline-flex items-center gap-1 rounded-xl bg-[rgba(247,244,238,0.92)] px-3 py-1.5 text-xs text-muted transition hover:bg-white hover:text-ink"
             type="button"
             onClick={copyMarkdown}
           >
@@ -459,12 +459,12 @@ export function DistillPage({
           </button>
         </div>
         <textarea
-          className="min-h-[520px] w-full resize-y rounded-xl border border-line bg-canvas px-4 py-4 font-mono text-sm leading-7 text-ink outline-none transition focus:border-sage/50 focus:bg-white"
+          className="min-h-[520px] w-full resize-y rounded-[24px] border border-transparent bg-[rgba(247,244,238,0.94)] px-5 py-4 font-mono text-sm leading-7 text-ink outline-none transition focus:border-white focus:bg-white"
           value={editableContent}
           onChange={(event) => setEditableContent(event.target.value)}
         />
 
-        <div className="mt-4 rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-muted">
+        <div className="frost-panel mt-4 rounded-[22px] px-4 py-3 text-sm leading-6 text-muted">
           <div className="mb-1 flex items-center gap-2 font-medium text-ink">
             <CheckCircle2 size={16} strokeWidth={1.8} />
             来源透明
