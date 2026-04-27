@@ -43,7 +43,7 @@ export function Sidebar({
   return (
     <aside className="theme-sidebar hidden w-[272px] shrink-0 border-r px-5 py-6 backdrop-blur-2xl lg:flex lg:flex-col">
       <div className="mb-8 flex items-center gap-3 px-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-ink text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_10px_24px_rgba(37,37,33,0.12)]">
+        <div className="theme-brand-mark flex h-10 w-10 items-center justify-center rounded-2xl">
           <NotebookPen size={18} strokeWidth={1.8} />
         </div>
         <div>

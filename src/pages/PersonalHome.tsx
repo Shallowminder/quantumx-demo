@@ -36,7 +36,7 @@ export function PersonalHome({
       <section className="frost-panel-strong relative overflow-hidden rounded-[28px] px-5 py-9 sm:px-8 sm:py-12">
         <div className="pointer-events-none absolute inset-x-10 top-0 h-28 rounded-full bg-sage/10 blur-3xl" />
         <div className="relative max-w-3xl">
-          <div className="mb-5 inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-ink text-white">
+          <div className="theme-brand-mark mb-5 inline-flex h-10 w-10 items-center justify-center rounded-2xl">
             <NotebookPen size={18} strokeWidth={1.8} />
           </div>
           <h1 className="text-4xl font-semibold tracking-normal text-ink sm:text-5xl">

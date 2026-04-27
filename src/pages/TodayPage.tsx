@@ -99,7 +99,7 @@ export function TodayPage({
               今日思考
             </h1>
           </div>
-          <div className="rounded-full border border-white/80 bg-[rgba(255,255,255,0.58)] px-3 py-1.5 text-sm text-muted shadow-[inset_0_1px_0_rgba(255,255,255,0.58)]">
+          <div className="theme-surface-ghost rounded-full border border-white/70 px-3 py-1.5 text-sm text-muted shadow-[inset_0_1px_0_rgba(255,255,255,0.52)]">
             {thoughts.length} 条记录 · {topics.length} 个长期主题
           </div>
         </header>
@@ -148,7 +148,7 @@ export function TodayPage({
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               <button
-                className="inline-flex items-center gap-2 rounded-xl bg-ink px-3.5 py-2.5 text-sm font-medium text-white transition hover:bg-black"
+                className="theme-primary-button inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium transition"
                 type="button"
                 onClick={() => onContinueFromThought(briefThought)}
               >
@@ -157,7 +157,7 @@ export function TodayPage({
               </button>
               {briefTopic && (
                 <button
-                  className="rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
+                  className="theme-surface-soft rounded-xl px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
                   type="button"
                   onClick={() => onOpenTopic(briefTopic.id)}
                 >
@@ -165,7 +165,7 @@ export function TodayPage({
                 </button>
               )}
               <button
-                className="rounded-xl bg-white/70 px-3.5 py-2.5 text-sm text-muted transition hover:bg-white hover:text-ink"
+                className="theme-surface-ghost rounded-xl px-3.5 py-2.5 text-sm text-muted transition hover:bg-white hover:text-ink"
                 type="button"
                 onClick={() => {
                   onRequestCaptureFocus();
@@ -191,7 +191,7 @@ export function TodayPage({
               {inboxThoughts.map((thought) => (
                 <button
                   key={thought.id}
-                  className="rounded-[20px] bg-[rgba(248,246,241,0.92)] p-3.5 text-left text-sm leading-6 text-ink transition hover:bg-white"
+                  className="theme-surface-soft rounded-[20px] p-3.5 text-left text-sm leading-6 text-ink transition hover:bg-white"
                   type="button"
                   onClick={() => onOpenThought(thought.id)}
                 >
