@@ -4,7 +4,7 @@
 
 :root {
   color: #252521;
-  background: #f7f4ee;
+  background: #f4f2ed;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -25,8 +25,9 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0)),
-    #f7f4ee;
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.88), transparent 34%),
+    linear-gradient(180deg, rgba(249, 248, 244, 0.95), rgba(242, 240, 235, 0.98)),
+    #f4f2ed;
 }
 
 button,
@@ -58,4 +59,30 @@ button {
   border: 3px solid transparent;
   border-radius: 999px;
   background-clip: content-box;
+}
+
+@layer components {
+  .frost-panel {
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    box-shadow:
+      0 20px 60px rgba(37, 37, 33, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+  }
+
+  .frost-panel-strong {
+    background: rgba(255, 255, 255, 0.84);
+    border: 1px solid rgba(255, 255, 255, 0.86);
+    box-shadow:
+      0 24px 70px rgba(37, 37, 33, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+  }
+
+  .soft-divider {
+    border-color: rgba(219, 214, 206, 0.72);
+  }
 }

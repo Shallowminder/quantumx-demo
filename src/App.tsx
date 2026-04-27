@@ -643,14 +643,14 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
-      <div className="mx-auto flex min-h-screen max-w-[1480px] bg-canvas/70">
+    <div className="min-h-screen bg-transparent text-ink">
+      <div className="mx-auto flex min-h-screen max-w-[1520px] bg-[rgba(250,249,245,0.32)]">
         <Sidebar activeView={activeView} onNavigate={navigate} />
-        <main className="min-w-0 flex-1 px-4 pb-24 pt-4 sm:px-6 lg:px-8 lg:pb-8">
+        <main className="min-w-0 flex-1 px-4 pb-24 pt-5 sm:px-6 lg:px-9 lg:pb-10">
           {isOnAuthCallback && !authState.session && (
-            <div className="mb-4 rounded-xl border border-sage/20 bg-white/80 px-4 py-3 text-sm text-muted shadow-sm">
+            <div className="frost-panel mb-5 rounded-[22px] px-4 py-3 text-sm text-muted">
               正在完成登录回调。回调路径是{" "}
-              <code className="rounded bg-canvas px-1.5 py-0.5 text-[11px] text-ink">
+              <code className="rounded-xl bg-[rgba(247,244,238,0.88)] px-2 py-1 text-[11px] text-ink">
                 {authRedirectPath}
               </code>
               ，如果页面停在这里太久，通常说明 Supabase 或微信开放平台的回调配置还没对齐。
@@ -767,11 +767,11 @@ export default function App() {
       </div>
       <MobileNav activeView={activeView} onNavigate={navigate} />
       {toast && (
-        <div className="fixed bottom-20 left-1/2 z-30 flex w-[min(92vw,460px)] -translate-x-1/2 items-center justify-between gap-3 rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink shadow-soft lg:bottom-6">
+        <div className="frost-panel-strong fixed bottom-20 left-1/2 z-30 flex w-[min(92vw,480px)] -translate-x-1/2 items-center justify-between gap-3 rounded-[24px] px-4 py-3 text-sm text-ink lg:bottom-6">
           <span>{toast.message}</span>
           {toast.actionLabel && toast.onAction && (
             <button
-              className="shrink-0 rounded-md border border-line bg-canvas px-2.5 py-1 text-xs font-medium text-ink transition hover:border-sage/40 hover:bg-white"
+              className="shrink-0 rounded-xl bg-[rgba(247,244,238,0.92)] px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-white"
               type="button"
               onClick={toast.onAction}
             >
