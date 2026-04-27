@@ -99,7 +99,7 @@ export function TodayPage({
               今日思考
             </h1>
           </div>
-          <div className="theme-surface-ghost rounded-full border border-white/70 px-3 py-1.5 text-sm text-muted shadow-[inset_0_1px_0_rgba(255,255,255,0.52)]">
+          <div className="theme-pill rounded-full px-3 py-1.5 text-sm text-muted">
             {thoughts.length} 条记录 · {topics.length} 个长期主题
           </div>
         </header>
@@ -157,7 +157,7 @@ export function TodayPage({
               </button>
               {briefTopic && (
                 <button
-                  className="theme-surface-soft rounded-xl px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
+                  className="theme-card-soft rounded-xl px-3.5 py-2.5 text-sm text-ink transition"
                   type="button"
                   onClick={() => onOpenTopic(briefTopic.id)}
                 >
@@ -191,7 +191,7 @@ export function TodayPage({
               {inboxThoughts.map((thought) => (
                 <button
                   key={thought.id}
-                  className="theme-surface-soft rounded-[20px] p-3.5 text-left text-sm leading-6 text-ink transition hover:bg-white"
+                className="theme-card-soft rounded-[20px] p-3.5 text-left text-sm leading-6 text-ink transition"
                   type="button"
                   onClick={() => onOpenThought(thought.id)}
                 >

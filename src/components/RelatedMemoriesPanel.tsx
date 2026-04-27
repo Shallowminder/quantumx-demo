@@ -77,7 +77,7 @@ export function RelatedMemoriesPanel({
                 {group.matches.map((match) => (
                   <article
                     key={match.thought.id}
-                    className="w-full rounded-[22px] bg-[rgba(248,246,241,0.92)] p-3.5 text-left transition hover:bg-white"
+                    className="theme-card-soft w-full rounded-[22px] p-3.5 text-left transition"
                   >
                     <button
                       className="w-full text-left"
@@ -100,7 +100,7 @@ export function RelatedMemoriesPanel({
                         className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] transition ${
                           feedback[match.thought.id] === "helpful"
                             ? "bg-sage/10 text-sage"
-                            : "bg-white/80 text-muted hover:bg-white hover:text-ink"
+                            : "theme-card-overlay text-muted hover:text-ink"
                         }`}
                         type="button"
                         onClick={() => {
@@ -118,7 +118,7 @@ export function RelatedMemoriesPanel({
                         className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] transition ${
                           feedback[match.thought.id] === "irrelevant"
                             ? "bg-clay/10 text-clay"
-                            : "bg-white/80 text-muted hover:bg-white hover:text-ink"
+                            : "theme-card-overlay text-muted hover:text-ink"
                         }`}
                         type="button"
                         onClick={() => {
@@ -133,7 +133,7 @@ export function RelatedMemoriesPanel({
                         不相关
                       </button>
                       <button
-                        className="inline-flex items-center gap-1 rounded-xl bg-white/80 px-2.5 py-1.5 text-[11px] text-muted transition hover:bg-white hover:text-ink"
+                        className="theme-card-overlay inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] text-muted transition hover:text-ink"
                         type="button"
                         onClick={() => {
                           setPinnedIds((current) => {
@@ -151,7 +151,7 @@ export function RelatedMemoriesPanel({
                       </button>
                       {onAttachToTopic && match.thought.topicIds[0] && (
                         <button
-                          className="rounded-xl bg-white/80 px-2.5 py-1.5 text-[11px] text-muted transition hover:bg-white hover:text-ink"
+                          className="theme-card-overlay rounded-xl px-2.5 py-1.5 text-[11px] text-muted transition hover:text-ink"
                           type="button"
                           onClick={() => {
                             onAttachToTopic(match.thought.id, match.thought.topicIds[0]);
@@ -179,13 +179,13 @@ export function RelatedMemoriesPanel({
           {relatedTopics.map((topic) => (
             <button
               key={topic.id}
-              className="w-full rounded-[22px] bg-[rgba(248,246,241,0.9)] px-3 py-3 text-left transition hover:bg-white"
+              className="theme-card-soft w-full rounded-[22px] px-3 py-3 text-left transition"
               type="button"
               onClick={() => onOpenTopic(topic.id)}
             >
               <div className="mb-1 flex items-center justify-between gap-3">
                 <span className="text-sm font-medium text-ink">{topic.name}</span>
-                <span className="rounded-full bg-white/80 px-2.5 py-1 text-xs text-muted">
+                <span className="theme-pill rounded-full px-2.5 py-1 text-xs text-muted">
                   {topic.thoughtIds.length} 条
                 </span>
               </div>
