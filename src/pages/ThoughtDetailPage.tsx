@@ -107,7 +107,7 @@ export function ThoughtDetailPage({
     <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_360px]">
       <section className="min-w-0">
         <button
-          className="mb-6 inline-flex items-center gap-2 rounded-xl bg-white/75 px-3.5 py-2.5 text-sm text-muted transition hover:bg-white hover:text-ink"
+          className="theme-button-muted mb-6 inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition"
           type="button"
           onClick={onBack}
         >
@@ -120,7 +120,7 @@ export function ThoughtDetailPage({
             <span>{formatDayLabel(thought.createdAt)}</span>
             <span className="h-1 w-1 rounded-full bg-muted/40" />
             <span>{thought.source}</span>
-            <span className="rounded-full bg-[rgba(247,244,238,0.92)] px-2.5 py-1 text-xs">
+            <span className="theme-chip-soft rounded-full px-2.5 py-1 text-xs">
               {statusLabels[thought.status]}
             </span>
           </div>
@@ -130,7 +130,7 @@ export function ThoughtDetailPage({
               想法详情
             </h1>
             <button
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
+              className="theme-button-secondary inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition"
               type="button"
               onClick={() => setIsEditing((value) => !value)}
             >
@@ -142,14 +142,14 @@ export function ThoughtDetailPage({
           {isEditing ? (
             <div className="space-y-4">
               <textarea
-                className="min-h-44 w-full resize-y rounded-[24px] border border-transparent bg-[rgba(247,244,238,0.94)] px-4 py-3 text-[16px] leading-8 text-ink outline-none transition focus:border-white focus:bg-white"
+                className="theme-input min-h-44 w-full resize-y rounded-[24px] px-4 py-3 text-[16px] leading-8 text-ink outline-none transition"
                 value={contentDraft}
                 onChange={(event) => setContentDraft(event.target.value)}
               />
               <label className="block">
                 <span className="mb-2 block text-sm font-medium text-ink">摘要</span>
                 <input
-                  className="w-full rounded-[18px] border border-transparent bg-[rgba(247,244,238,0.94)] px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-white focus:bg-white"
+                  className="theme-input w-full rounded-[18px] px-3.5 py-2.5 text-sm text-ink outline-none transition"
                   value={summaryDraft}
                   onChange={(event) => setSummaryDraft(event.target.value)}
                 />
@@ -164,8 +164,8 @@ export function ThoughtDetailPage({
                         key={topic.id}
                         className={`rounded-full px-3.5 py-2 text-sm transition ${
                           checked
-                            ? "bg-ink text-white"
-                            : "bg-[rgba(247,244,238,0.92)] text-muted hover:bg-white hover:text-ink"
+                            ? "theme-primary-button"
+                            : "theme-button-muted"
                         }`}
                         type="button"
                         onClick={() => toggleTopic(topic.id)}
@@ -177,7 +177,7 @@ export function ThoughtDetailPage({
                 </div>
               </div>
               <button
-                className="inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white transition hover:bg-black"
+                className="theme-primary-button inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition"
                 type="button"
                 onClick={() => {
                   saveEdits();
@@ -204,16 +204,16 @@ export function ThoughtDetailPage({
             </>
           )}
 
-          <div className="mt-6 flex flex-wrap gap-2 border-t border-white/70 pt-4">
+          <div className="mt-6 flex flex-wrap gap-2 border-t soft-divider pt-4">
             <button
-              className="rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
+              className="theme-button-secondary rounded-xl px-3.5 py-2.5 text-sm transition"
               type="button"
               onClick={() => onContinueFromThought(thought)}
             >
               从这条继续写
             </button>
             <button
-              className="inline-flex items-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
+              className="theme-button-secondary inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition"
               type="button"
               onClick={() => onGenerateFromThought(thought)}
             >
@@ -221,7 +221,7 @@ export function ThoughtDetailPage({
               生成草稿
             </button>
             <button
-              className="inline-flex items-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
+              className="theme-button-secondary inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition"
               type="button"
               onClick={() => onUpdateThought(thought.id, { status: "themed" })}
             >
@@ -229,7 +229,7 @@ export function ThoughtDetailPage({
               标记已整理
             </button>
             <button
-              className="inline-flex items-center gap-2 rounded-xl bg-white/75 px-3.5 py-2.5 text-sm text-muted transition hover:bg-white hover:text-ink"
+              className="theme-button-muted inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition"
               type="button"
               onClick={() => onUpdateThought(thought.id, { status: "archived" })}
             >

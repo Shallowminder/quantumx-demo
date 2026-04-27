@@ -93,7 +93,7 @@ export function DataPage({
     if (dataMode === "local" || cloudSyncState === "local") {
       return {
         icon: CloudOff,
-        tone: "border-line bg-white text-muted",
+        tone: "border-line theme-surface-ghost text-muted",
         title: "当前是本地模式",
         detail: "记录会先保存在这个浏览器里。登录并同步后，才会开始跟随云端。",
       };
@@ -189,11 +189,11 @@ export function DataPage({
           迁移、恢复数据，并切换到本地优先的云端同步模式。邮箱登录已经移动到左上角头像入口里，这里主要负责同步、恢复和备份。
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1.5 text-muted">
+          <span className="theme-pill inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-muted">
             <Cloud size={12} strokeWidth={1.8} />
             当前数据源：{dataMode === "cloud" ? "云端读取" : "本地读取"}
           </span>
-          <span className="rounded-full bg-white/80 px-3 py-1.5 text-muted">
+          <span className="theme-pill rounded-full px-3 py-1.5 text-muted">
             云端登录：{authState.session ? "已连接" : authState.configured ? "未登录" : "未配置"}
           </span>
         </div>
@@ -222,7 +222,7 @@ export function DataPage({
         className={`mb-6 rounded-[22px] border px-4 py-3 shadow-sm sm:px-5 ${syncStatus.tone}`}
       >
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/70">
+          <div className="theme-pill mt-0.5 flex h-8 w-8 items-center justify-center rounded-full">
             <SyncIcon
               className={syncStatus.spinning ? "animate-spin" : undefined}
               size={16}
@@ -250,7 +250,7 @@ export function DataPage({
             </div>
           </div>
 
-          <div className="mb-5 rounded-[22px] bg-[rgba(247,244,238,0.92)] px-4 py-3 text-sm leading-7 text-muted">
+          <div className="theme-card-soft mb-5 rounded-[22px] px-4 py-3 text-sm leading-7 text-muted">
             <div className="flex flex-wrap gap-x-5 gap-y-1">
               <span>当前大小：{dataSize}</span>
               <span>

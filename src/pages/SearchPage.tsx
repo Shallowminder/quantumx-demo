@@ -96,7 +96,7 @@ export function SearchPage({
             strokeWidth={1.8}
           />
           <input
-            className="theme-surface-input w-full rounded-xl border border-transparent py-4 pl-11 pr-4 text-[15px] text-ink outline-none transition placeholder:text-muted focus:border-white focus:bg-white"
+            className="theme-input w-full rounded-xl py-4 pl-11 pr-4 text-[15px] text-ink outline-none transition placeholder:text-muted"
             placeholder="搜索旧记录、主题、草稿，比如：AI 工具、写作方法、复盘..."
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -107,7 +107,7 @@ export function SearchPage({
           {suggestions.map((suggestion) => (
             <button
               key={suggestion}
-              className="theme-surface-soft rounded-full border border-transparent px-3 py-1.5 text-sm text-muted transition hover:bg-white hover:text-ink"
+              className="theme-button-secondary rounded-full px-3 py-1.5 text-sm text-muted transition hover:text-ink"
               type="button"
               onClick={() => setQuery(suggestion)}
             >
@@ -123,7 +123,7 @@ export function SearchPage({
               类型
             </span>
             <select
-              className="theme-surface-soft w-full rounded-lg border border-transparent px-3 py-2 text-sm text-ink outline-none focus:border-white"
+              className="theme-input w-full rounded-lg px-3 py-2 text-sm text-ink outline-none"
               value={filters.kind}
               onChange={(event) =>
                 setFilters((current) => ({
@@ -141,7 +141,7 @@ export function SearchPage({
           <label className="block">
             <span className="mb-1 block text-xs text-muted">主题</span>
             <select
-              className="theme-surface-soft w-full rounded-lg border border-transparent px-3 py-2 text-sm text-ink outline-none focus:border-white"
+              className="theme-input w-full rounded-lg px-3 py-2 text-sm text-ink outline-none"
               value={filters.topicId}
               onChange={(event) =>
                 setFilters((current) => ({
@@ -162,7 +162,7 @@ export function SearchPage({
           <label className="block">
             <span className="mb-1 block text-xs text-muted">想法状态</span>
             <select
-              className="theme-surface-soft w-full rounded-lg border border-transparent px-3 py-2 text-sm text-ink outline-none focus:border-white"
+              className="theme-input w-full rounded-lg px-3 py-2 text-sm text-ink outline-none"
               value={filters.status}
               onChange={(event) =>
                 setFilters((current) => ({
@@ -214,7 +214,7 @@ export function SearchPage({
                 return (
                   <article
                     key={`${result.kind}-${result.id}`}
-                    className="frost-panel rounded-[22px] p-4 transition hover:bg-white/88"
+                    className="frost-panel rounded-[22px] p-4 transition"
                   >
                     <button
                       className="w-full text-left"
@@ -222,7 +222,7 @@ export function SearchPage({
                       onClick={() => openResult(result)}
                     >
                       <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-canvas px-2 py-0.5">
+                          <span className="theme-card-soft inline-flex items-center gap-1 rounded-full px-2 py-0.5">
                           {result.kind === "thought" ? (
                             <FileText size={12} strokeWidth={1.8} />
                           ) : (

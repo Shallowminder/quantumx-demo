@@ -331,6 +331,43 @@ button {
     border: 1px solid rgb(var(--panel-border-rgb) / 0.54);
   }
 
+  .theme-input {
+    background: rgb(var(--surface-input-rgb) / 0.94);
+    border: 1px solid transparent;
+  }
+
+  .theme-input:focus {
+    background: rgb(var(--surface-overlay-rgb) / 0.92);
+    border-color: rgb(var(--panel-border-rgb) / 0.74);
+  }
+
+  .theme-button-secondary {
+    background: rgb(var(--surface-soft-rgb) / 0.9);
+    border: 1px solid rgb(var(--panel-border-rgb) / 0.48);
+    color: rgb(var(--ink-rgb));
+  }
+
+  .theme-button-secondary:hover {
+    background: rgb(var(--surface-strong-rgb) / 0.9);
+  }
+
+  .theme-button-muted {
+    background: rgb(var(--surface-overlay-rgb) / 0.82);
+    border: 1px solid rgb(var(--panel-border-rgb) / 0.56);
+    color: rgb(var(--muted-rgb));
+  }
+
+  .theme-button-muted:hover {
+    background: rgb(var(--surface-strong-rgb) / 0.9);
+    color: rgb(var(--ink-rgb));
+  }
+
+  .theme-chip-soft {
+    background: rgb(var(--surface-soft-rgb) / 0.9);
+    border: 1px solid rgb(var(--panel-border-rgb) / 0.48);
+    color: rgb(var(--muted-rgb));
+  }
+
   .theme-primary-button {
     background: rgb(var(--primary-rgb));
     color: rgb(var(--primary-contrast-rgb));

@@ -79,7 +79,7 @@ export function InsightsPage({
       <div className="mt-5">
         <SevenDayTrace savedDistills={savedDistills} thoughts={thoughts} />
         <button
-          className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/75 px-3 py-2 text-sm text-muted ring-1 ring-line/70 transition hover:text-ink"
+          className="theme-pill mt-3 inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm text-muted transition hover:text-ink"
           type="button"
           onClick={() => onNavigate("home")}
         >
@@ -98,7 +98,7 @@ export function InsightsPage({
             你这周最活跃的主题是「{topTopic?.name ?? "长期主题"}」。记录里更关心的不是收集更多材料，而是把已有材料整理成可以继续写的结构。
           </p>
           <button
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
+            className="theme-button-secondary mt-4 inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition"
             type="button"
             onClick={() => topTopic && onOpenTopic(topTopic.id)}
           >
@@ -116,7 +116,7 @@ export function InsightsPage({
             「{reactivatedThought?.summary ?? "旧记录"}」最近又和新的记录连上了。它适合被放进一篇短文，或者作为下次复盘的开头。
           </p>
           <button
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
+            className="theme-button-secondary mt-4 inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition"
             type="button"
             onClick={() => onNavigate("today")}
           >
@@ -136,7 +136,7 @@ export function InsightsPage({
             {continueQuestions.map((item) => {
               const topic = topics.find((candidate) => candidate.id === item.topicId);
               return (
-                <article key={item.id} className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-4">
+                <article key={item.id} className="theme-card-soft rounded-[20px] p-4">
                   <div className="mb-2 text-xs font-medium text-muted">
                     {topic?.name ?? "长期主题"}
                   </div>
@@ -178,7 +178,7 @@ export function InsightsPage({
                       {count} 条 · {inboxCount} 条待整理
                     </span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-[rgba(247,244,238,0.92)]">
+                  <div className="theme-card-soft h-2 overflow-hidden rounded-full">
                     <div
                       className="h-full rounded-full bg-sage/70"
                       style={{ width: `${Math.max(20, (count / thoughts.length) * 100)}%` }}
@@ -197,7 +197,7 @@ export function InsightsPage({
             <div className="flex h-40 items-end gap-3">
               {weekBars.map((item) => (
                 <div key={item.day} className="flex flex-1 flex-col items-center gap-2">
-                  <div className="flex h-28 w-full items-end rounded-[14px] bg-[rgba(247,244,238,0.92)] px-2 pb-2">
+                  <div className="theme-card-soft flex h-28 w-full items-end rounded-[14px] px-2 pb-2">
                     <div
                       className="w-full rounded bg-clay/55"
                       style={{ height: `${Math.max(18, (item.count / maxCount) * 100)}%` }}

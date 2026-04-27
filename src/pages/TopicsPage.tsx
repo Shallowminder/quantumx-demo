@@ -82,7 +82,7 @@ export function TopicsPage({
           }}
         >
           <input
-            className="min-w-0 flex-1 rounded-xl border border-transparent bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-white focus:bg-white"
+            className="theme-input min-w-0 flex-1 rounded-xl px-3.5 py-2.5 text-sm text-ink outline-none transition"
             placeholder="例如：注意力管理"
             value={newTopicName}
             onChange={(event) => setNewTopicName(event.target.value)}
@@ -123,7 +123,7 @@ export function TopicsPage({
           <div className="mb-2 text-sm font-semibold text-ink">新建主题</div>
           <div className="flex gap-2">
             <input
-              className="min-w-0 flex-1 rounded-xl border border-transparent bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-white focus:bg-white"
+              className="theme-input min-w-0 flex-1 rounded-xl px-3.5 py-2.5 text-sm text-ink outline-none transition"
               placeholder="例如：注意力管理"
               value={newTopicName}
               onChange={(event) => setNewTopicName(event.target.value)}
@@ -167,14 +167,14 @@ export function TopicsPage({
                 className={`w-full rounded-[24px] p-4 text-left transition ${
                   active
                     ? "frost-panel-strong"
-                    : "frost-panel hover:bg-white/86"
+                    : "frost-panel"
                 }`}
                 type="button"
                 onClick={() => onSelectTopic(topic.id)}
               >
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <TopicBadge topic={topic} />
-                  <span className="rounded-full bg-[rgba(247,244,238,0.92)] px-2.5 py-1 text-xs text-muted">
+                  <span className="theme-chip-soft rounded-full px-2.5 py-1 text-xs text-muted">
                     {topicRecords.length} 条记录
                   </span>
                 </div>
@@ -195,12 +195,12 @@ export function TopicsPage({
       </section>
 
       <section className="frost-panel-strong rounded-[30px] p-5 sm:p-6">
-        <div className="mb-6 flex flex-col gap-3 border-b border-white/70 pb-6 sm:flex-row sm:items-start sm:justify-between">
+        <div className="mb-6 flex flex-col gap-3 border-b soft-divider pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <TopicBadge topic={selectedTopic} />
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
               <input
-                className="min-w-0 rounded-[18px] border border-transparent bg-transparent px-0 py-1 text-2xl font-semibold tracking-normal text-ink outline-none transition focus:border-white focus:bg-[rgba(247,244,238,0.88)] focus:px-3"
+                className="theme-input min-w-0 rounded-[18px] bg-transparent px-0 py-1 text-2xl font-semibold tracking-normal text-ink outline-none transition focus:px-3"
                 value={topicNameDraft}
                 onChange={(event) => setTopicNameDraft(event.target.value)}
                 onBlur={() => onRenameTopic(selectedTopic.id, topicNameDraft)}
@@ -217,25 +217,25 @@ export function TopicsPage({
               {selectedTopic.description}
             </p>
           </div>
-          <div className="rounded-full bg-[rgba(247,244,238,0.92)] px-3.5 py-2 text-sm text-muted">
+          <div className="theme-chip-soft rounded-full px-3.5 py-2 text-sm text-muted">
             {topicThoughts.length} 条相关记录
           </div>
         </div>
 
         <div className="mb-6 grid gap-3 md:grid-cols-3">
-          <div className="rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
+          <div className="theme-card-soft rounded-[22px] p-4">
             <div className="mb-1 text-xs text-muted">最早记录</div>
             <div className="text-sm font-medium text-ink">
               {earliestThought ? formatMonthDay(earliestThought.createdAt) : "暂无"}
             </div>
           </div>
-          <div className="rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
+          <div className="theme-card-soft rounded-[22px] p-4">
             <div className="mb-1 text-xs text-muted">最近更新</div>
             <div className="text-sm font-medium text-ink">
               {latestThought ? formatMonthDay(latestThought.createdAt) : "暂无"}
             </div>
           </div>
-          <div className="rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
+          <div className="theme-card-soft rounded-[22px] p-4">
             <div className="mb-1 text-xs text-muted">待整理材料</div>
             <div className="text-sm font-medium text-ink">{inboxCount} 条</div>
           </div>
@@ -253,7 +253,7 @@ export function TopicsPage({
             {selectedTopic.signals.map((signal) => (
               <span
                 key={signal}
-                className="rounded-full bg-[rgba(247,244,238,0.92)] px-3 py-1.5 text-sm text-muted"
+                className="theme-chip-soft rounded-full px-3 py-1.5 text-sm text-muted"
               >
                 {signal}
               </span>
@@ -268,7 +268,7 @@ export function TopicsPage({
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             {growingQuestions.map((question) => (
-              <div key={question} className="rounded-[18px] bg-white/88 px-3 py-2.5 text-sm leading-6 text-ink">
+              <div key={question} className="theme-card-overlay rounded-[18px] px-3 py-2.5 text-sm leading-6 text-ink">
                 {question}
               </div>
             ))}
@@ -290,10 +290,10 @@ export function TopicsPage({
             </div>
             <div className="grid gap-2 md:grid-cols-2">
               {unattachedThoughts.map((thought) => (
-                <article key={thought.id} className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-3.5">
+                <article key={thought.id} className="theme-card-soft rounded-[20px] p-3.5">
                   <p className="line-clamp-3 text-sm leading-6 text-ink">{thought.content}</p>
                   <button
-                    className="mt-3 rounded-xl bg-white/80 px-3 py-1.5 text-xs text-muted transition hover:bg-white hover:text-ink"
+                    className="theme-button-muted mt-3 rounded-xl px-3 py-1.5 text-xs transition"
                     type="button"
                     onClick={() => onAttachThoughtToTopic(thought.id, selectedTopic.id)}
                   >
@@ -311,7 +311,7 @@ export function TopicsPage({
             {sortedTopicThoughts.map((thought) => (
               <button
                 key={thought.id}
-                className="w-full rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4 text-left transition hover:bg-white"
+                className="theme-card-soft w-full rounded-[22px] p-4 text-left transition"
                 type="button"
                 onClick={() => onOpenThought(thought.id)}
               >

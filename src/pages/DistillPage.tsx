@@ -254,8 +254,8 @@ export function DistillPage({
                 key={topic.id}
                 className={`w-full rounded-[20px] px-3.5 py-3.5 text-left transition ${
                   topic.id === selectedTopic.id
-                    ? "bg-[rgba(247,244,238,0.98)]"
-                    : "bg-white/55 hover:bg-white/88"
+                    ? "theme-card-soft"
+                    : "theme-card-overlay"
                 }`}
                 type="button"
                 onClick={() => {
@@ -286,9 +286,7 @@ export function DistillPage({
                 <label
                   key={thought.id}
                   className={`block rounded-[20px] p-3.5 transition ${
-                    checked
-                      ? "bg-[rgba(247,244,238,0.98)]"
-                      : "bg-white/55 hover:bg-white/88"
+                    checked ? "theme-card-soft" : "theme-card-overlay"
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -319,7 +317,7 @@ export function DistillPage({
             <span className="text-xs text-muted">{savedDistills.length} 份</span>
           </div>
           {savedDistills.length === 0 ? (
-            <p className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-3 text-sm leading-6 text-muted">
+            <p className="theme-card-soft rounded-[20px] p-3 text-sm leading-6 text-muted">
               保存后的整理内容会出现在这里，可以回来继续编辑、复制或查看来源。
             </p>
           ) : (
@@ -329,8 +327,8 @@ export function DistillPage({
                   key={draft.id}
                   className={`rounded-[20px] p-3.5 ${
                     activeDraftId === draft.id
-                      ? "bg-[rgba(247,244,238,0.98)]"
-                      : "bg-white/55"
+                      ? "theme-card-soft"
+                      : "theme-card-overlay"
                   }`}
                 >
                   <button
@@ -344,7 +342,7 @@ export function DistillPage({
                     </div>
                   </button>
                   <button
-                    className="mt-2 inline-flex items-center gap-1 rounded-xl bg-[rgba(247,244,238,0.92)] px-2.5 py-1.5 text-[11px] text-muted transition hover:bg-white hover:text-ink"
+                    className="theme-button-secondary mt-2 inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] transition hover:text-ink"
                     type="button"
                     onClick={() => onDeleteDistill(draft.id)}
                   >
@@ -362,7 +360,7 @@ export function DistillPage({
             <div className="mb-3 text-sm font-semibold text-ink">当前草稿来源</div>
             <div className="space-y-2">
               {selectedThoughts.map((thought) => (
-                <div key={thought.id} className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-3">
+                <div key={thought.id} className="theme-card-soft rounded-[20px] p-3">
                   <div className="mb-1 text-xs text-muted">
                     {formatMonthDay(thought.createdAt)} · {thought.source}
                   </div>
@@ -375,7 +373,7 @@ export function DistillPage({
       </section>
 
       <section className="frost-panel-strong rounded-[30px] p-5 sm:p-7">
-        <div className="mb-6 flex flex-col gap-3 border-b border-white/70 pb-6 sm:flex-row sm:items-start sm:justify-between">
+        <div className="mb-6 flex flex-col gap-3 border-b soft-divider pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <TopicBadge topic={selectedTopic} />
             <h2 className="mt-3 text-2xl font-semibold tracking-normal text-ink">
@@ -387,7 +385,7 @@ export function DistillPage({
           </div>
           <div className="flex flex-wrap gap-2 sm:justify-end">
             <button
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-4 py-2.5 text-sm font-medium text-ink transition hover:bg-white disabled:bg-stone-100 disabled:text-muted"
+              className="theme-button-secondary inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition disabled:text-muted"
               disabled={selectedThoughts.length === 0 || isGenerating}
               type="button"
               onClick={() => void generateDistill()}
@@ -400,7 +398,7 @@ export function DistillPage({
               {isGenerating ? "生成中" : "AI 生成"}
             </button>
             <button
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+              className="theme-primary-button inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition disabled:text-muted"
               disabled={selectedThoughts.length === 0}
               type="button"
               onClick={saveDraft}
@@ -417,9 +415,9 @@ export function DistillPage({
               key={type}
               className={`rounded-full px-3.5 py-2 text-sm transition ${
                 outputType === type
-                  ? "bg-ink text-white"
-                  : "bg-[rgba(247,244,238,0.92)] text-muted hover:bg-white hover:text-ink"
-              }`}
+                  ? "theme-primary-button"
+                  : "theme-button-muted"
+                }`}
               type="button"
               onClick={() => {
                 setActiveDraftId(null);
@@ -450,7 +448,7 @@ export function DistillPage({
           <FilePenLine size={16} strokeWidth={1.8} />
           <span className="flex-1">可编辑输出</span>
           <button
-            className="inline-flex items-center gap-1 rounded-xl bg-[rgba(247,244,238,0.92)] px-3 py-1.5 text-xs text-muted transition hover:bg-white hover:text-ink"
+            className="theme-button-secondary inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs transition hover:text-ink"
             type="button"
             onClick={copyMarkdown}
           >
@@ -459,7 +457,7 @@ export function DistillPage({
           </button>
         </div>
         <textarea
-          className="min-h-[520px] w-full resize-y rounded-[24px] border border-transparent bg-[rgba(247,244,238,0.94)] px-5 py-4 font-mono text-sm leading-7 text-ink outline-none transition focus:border-white focus:bg-white"
+          className="theme-input min-h-[520px] w-full resize-y rounded-[24px] px-5 py-4 font-mono text-sm leading-7 text-ink outline-none transition"
           value={editableContent}
           onChange={(event) => setEditableContent(event.target.value)}
         />
