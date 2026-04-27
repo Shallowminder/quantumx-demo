@@ -21,12 +21,12 @@ export function ContinueThinkingPanel({
   const topic = getTopTopics(topics, thoughts, 1)[0]?.topic;
 
   return (
-    <section className="rounded-[18px] bg-white/70 p-5 shadow-[0_12px_34px_rgba(45,43,37,0.045)] ring-1 ring-line/70">
+    <section className="frost-panel rounded-[18px] p-5">
       <h2 className="text-xl font-semibold tracking-normal text-ink">可以从这里继续</h2>
       <div className="mt-4 space-y-3">
         {thought && (
           <button
-            className="flex w-full items-center justify-between gap-3 rounded-2xl bg-canvas p-4 text-left transition hover:bg-white"
+            className="theme-card-soft flex w-full items-center justify-between gap-3 rounded-2xl p-4 text-left transition"
             type="button"
             onClick={() => onContinueFromThought(thought)}
           >
@@ -38,7 +38,7 @@ export function ContinueThinkingPanel({
         )}
         {topic && (
           <button
-            className="flex w-full items-center justify-between gap-3 rounded-2xl bg-canvas p-4 text-left transition hover:bg-white"
+            className="theme-card-soft flex w-full items-center justify-between gap-3 rounded-2xl p-4 text-left transition"
             type="button"
             onClick={() => onOpenTopic(topic.id)}
           >
@@ -49,7 +49,7 @@ export function ContinueThinkingPanel({
           </button>
         )}
         <button
-          className="flex w-full items-center justify-between gap-3 rounded-2xl bg-canvas p-4 text-left transition hover:bg-white"
+          className="theme-card-soft flex w-full items-center justify-between gap-3 rounded-2xl p-4 text-left transition"
           type="button"
           onClick={onOpenToday}
         >

@@ -25,7 +25,7 @@ export function HomeTopicHighlights({
         </div>
       </div>
       {highlights.length === 0 ? (
-        <p className="rounded-2xl bg-white/70 p-5 text-sm leading-7 text-muted ring-1 ring-line/70">
+        <p className="frost-panel rounded-2xl p-5 text-sm leading-7 text-muted">
           再记录几天后，这里会开始出现反复浮现的主题。
         </p>
       ) : (
@@ -52,7 +52,7 @@ export function HomeTopicHighlights({
             return (
               <button
                 key={topic.id}
-                className="rounded-2xl bg-white/72 p-5 text-left shadow-[0_14px_34px_rgba(45,43,37,0.045)] ring-1 ring-line/70 transition hover:bg-white"
+                className="frost-panel rounded-2xl p-5 text-left transition"
                 type="button"
                 onClick={() => onOpenTopic(topic.id)}
               >
@@ -67,7 +67,7 @@ export function HomeTopicHighlights({
                 </div>
                 <p className="text-sm leading-7 text-muted">{topic.summary}</p>
                 {questions[0] && (
-                  <p className="mt-3 rounded-xl bg-canvas px-3 py-2 text-sm leading-6 text-ink">
+                  <p className="theme-card-soft mt-3 rounded-xl px-3 py-2 text-sm leading-6 text-ink">
                     {questions[0]}
                   </p>
                 )}

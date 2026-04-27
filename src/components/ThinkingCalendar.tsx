@@ -12,7 +12,7 @@ interface ThinkingCalendarProps {
 function intensityClass(day: CalendarDaySummary, selected: boolean) {
   const total = day.thoughtCount + day.draftCount;
   if (selected) return "border-sage bg-sage/70";
-  if (total === 0) return "border-transparent bg-stone-200/45 hover:bg-stone-200";
+  if (total === 0) return "border-transparent theme-card-soft";
   if (total <= 2) return "border-transparent bg-sage/20 hover:bg-sage/30";
   if (total <= 4) return "border-transparent bg-sage/40 hover:bg-sage/50";
   return "border-transparent bg-sage/65 hover:bg-sage/75";
@@ -38,7 +38,7 @@ export function ThinkingCalendar({
   const monthLabels = days.filter((day) => day.dayOfMonth === 1);
 
   return (
-    <section className="rounded-[18px] bg-white/72 p-5 shadow-[0_14px_40px_rgba(45,43,37,0.06)] ring-1 ring-line/70 sm:p-6">
+    <section className="frost-panel rounded-[18px] p-5 sm:p-6">
       <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2 text-sm text-muted">
@@ -50,7 +50,7 @@ export function ThinkingCalendar({
             看看这些想法是在什么时候慢慢留下的。
           </p>
         </div>
-        <div className="rounded-full bg-canvas px-3 py-1.5 text-xs text-muted">
+        <div className="theme-chip-soft rounded-full px-3 py-1.5 text-xs text-muted">
           以后也可以按周查看更长时间里的思考痕迹
         </div>
       </div>
@@ -89,7 +89,7 @@ export function ThinkingCalendar({
         </div>
       </div>
 
-      <div className="mt-5 rounded-2xl bg-canvas/80 p-4">
+      <div className="theme-card-soft mt-5 rounded-2xl p-4">
         <div className="mb-2 text-sm font-semibold text-ink">
           {selectedDay?.dateLabel ?? "这一天"}
         </div>
@@ -105,7 +105,7 @@ export function ThinkingCalendar({
                 {selectedDay.topicNames.map((name) => (
                   <span
                     key={name}
-                    className="rounded-full bg-white px-2.5 py-1 text-xs text-muted ring-1 ring-line/70"
+                    className="theme-pill rounded-full px-2.5 py-1 text-xs text-muted"
                   >
                     {name}
                   </span>

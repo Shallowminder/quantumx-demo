@@ -419,7 +419,7 @@ export function CloudModePanel({
               strokeWidth={1.8}
             />
             <input
-              className="w-full rounded-[18px] border border-transparent bg-[rgba(247,244,238,0.94)] py-2.5 pl-9 pr-3 text-sm text-ink outline-none transition focus:border-white focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="theme-input w-full rounded-[18px] py-2.5 pl-9 pr-3 text-sm text-ink outline-none transition disabled:cursor-not-allowed disabled:opacity-60"
               disabled={disabled}
               placeholder="邮箱地址"
               type="email"
@@ -428,7 +428,7 @@ export function CloudModePanel({
             />
           </label>
           <button
-            className="rounded-xl bg-ink px-3.5 py-2.5 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+            className="theme-primary-button rounded-xl px-3.5 py-2.5 text-sm font-medium transition disabled:text-muted"
             disabled={disabled || busy || email.trim().length === 0}
             type="button"
             onClick={() => void sendMagicLink()}
@@ -480,7 +480,7 @@ export function CloudModePanel({
         <p className="mt-2 text-xs leading-6 text-muted">{detail}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
-            className="inline-flex items-center gap-2 rounded-xl bg-ink px-3.5 py-2.5 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+            className="theme-primary-button inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium transition disabled:text-muted"
             disabled={busy}
             type="button"
             onClick={() => void syncToCloud()}
@@ -489,7 +489,7 @@ export function CloudModePanel({
             把这台设备同步到云端
           </button>
           <button
-            className="inline-flex items-center gap-2 rounded-xl bg-white/80 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
+            className="theme-button-muted inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition disabled:opacity-60"
             disabled={busy}
             type="button"
             onClick={() => void restoreFromCloud()}
@@ -527,13 +527,13 @@ export function CloudModePanel({
 入口就在这里。当前部署如果还没有配置 Supabase 环境变量，发送按钮会暂时不可用；
 配好后，邮箱登录会直接接入本地优先的云端同步链路。
         </p>
-        <div className="mt-4 rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
+        <div className="theme-card-soft mt-4 rounded-[22px] p-4">
           {renderEmailLogin(
             true,
             "输入邮箱后本应发送一封 magic link 登录邮件。现在你在网站里看不到可用状态，不是你没找到入口，而是这台部署环境还没配置云端登录。",
           )}
         </div>
-        <div className="mt-4 rounded-[18px] bg-[rgba(247,244,238,0.92)] px-3 py-2 font-mono text-xs leading-6 text-muted">
+        <div className="theme-card-soft mt-4 rounded-[18px] px-3 py-2 font-mono text-xs leading-6 text-muted">
           VITE_SUPABASE_URL
           <br />
           VITE_SUPABASE_ANON_KEY
@@ -568,7 +568,7 @@ export function CloudModePanel({
               : " 你可以先把当前浏览器里的本地数据同步到 Supabase，再切换到云端模式。"}
           </p>
           <div className="mb-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[20px] bg-[rgba(247,244,238,0.92)] px-3.5 py-3.5 text-sm leading-6 text-muted">
+            <div className="theme-card-soft rounded-[20px] px-3.5 py-3.5 text-sm leading-6 text-muted">
               <div className="mb-1 text-xs text-muted">本地</div>
               <div className="font-medium text-ink">
                 {localSummary.thoughts} 条记录 · {localSummary.topics} 个主题 · {localSummary.drafts} 份草稿
@@ -579,7 +579,7 @@ export function CloudModePanel({
                   : "还没有本地活动"}
               </div>
             </div>
-            <div className="rounded-[20px] bg-[rgba(247,244,238,0.92)] px-3.5 py-3.5 text-sm leading-6 text-muted">
+            <div className="theme-card-soft rounded-[20px] px-3.5 py-3.5 text-sm leading-6 text-muted">
               <div className="mb-1 flex items-center justify-between gap-2">
                 <span className="text-xs text-muted">云端</span>
                 <button
@@ -604,7 +604,7 @@ export function CloudModePanel({
               </div>
             </div>
           </div>
-          <div className="mb-4 rounded-[18px] bg-white/80 px-3.5 py-3 text-xs leading-6 text-muted ring-1 ring-line/70">
+          <div className="theme-card-overlay mb-4 rounded-[18px] px-3.5 py-3 text-xs leading-6 text-muted">
             <div>
               最近上传：
               {syncMetadata.lastPushedAt
@@ -632,7 +632,7 @@ export function CloudModePanel({
           </div>
           <div className="flex flex-wrap gap-2">
             <button
-              className="inline-flex items-center gap-2 rounded-xl bg-ink px-3.5 py-2.5 text-sm font-medium text-white transition hover:bg-black disabled:bg-stone-200 disabled:text-muted"
+              className="theme-primary-button inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium transition disabled:text-muted"
               disabled={busy}
               type="button"
               onClick={() => void syncToCloud()}
@@ -641,7 +641,7 @@ export function CloudModePanel({
               同步到云端
             </button>
             <button
-              className="inline-flex items-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white disabled:opacity-60"
+              className="theme-button-secondary inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition disabled:opacity-60"
               disabled={busy}
               type="button"
               onClick={() => void restoreFromCloud()}
@@ -650,7 +650,7 @@ export function CloudModePanel({
               从云端恢复
             </button>
             <button
-              className="inline-flex items-center gap-2 rounded-xl bg-white/80 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
+              className="theme-button-muted inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition disabled:opacity-60"
               disabled={busy}
               type="button"
               onClick={() => void signOut()}
@@ -667,14 +667,14 @@ export function CloudModePanel({
               <p className="mb-4 text-sm leading-7 text-muted">
                 邮箱登录已经移到左上角头像入口里。先从那里连上你的账号，这里就会自动切换成同步、恢复和云端状态管理。
               </p>
-              <div className="mt-3 rounded-[20px] bg-[rgba(247,244,238,0.92)] px-3.5 py-3 text-xs leading-6 text-muted">
+              <div className="theme-card-soft mt-3 rounded-[20px] px-3.5 py-3 text-xs leading-6 text-muted">
                 <div className="font-medium text-ink">当前登录回调地址</div>
-                <div className="mt-2 break-all rounded-[14px] bg-white/85 px-2.5 py-2 font-mono text-[11px] text-ink ring-1 ring-line/70">
+                <div className="theme-card-overlay mt-2 break-all rounded-[14px] px-2.5 py-2 font-mono text-[11px] text-ink">
                   {callbackUrl}
                 </div>
                 <div className="mt-2">
                   如果之后要继续调整回调路径，当前值是
-                  <code className="ml-1 rounded bg-white px-1 py-0.5 text-[11px] text-ink">
+                  <code className="theme-pill ml-1 rounded px-1 py-0.5 text-[11px] text-ink">
                     {authRedirectPath}
                   </code>
                   。
@@ -687,47 +687,47 @@ export function CloudModePanel({
                 先用邮箱登录最省心。输入邮箱后，QuantumX 会发一封登录邮件给你；
                 点开邮件里的链接，就能把这台设备和你的云端账号连起来。
               </p>
-              <div className="rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
+              <div className="theme-card-soft rounded-[22px] p-4">
                 {renderEmailLogin(
                   false,
                   "发送后请去邮箱里点开登录链接。如果没收到，可以稍等几十秒，或者检查垃圾邮件。",
                 )}
               </div>
-              <div className="mt-3 rounded-[20px] bg-[rgba(247,244,238,0.92)] px-3.5 py-3 text-xs leading-6 text-muted">
+              <div className="theme-card-soft mt-3 rounded-[20px] px-3.5 py-3 text-xs leading-6 text-muted">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-medium text-ink">当前登录回调地址</span>
                   <button
-                    className="rounded-lg bg-white/85 px-2.5 py-1 text-[11px] text-ink ring-1 ring-line/70 transition hover:bg-white"
+                    className="theme-button-muted rounded-lg px-2.5 py-1 text-[11px] transition"
                     type="button"
                     onClick={() => void copyCallbackUrl()}
                   >
                     复制
                   </button>
                 </div>
-                <div className="mt-2 break-all rounded-[14px] bg-white/85 px-2.5 py-2 font-mono text-[11px] text-ink ring-1 ring-line/70">
+                <div className="theme-card-overlay mt-2 break-all rounded-[14px] px-2.5 py-2 font-mono text-[11px] text-ink">
                   {callbackUrl}
                 </div>
                 <div className="mt-2">
                   你可以在环境变量里调整回调路径：
-                  <code className="mx-1 rounded bg-white px-1 py-0.5 text-[11px] text-ink">
+                  <code className="theme-pill mx-1 rounded px-1 py-0.5 text-[11px] text-ink">
                     VITE_SUPABASE_AUTH_REDIRECT_PATH
                   </code>
                   当前值是
-                  <code className="ml-1 rounded bg-white px-1 py-0.5 text-[11px] text-ink">
+                  <code className="theme-pill ml-1 rounded px-1 py-0.5 text-[11px] text-ink">
                     {authRedirectPath}
                   </code>
                   。
                 </div>
               </div>
               {isWeChatConfigured && (
-                <div className="mt-4 rounded-[22px] bg-[rgba(247,244,238,0.92)] p-4">
+                <div className="theme-card-soft mt-4 rounded-[22px] p-4">
                   <div className="mb-2 text-sm font-medium text-ink">其他登录方式（可选）</div>
                   <p className="mb-3 text-xs leading-6 text-muted">
                     微信登录还可以保留在这里，但我们现在主推邮箱登录。只有在你已经把微信 provider 配好时，这部分才会显示。
                   </p>
                   <div className="mb-3 flex flex-wrap gap-2">
                     <button
-                      className="inline-flex items-center gap-2 rounded-xl bg-white/85 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
+                      className="theme-button-muted inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition disabled:opacity-60"
                       disabled={busy}
                       type="button"
                       onClick={() => void signInWithWeChat()}
@@ -736,7 +736,7 @@ export function CloudModePanel({
                       微信登录
                     </button>
                     <button
-                      className="inline-flex items-center gap-2 rounded-xl bg-white/85 px-3.5 py-2.5 text-sm text-ink ring-1 ring-line/70 transition hover:bg-white disabled:opacity-60"
+                      className="theme-button-muted inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition disabled:opacity-60"
                       disabled={busy}
                       type="button"
                       onClick={() => void prepareWeChatQr()}
@@ -744,12 +744,12 @@ export function CloudModePanel({
                       <QrCode size={15} strokeWidth={1.8} />
                       二维码登录
                     </button>
-                    <span className="inline-flex items-center rounded-xl bg-white/80 px-3 py-2 text-xs text-muted ring-1 ring-line/70">
+                    <span className="theme-pill inline-flex items-center rounded-xl px-3 py-2 text-xs text-muted">
                       当前 provider：{weChatProviderId}
                     </span>
                   </div>
                   <div
-                    className="mx-auto flex min-h-[240px] max-w-[240px] items-center justify-center rounded-[20px] bg-white/90 p-3 ring-1 ring-line/70"
+                    className="theme-card-overlay mx-auto flex min-h-[240px] max-w-[240px] items-center justify-center rounded-[20px] p-3"
                     id={qrContainerId}
                   >
                     {wechatQrState === "idle" && (
@@ -771,7 +771,7 @@ export function CloudModePanel({
                   {wechatQrUrl && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       <button
-                        className="inline-flex items-center gap-2 rounded-lg bg-white/85 px-3 py-2 text-xs text-ink ring-1 ring-line/70 transition hover:bg-white"
+                        className="theme-button-muted inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs transition"
                         type="button"
                         onClick={() => void prepareWeChatQr()}
                       >
@@ -779,7 +779,7 @@ export function CloudModePanel({
                         刷新二维码
                       </button>
                       <a
-                        className="inline-flex items-center gap-2 rounded-lg bg-white/85 px-3 py-2 text-xs text-ink ring-1 ring-line/70 transition hover:bg-white"
+                        className="theme-button-muted inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs transition"
                         href={wechatQrUrl}
                       >
                         <MessageCircleMore size={13} strokeWidth={1.8} />
@@ -795,7 +795,7 @@ export function CloudModePanel({
       )}
 
       {message && (
-        <div className="mt-4 rounded-[18px] bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm leading-6 text-muted">
+        <div className="theme-card-soft mt-4 rounded-[18px] px-3.5 py-2.5 text-sm leading-6 text-muted">
           {message}
         </div>
       )}
