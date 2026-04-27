@@ -64,7 +64,7 @@ export function RelatedMemoriesPanel({
 
   return (
     <aside className="space-y-4">
-      <section className="rounded-xl border border-line bg-white p-4 shadow-sm">
+      <section className="frost-panel rounded-[28px] p-4">
         <div className="mb-1 text-sm font-semibold text-ink">{title}</div>
         <p className="mb-4 text-sm leading-6 text-muted">{description}</p>
         <div className="space-y-3">
@@ -77,7 +77,7 @@ export function RelatedMemoriesPanel({
                 {group.matches.map((match) => (
                   <article
                     key={match.thought.id}
-                    className="w-full rounded-lg border border-line bg-canvas p-3 text-left transition hover:border-sage/35 hover:bg-white"
+                    className="w-full rounded-[22px] bg-[rgba(248,246,241,0.92)] p-3.5 text-left transition hover:bg-white"
                   >
                     <button
                       className="w-full text-left"
@@ -97,10 +97,10 @@ export function RelatedMemoriesPanel({
                     </button>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       <button
-                        className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] transition ${
+                        className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] transition ${
                           feedback[match.thought.id] === "helpful"
-                            ? "border-sage/40 bg-sage/10 text-sage"
-                            : "border-line bg-white text-muted hover:text-ink"
+                            ? "bg-sage/10 text-sage"
+                            : "bg-white/80 text-muted hover:bg-white hover:text-ink"
                         }`}
                         type="button"
                         onClick={() => {
@@ -115,10 +115,10 @@ export function RelatedMemoriesPanel({
                         有帮助
                       </button>
                       <button
-                        className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] transition ${
+                        className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] transition ${
                           feedback[match.thought.id] === "irrelevant"
-                            ? "border-clay/40 bg-clay/10 text-clay"
-                            : "border-line bg-white text-muted hover:text-ink"
+                            ? "bg-clay/10 text-clay"
+                            : "bg-white/80 text-muted hover:bg-white hover:text-ink"
                         }`}
                         type="button"
                         onClick={() => {
@@ -133,7 +133,7 @@ export function RelatedMemoriesPanel({
                         不相关
                       </button>
                       <button
-                        className="inline-flex items-center gap-1 rounded-md border border-line bg-white px-2 py-1 text-[11px] text-muted transition hover:text-ink"
+                        className="inline-flex items-center gap-1 rounded-xl bg-white/80 px-2.5 py-1.5 text-[11px] text-muted transition hover:bg-white hover:text-ink"
                         type="button"
                         onClick={() => {
                           setPinnedIds((current) => {
@@ -151,7 +151,7 @@ export function RelatedMemoriesPanel({
                       </button>
                       {onAttachToTopic && match.thought.topicIds[0] && (
                         <button
-                          className="rounded-md border border-line bg-white px-2 py-1 text-[11px] text-muted transition hover:text-ink"
+                          className="rounded-xl bg-white/80 px-2.5 py-1.5 text-[11px] text-muted transition hover:bg-white hover:text-ink"
                           type="button"
                           onClick={() => {
                             onAttachToTopic(match.thought.id, match.thought.topicIds[0]);
@@ -170,7 +170,7 @@ export function RelatedMemoriesPanel({
         </div>
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-4 shadow-sm">
+      <section className="frost-panel rounded-[28px] p-4">
         <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
           <Layers3 size={16} strokeWidth={1.8} />
           可以整理的主题
@@ -179,13 +179,13 @@ export function RelatedMemoriesPanel({
           {relatedTopics.map((topic) => (
             <button
               key={topic.id}
-              className="w-full rounded-lg border border-line px-3 py-3 text-left transition hover:border-sage/35 hover:bg-canvas"
+              className="w-full rounded-[22px] bg-[rgba(248,246,241,0.9)] px-3 py-3 text-left transition hover:bg-white"
               type="button"
               onClick={() => onOpenTopic(topic.id)}
             >
               <div className="mb-1 flex items-center justify-between gap-3">
                 <span className="text-sm font-medium text-ink">{topic.name}</span>
-                <span className="rounded-full bg-paper px-2 py-0.5 text-xs text-muted">
+                <span className="rounded-full bg-white/80 px-2.5 py-1 text-xs text-muted">
                   {topic.thoughtIds.length} 条
                 </span>
               </div>

@@ -38,7 +38,7 @@ export function CaptureComposer({
   return (
     <motion.section
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-line bg-white p-4 shadow-soft"
+      className="frost-panel-strong rounded-[28px] p-4"
       initial={{ opacity: 0, y: 8 }}
       transition={{ duration: 0.22, ease: "easeOut" }}
     >
@@ -49,7 +49,7 @@ export function CaptureComposer({
 
       <textarea
         ref={textareaRef}
-        className="min-h-28 w-full resize-none rounded-lg border border-transparent bg-canvas px-4 py-3 text-[15px] leading-7 text-ink outline-none transition placeholder:text-muted/70 focus:border-sage/40 focus:bg-white"
+        className="min-h-28 w-full resize-none rounded-[22px] border border-transparent bg-[rgba(247,244,238,0.94)] px-4 py-3.5 text-[15px] leading-7 text-ink outline-none transition placeholder:text-muted/70 focus:border-white focus:bg-white"
         placeholder="写下一句话、一个问题、一段摘录，或刚冒出来的想法..."
         value={draft}
         onChange={(event) => onDraftChange(event.target.value)}
@@ -80,7 +80,7 @@ export function CaptureComposer({
               {suggestedTopics.map((topic) => (
                 <span
                   key={topic.id}
-                  className="rounded-full border border-line bg-white px-2 py-0.5 text-[11px] text-muted"
+                  className="rounded-full bg-white/85 px-2.5 py-1 text-[11px] text-muted"
                 >
                   {topic.name}
                 </span>
@@ -89,10 +89,10 @@ export function CaptureComposer({
           )}
         </div>
         <button
-          className={`inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition ${
+          className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
             canSubmit
               ? "bg-ink text-white hover:bg-black"
-              : "bg-stone-200 text-muted"
+              : "bg-stone-200/90 text-muted"
           }`}
           disabled={!canSubmit}
           type="button"

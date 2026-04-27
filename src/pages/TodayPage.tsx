@@ -87,9 +87,9 @@ export function TodayPage({
   const briefTopic = topics.find((topic) => briefThought?.topicIds.includes(topic.id));
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+    <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_360px]">
       <section className="min-w-0">
-        <header className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="mb-2 flex items-center gap-2 text-sm text-muted">
               <CalendarDays size={16} strokeWidth={1.8} />
@@ -99,7 +99,7 @@ export function TodayPage({
               今日思考
             </h1>
           </div>
-          <div className="rounded-full border border-line bg-white px-3 py-1.5 text-sm text-muted">
+          <div className="rounded-full border border-white/80 bg-[rgba(255,255,255,0.58)] px-3 py-1.5 text-sm text-muted shadow-[inset_0_1px_0_rgba(255,255,255,0.58)]">
             {thoughts.length} 条记录 · {topics.length} 个长期主题
           </div>
         </header>
@@ -116,7 +116,7 @@ export function TodayPage({
         />
 
         {thoughts.length === 0 && (
-          <section className="mt-4 rounded-xl border border-line bg-white p-5 shadow-sm">
+          <section className="frost-panel mt-5 rounded-[24px] p-5">
             <div className="mb-2 text-sm font-semibold text-ink">先从第一条想法开始</div>
             <p className="text-sm leading-7 text-muted">
               这台设备当前还没有本地记录。你可以先写下一句最近在想的事，或者先去右侧登录后从云端恢复已有内容。
@@ -125,7 +125,7 @@ export function TodayPage({
         )}
 
         {!briefDismissed && briefThought && (
-          <section className="mt-4 rounded-xl border border-line bg-white p-4 shadow-sm">
+          <section className="frost-panel mt-5 rounded-[24px] p-4">
             <div className="mb-2 flex items-start justify-between gap-3">
               <div>
                 <div className="mb-1 text-sm font-semibold text-ink">
@@ -148,7 +148,7 @@ export function TodayPage({
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               <button
-                className="inline-flex items-center gap-2 rounded-md bg-ink px-3 py-2 text-sm font-medium text-white transition hover:bg-black"
+                className="inline-flex items-center gap-2 rounded-xl bg-ink px-3.5 py-2.5 text-sm font-medium text-white transition hover:bg-black"
                 type="button"
                 onClick={() => onContinueFromThought(briefThought)}
               >
@@ -157,7 +157,7 @@ export function TodayPage({
               </button>
               {briefTopic && (
                 <button
-                  className="rounded-md border border-line bg-canvas px-3 py-2 text-sm text-ink transition hover:border-sage/40 hover:bg-white"
+                  className="rounded-xl bg-[rgba(247,244,238,0.92)] px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
                   type="button"
                   onClick={() => onOpenTopic(briefTopic.id)}
                 >
@@ -165,7 +165,7 @@ export function TodayPage({
                 </button>
               )}
               <button
-                className="rounded-md border border-line bg-white px-3 py-2 text-sm text-muted transition hover:text-ink"
+                className="rounded-xl bg-white/70 px-3.5 py-2.5 text-sm text-muted transition hover:bg-white hover:text-ink"
                 type="button"
                 onClick={() => {
                   onRequestCaptureFocus();
@@ -179,7 +179,7 @@ export function TodayPage({
         )}
 
         {inboxThoughts.length > 0 && (
-          <div className="mt-6 rounded-xl border border-line bg-white p-4 shadow-sm">
+          <div className="frost-panel mt-7 rounded-[26px] p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-sm font-semibold text-ink">
                 <Inbox size={16} strokeWidth={1.8} />
@@ -191,7 +191,7 @@ export function TodayPage({
               {inboxThoughts.map((thought) => (
                 <button
                   key={thought.id}
-                  className="rounded-lg border border-line bg-canvas p-3 text-left text-sm leading-6 text-ink transition hover:border-sage/35 hover:bg-white"
+                  className="rounded-[20px] bg-[rgba(248,246,241,0.92)] p-3.5 text-left text-sm leading-6 text-ink transition hover:bg-white"
                   type="button"
                   onClick={() => onOpenThought(thought.id)}
                 >
@@ -218,7 +218,7 @@ export function TodayPage({
                 />
               ))
             ) : (
-              <div className="rounded-xl border border-line bg-white p-4 text-sm leading-7 text-muted">
+              <div className="frost-panel rounded-[24px] p-4 text-sm leading-7 text-muted">
                 还没有最近记录。先写下一句，QuantumX 才会开始把旧想法、主题和后续整理慢慢带出来。
               </div>
             )}
