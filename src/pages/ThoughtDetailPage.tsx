@@ -307,7 +307,9 @@ export function ThoughtDetailPage({
       <div className="xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:overflow-auto xl:pr-1 subtle-scrollbar">
         <RelatedMemoriesPanel
           description="这些旧记录和当前想法有相同主题或相近关键词。"
+          feedbackContext={thought.content}
           matches={relatedMatches}
+          sourceThoughtId={thought.id}
           title="相关旧想法"
           topics={topics}
           onAttachToTopic={(_, topicId) => onAttachThoughtToTopic(thought.id, topicId)}

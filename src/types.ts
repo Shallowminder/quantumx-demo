@@ -11,6 +11,11 @@ export type ViewKey =
 export type ThoughtStatus = "inbox" | "linked" | "themed" | "distilled" | "archived";
 
 export type MemoryMatchKind = "direct" | "similar" | "counterpoint";
+export type MemoryFeedbackType =
+  | "helpful"
+  | "irrelevant"
+  | "pinned"
+  | "same_topic";
 
 export interface Thought {
   id: string;

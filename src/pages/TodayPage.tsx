@@ -255,6 +255,7 @@ export function TodayPage({
               ? "根据你正在写的内容，先把可能有用的旧记录放到旁边。"
               : "先展示和最新记录相关的旧想法，继续输入时会实时更新。"
           }
+          feedbackContext={draft.trim().length > 0 ? draft : thoughts[0]?.content}
           matches={relatedMatches}
           topics={topics}
           onOpenThought={onOpenThought}

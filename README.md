@@ -76,6 +76,7 @@ npm run preview
 - `src/services/cloudMigration.ts`：把当前浏览器里的本地记录、主题、草稿和快速记录草稿迁移到 Supabase。
 - `src/services/recallRepository.ts`：调用 `recall` Edge Function；如果云端不可用或函数未部署，自动回退到本地规则召回。
 - `src/services/embeddingRepository.ts`：在云端同步成功后，后台预热最近一批 thought embeddings，减少首次语义召回时的等待。
+- `src/services/memoryFeedbackRepository.ts`：把 Related Memories 上的「有帮助 / 不相关 / 固定 / 加入同一主题」反馈写回 Supabase 的 `memory_feedback`，未登录或云端暂时不可用时会静默跳过。
 
 如果要启用云端语义召回，还需要在 Supabase Edge Function Secrets 中补齐 embedding 配置：
 

@@ -2,13 +2,16 @@ import { useState } from "react";
 import { Check, Clock3, Layers3, Pin, X } from "lucide-react";
 import { MemoryRecallExplanation } from "./MemoryRecallExplanation";
 import { formatMonthDay } from "../lib/date";
-import type { MemoryMatch, MemoryMatchKind, Topic } from "../types";
+import { recordMemoryFeedback } from "../services/memoryFeedbackRepository";
+import type { MemoryFeedbackType, MemoryMatch, MemoryMatchKind, Topic } from "../types";
 
 interface RelatedMemoriesPanelProps {
   title?: string;
   description?: string;
   matches: MemoryMatch[];
   topics: Topic[];
+  feedbackContext?: string;
+  sourceThoughtId?: string;
   onAttachToTopic?: (thoughtId: string, topicId: string) => void;
   onOpenThought: (thoughtId: string) => void;
   onOpenTopic: (topicId: string) => void;
@@ -25,6 +28,8 @@ export function RelatedMemoriesPanel({
   description = "根据你正在写的内容，从历史记录里找回。",
   matches,
   topics,
+  feedbackContext,
+  sourceThoughtId,
   onAttachToTopic,
   onOpenThought,
   onOpenTopic,
@@ -45,6 +50,17 @@ export function RelatedMemoriesPanel({
       matches: sortedMatches.filter((match) => match.kind === kind),
     }))
     .filter((group) => group.matches.length > 0);
+
+  function persistFeedback(thoughtId: string, feedbackType: MemoryFeedbackType) {
+    void recordMemoryFeedback({
+      feedbackType,
+      targetThoughtId: thoughtId,
+      sourceThoughtId,
+      context: feedbackContext,
+    }).catch(() => {
+      // Keep interaction lightweight if cloud feedback write fails.
+    });
+  }
 
   return (
     <aside className="space-y-4">
@@ -87,12 +103,13 @@ export function RelatedMemoriesPanel({
                             : "border-line bg-white text-muted hover:text-ink"
                         }`}
                         type="button"
-                        onClick={() =>
+                        onClick={() => {
                           setFeedback((current) => ({
                             ...current,
                             [match.thought.id]: "helpful",
-                          }))
-                        }
+                          }));
+                          persistFeedback(match.thought.id, "helpful");
+                        }}
                       >
                         <Check size={12} strokeWidth={1.8} />
                         有帮助
@@ -104,12 +121,13 @@ export function RelatedMemoriesPanel({
                             : "border-line bg-white text-muted hover:text-ink"
                         }`}
                         type="button"
-                        onClick={() =>
+                        onClick={() => {
                           setFeedback((current) => ({
                             ...current,
                             [match.thought.id]: "irrelevant",
-                          }))
-                        }
+                          }));
+                          persistFeedback(match.thought.id, "irrelevant");
+                        }}
                       >
                         <X size={12} strokeWidth={1.8} />
                         不相关
@@ -117,13 +135,16 @@ export function RelatedMemoriesPanel({
                       <button
                         className="inline-flex items-center gap-1 rounded-md border border-line bg-white px-2 py-1 text-[11px] text-muted transition hover:text-ink"
                         type="button"
-                        onClick={() =>
-                          setPinnedIds((current) =>
-                            current.includes(match.thought.id)
-                              ? current.filter((id) => id !== match.thought.id)
-                              : [match.thought.id, ...current],
-                          )
-                        }
+                        onClick={() => {
+                          setPinnedIds((current) => {
+                            const alreadyPinned = current.includes(match.thought.id);
+                            if (!alreadyPinned) {
+                              persistFeedback(match.thought.id, "pinned");
+                              return [match.thought.id, ...current];
+                            }
+                            return current.filter((id) => id !== match.thought.id);
+                          });
+                        }}
                       >
                         <Pin size={12} strokeWidth={1.8} />
                         固定
@@ -132,9 +153,10 @@ export function RelatedMemoriesPanel({
                         <button
                           className="rounded-md border border-line bg-white px-2 py-1 text-[11px] text-muted transition hover:text-ink"
                           type="button"
-                          onClick={() =>
-                            onAttachToTopic(match.thought.id, match.thought.topicIds[0])
-                          }
+                          onClick={() => {
+                            onAttachToTopic(match.thought.id, match.thought.topicIds[0]);
+                            persistFeedback(match.thought.id, "same_topic");
+                          }}
                         >
                           加入同一主题
                         </button>
