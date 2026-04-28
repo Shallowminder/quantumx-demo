@@ -67,13 +67,11 @@ export function MobileNav({
     <>
       {isMoreOpen && (
         <>
-          <button
-            aria-label="关闭更多导航"
-            className="theme-overlay-dim fixed inset-0 z-30 backdrop-blur-[2px] lg:hidden"
-            type="button"
-            onClick={() => setIsMoreOpen(false)}
+          <div
+            aria-hidden="true"
+            className="theme-overlay-dim pointer-events-none fixed inset-0 z-30 backdrop-blur-[2px] lg:hidden"
           />
-          <div className="frost-panel-strong fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+5.6rem)] z-40 rounded-[26px] p-2 lg:hidden">
+          <div className="frost-panel-strong fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+5.6rem)] z-40 max-h-[min(72vh,560px)] overflow-y-auto rounded-[26px] p-2 lg:hidden subtle-scrollbar">
             <div className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-[0.18em] text-muted/80">
               更多
             </div>

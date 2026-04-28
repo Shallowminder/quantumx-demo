@@ -34,25 +34,25 @@ const styleOptions: Array<{
     value: "cold-white",
     label: "冷白极简",
     subtitle: "更清爽、更工具感",
-    swatches: ["#F6F8FA", "#E9EEF3", "#A7B4C2", "#2F3947"],
+    swatches: ["#FFFFFF", "#F2F6FA", "#D5DCE6", "#2A303A"],
   },
   {
     value: "moonlight",
     label: "月光蓝灰",
     subtitle: "安静、理性、适合作为默认",
-    swatches: ["#F3F4F8", "#DDE4EF", "#8BA0B8", "#233449"],
+    swatches: ["#EBF1F8", "#D8E5F2", "#4E707A", "#1A2F4A"],
   },
   {
     value: "glass",
     label: "黑白玻璃",
     subtitle: "更克制，也更适合展示",
-    swatches: ["#F7F7F7", "#D9DADF", "#9C9EA5", "#131519"],
+    swatches: ["#FAFAFB", "#E2E3E8", "#656970", "#0C0D0F"],
   },
   {
     value: "dark-first",
     label: "深色优先",
     subtitle: "更沉浸，适合夜间写作",
-    swatches: ["#1B1D22", "#2D333D", "#5F7189", "#E7EDF6"],
+    swatches: ["#1B212B", "#343E4C", "#87ABAE", "#EFF5FB"],
   },
 ];
 
