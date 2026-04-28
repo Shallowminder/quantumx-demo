@@ -263,7 +263,7 @@ export function SearchPage({
 
                     {sourceThought && (
                       <button
-                        className="theme-surface-ghost mt-3 inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs text-muted transition hover:bg-white hover:text-ink"
+                        className="theme-button-muted mt-3 inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition"
                         type="button"
                         onClick={() => onContinueFromThought(sourceThought)}
                       >
@@ -279,7 +279,7 @@ export function SearchPage({
         </div>
 
         <aside className="space-y-4">
-          <div className="rounded-[1.25rem] bg-white p-5 shadow-sm">
+          <div className="frost-panel rounded-[1.25rem] p-5">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
               <Sparkles size={16} strokeWidth={1.8} />
               为什么先做搜索
@@ -290,7 +290,7 @@ export function SearchPage({
             </p>
           </div>
 
-          <div className="rounded-[1.25rem] bg-white p-5 shadow-sm">
+          <div className="frost-panel rounded-[1.25rem] p-5">
             <div className="mb-3 text-sm font-semibold text-ink">下一步会升级</div>
             <div className="space-y-3 text-sm leading-6 text-muted">
               <p>1. 全文搜索接数据库索引。</p>

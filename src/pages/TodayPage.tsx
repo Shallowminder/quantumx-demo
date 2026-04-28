@@ -181,7 +181,7 @@ export function TodayPage({
                 </button>
               )}
               <button
-                className="theme-surface-ghost rounded-xl px-3.5 py-2.5 text-sm text-muted transition hover:bg-white hover:text-ink"
+                className="theme-button-muted rounded-xl px-3.5 py-2.5 text-sm transition"
                 type="button"
                 onClick={() => {
                   onRequestCaptureFocus();

@@ -119,7 +119,7 @@ export function MobileNav({
                     className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition ${
                       active
                         ? "theme-surface-ghost-strong text-ink shadow-[0_12px_28px_rgba(37,37,33,0.08)]"
-                        : "text-muted hover:bg-white/60 hover:text-ink"
+                        : "text-muted hover:bg-[rgb(var(--surface-overlay-rgb)/0.72)] hover:text-ink"
                     }`}
                     type="button"
                     onClick={() => {

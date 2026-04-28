@@ -32,7 +32,7 @@ export function SevenDayTrace({
               <div
                 className={`mx-auto h-4 w-4 rounded-full border ${
                   level === "empty"
-                    ? "border-line bg-white/80"
+                    ? "border-line bg-mist/45"
                     : level === "light"
                       ? "border-sage/30 bg-sage/25"
                       : "border-sage/50 bg-sage"

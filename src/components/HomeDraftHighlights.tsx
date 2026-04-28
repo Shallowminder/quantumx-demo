@@ -28,7 +28,7 @@ export function HomeDraftHighlights({
         <p className="mt-1 text-sm text-muted">这些零散想法已经被整理成草稿。</p>
       </div>
       {drafts.length === 0 ? (
-        <p className="rounded-2xl bg-white/70 p-5 text-sm leading-7 text-muted ring-1 ring-line/70">
+        <p className="theme-card-soft rounded-2xl p-5 text-sm leading-7 text-muted">
           当你把几条记录整理成提纲、复盘或观点卡片后，它们会出现在这里。
         </p>
       ) : (
@@ -38,7 +38,7 @@ export function HomeDraftHighlights({
             return (
               <button
                 key={draft.id}
-                className="flex w-full items-start gap-3 rounded-2xl bg-white/72 p-4 text-left shadow-[0_10px_28px_rgba(45,43,37,0.04)] ring-1 ring-line/70 transition hover:bg-white"
+                className="theme-card-overlay flex w-full items-start gap-3 rounded-2xl p-4 text-left shadow-[0_10px_28px_rgba(45,43,37,0.04)] transition hover:text-ink"
                 type="button"
                 onClick={onOpenDistill}
               >

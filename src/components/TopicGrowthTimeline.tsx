@@ -22,7 +22,7 @@ export function TopicGrowthTimeline({
         这个主题是怎么长出来的
       </div>
       {items.length === 0 ? (
-        <p className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-3 text-sm leading-6 text-muted">
+        <p className="theme-card-soft rounded-[20px] p-3 text-sm leading-6 text-muted">
           这个主题还没有足够记录。多写几条后，这里会显示它如何慢慢形成。
         </p>
       ) : (

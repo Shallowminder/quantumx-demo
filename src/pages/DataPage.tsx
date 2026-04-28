@@ -272,7 +272,7 @@ export function DataPage({
               下载备份
             </button>
             <button
-              className="inline-flex items-center gap-2 rounded-xl bg-[rgba(247,244,238,0.92)] px-4 py-2.5 text-sm font-medium text-ink transition hover:bg-white"
+              className="theme-button-secondary inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition"
               type="button"
               onClick={() => inputRef.current?.click()}
             >

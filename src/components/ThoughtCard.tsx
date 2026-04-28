@@ -17,7 +17,7 @@ export function ThoughtCard({ thought, topics, onOpen }: ThoughtCardProps) {
   return (
     <motion.article
       animate={{ opacity: 1, y: 0 }}
-      className="frost-panel group rounded-[24px] p-4 transition hover:bg-white/88"
+      className="frost-panel group rounded-[24px] p-4 transition hover:bg-[rgb(var(--surface-overlay-rgb)/0.88)]"
       initial={{ opacity: 0, y: 8 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
     >
@@ -30,7 +30,7 @@ export function ThoughtCard({ thought, topics, onOpen }: ThoughtCardProps) {
           <span>{formatDayLabel(thought.createdAt)}</span>
           <span className="h-1 w-1 rounded-full bg-muted/40" />
           <span>{thought.source}</span>
-          <span className="rounded-full bg-[rgba(247,244,238,0.9)] px-2.5 py-1 text-[11px]">
+          <span className="theme-chip-soft rounded-full px-2.5 py-1 text-[11px]">
             {statusLabel(thought.status)}
           </span>
         </div>

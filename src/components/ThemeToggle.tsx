@@ -86,8 +86,8 @@ export function ThemeToggle({
               key={option.value}
               className={`rounded-[22px] border px-3 py-3 text-left transition ${
                 active
-                  ? "theme-surface-ghost-strong border-white/80 text-ink shadow-[0_16px_34px_rgba(24,28,36,0.08)]"
-                  : "theme-surface-soft border-transparent text-muted hover:border-white/70 hover:text-ink"
+                  ? "theme-surface-ghost-strong border-line/80 text-ink shadow-[0_16px_34px_rgba(24,28,36,0.08)]"
+                  : "theme-surface-soft border-transparent text-muted hover:border-line/70 hover:text-ink"
               }`}
               type="button"
               onClick={() => onAppearanceChange(option.value)}
@@ -120,8 +120,8 @@ export function ThemeToggle({
               key={option.value}
               className={`rounded-[22px] border px-3.5 py-3.5 text-left transition ${
                 active
-                  ? "theme-surface-ghost-strong border-white/80 text-ink shadow-[0_18px_36px_rgba(24,28,36,0.08)]"
-                  : "theme-surface-soft border-transparent text-muted hover:border-white/70 hover:text-ink"
+                  ? "theme-surface-ghost-strong border-line/80 text-ink shadow-[0_18px_36px_rgba(24,28,36,0.08)]"
+                  : "theme-surface-soft border-transparent text-muted hover:border-line/70 hover:text-ink"
               }`}
               type="button"
               onClick={() => onStyleChange(option.value)}
@@ -130,7 +130,7 @@ export function ThemeToggle({
                 {option.swatches.map((swatch) => (
                   <span
                     key={swatch}
-                    className="h-7 flex-1 rounded-full border border-white/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
+                    className="h-7 flex-1 rounded-full border border-line/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
                     style={{ backgroundColor: swatch }}
                   />
                 ))}

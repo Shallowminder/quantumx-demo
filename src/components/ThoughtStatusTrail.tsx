@@ -41,7 +41,7 @@ export function ThoughtStatusTrail({ thought }: { thought: Thought }) {
                 className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border ${
                   active
                     ? "border-sage/40 bg-sage/10 text-sage"
-                    : "border-line bg-[rgba(247,244,238,0.92)] text-muted"
+                    : "border-line bg-mist/45 text-muted"
                 }`}
               >
                 <Icon size={15} strokeWidth={1.8} />

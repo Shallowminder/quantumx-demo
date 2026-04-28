@@ -49,7 +49,7 @@ export function CaptureComposer({
 
       <textarea
         ref={textareaRef}
-        className="theme-surface-input min-h-28 w-full resize-none rounded-[22px] border border-transparent px-4 py-3.5 text-[15px] leading-7 text-ink outline-none transition placeholder:text-muted/70 focus:border-white focus:bg-white"
+        className="theme-input min-h-28 w-full resize-none rounded-[22px] px-4 py-3.5 text-[15px] leading-7 text-ink outline-none transition placeholder:text-muted/70"
         placeholder="写下一句话、一个问题、一段摘录，或刚冒出来的想法..."
         value={draft}
         onChange={(event) => onDraftChange(event.target.value)}

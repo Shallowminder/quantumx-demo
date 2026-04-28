@@ -200,7 +200,7 @@ export function AccountMenu({
                     去管理同步
                   </button>
                   <button
-                    className="theme-surface-soft inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
+                    className="theme-button-secondary inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition"
                     disabled={busy}
                     type="button"
                     onClick={() => void signOut()}
@@ -229,7 +229,7 @@ export function AccountMenu({
                       strokeWidth={1.8}
                     />
                     <input
-                      className="theme-surface-input w-full rounded-[18px] border border-transparent py-2.5 pl-9 pr-3 text-sm text-ink outline-none transition focus:border-white focus:bg-white"
+                      className="theme-input w-full rounded-[18px] py-2.5 pl-9 pr-3 text-sm text-ink outline-none transition"
                       placeholder="邮箱地址"
                       type="email"
                       value={email}
@@ -251,7 +251,7 @@ export function AccountMenu({
                   当前部署还没有连好云端登录。等 Supabase 环境变量配置完成后，这里就能直接发邮箱登录链接。
                 </p>
                 <button
-                  className="theme-surface-soft mt-4 inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm text-ink transition hover:bg-white"
+                  className="theme-button-secondary mt-4 inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition"
                   type="button"
                   onClick={() => {
                     setOpen(false);
@@ -276,7 +276,7 @@ export function AccountMenu({
   return (
     <div className="relative" ref={rootRef}>
       <button
-        className={`theme-surface-ghost inline-flex items-center rounded-2xl text-left transition hover:bg-white hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sage/45 ${
+        className={`theme-surface-ghost inline-flex items-center rounded-2xl text-left transition hover:bg-[rgb(var(--surface-strong-rgb)/0.9)] hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sage/45 ${
           compact ? "gap-0 p-2" : "gap-2 px-2.5 py-2"
         }`}
         type="button"

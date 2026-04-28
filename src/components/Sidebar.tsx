@@ -70,7 +70,7 @@ export function Sidebar({
               className={`flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-left text-sm transition ${
                 active
                   ? "frost-panel-strong text-ink"
-                  : "text-muted hover:bg-white/55 hover:text-ink"
+                  : "text-muted hover:bg-[rgb(var(--surface-overlay-rgb)/0.68)] hover:text-ink"
               }`}
               type="button"
               onClick={() => onNavigate(item.key)}

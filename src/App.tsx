@@ -848,7 +848,7 @@ export default function App() {
           <span>{toast.message}</span>
           {toast.actionLabel && toast.onAction && (
             <button
-              className="theme-surface-soft shrink-0 rounded-xl px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-white"
+              className="theme-button-secondary shrink-0 rounded-xl px-3 py-1.5 text-xs font-medium transition"
               type="button"
               onClick={toast.onAction}
             >
