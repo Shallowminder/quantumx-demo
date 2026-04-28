@@ -68,108 +68,115 @@ export function RelatedMemoriesPanel({
         <div className="mb-1 text-sm font-semibold text-ink">{title}</div>
         <p className="mb-4 text-sm leading-6 text-muted">{description}</p>
         <div className="space-y-3">
-          {groupedMatches.map((group) => (
-            <div key={group.kind}>
-              <div className="mb-2 text-xs font-medium text-muted">
-                {kindLabels[group.kind]}
-              </div>
-              <div className="space-y-2">
-                {group.matches.map((match) => (
-                  <article
-                    key={match.thought.id}
-                    className="theme-card-soft w-full rounded-[22px] p-3.5 text-left transition"
-                  >
-                    <button
-                      className="w-full text-left"
-                      type="button"
-                      onClick={() => onOpenThought(match.thought.id)}
+          {groupedMatches.length > 0 ? (
+            groupedMatches.map((group) => (
+              <div key={group.kind}>
+                <div className="mb-2 text-xs font-medium text-muted">
+                  {kindLabels[group.kind]}
+                </div>
+                <div className="space-y-2">
+                  {group.matches.map((match) => (
+                    <article
+                      key={match.thought.id}
+                      className="theme-card-soft w-full rounded-[22px] p-3.5 text-left transition"
                     >
-                      <div className="mb-2 flex items-center gap-2 text-xs text-muted">
-                        <Clock3 size={13} strokeWidth={1.8} />
-                        <span>{formatMonthDay(match.thought.createdAt)}</span>
-                        <span>{match.thought.source}</span>
-                        {pinnedIds.includes(match.thought.id) && <span>已固定</span>}
-                      </div>
-                      <p className="line-clamp-3 text-sm leading-6 text-ink">
-                        {match.thought.content}
-                      </p>
-                      <MemoryRecallExplanation match={match} topics={topics} />
-                    </button>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
                       <button
-                        className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] transition ${
-                          feedback[match.thought.id] === "helpful"
-                            ? "bg-sage/10 text-sage"
-                            : "theme-card-overlay text-muted hover:text-ink"
-                        }`}
+                        className="w-full text-left"
                         type="button"
-                        onClick={() => {
-                          setFeedback((current) => ({
-                            ...current,
-                            [match.thought.id]: "helpful",
-                          }));
-                          persistFeedback(match.thought.id, "helpful");
-                        }}
+                        onClick={() => onOpenThought(match.thought.id)}
                       >
-                        <Check size={12} strokeWidth={1.8} />
-                        有帮助
+                        <div className="mb-2 flex items-center gap-2 text-xs text-muted">
+                          <Clock3 size={13} strokeWidth={1.8} />
+                          <span>{formatMonthDay(match.thought.createdAt)}</span>
+                          <span>{match.thought.source}</span>
+                          {pinnedIds.includes(match.thought.id) && <span>已固定</span>}
+                        </div>
+                        <p className="line-clamp-3 text-sm leading-6 text-ink">
+                          {match.thought.content}
+                        </p>
+                        <MemoryRecallExplanation match={match} topics={topics} />
                       </button>
-                      <button
-                        className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] transition ${
-                          feedback[match.thought.id] === "irrelevant"
-                            ? "bg-clay/10 text-clay"
-                            : "theme-card-overlay text-muted hover:text-ink"
-                        }`}
-                        type="button"
-                        onClick={() => {
-                          setFeedback((current) => ({
-                            ...current,
-                            [match.thought.id]: "irrelevant",
-                          }));
-                          persistFeedback(match.thought.id, "irrelevant");
-                        }}
-                      >
-                        <X size={12} strokeWidth={1.8} />
-                        不相关
-                      </button>
-                      <button
-                        className="theme-card-overlay inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] text-muted transition hover:text-ink"
-                        type="button"
-                        onClick={() => {
-                          setPinnedIds((current) => {
-                            const alreadyPinned = current.includes(match.thought.id);
-                            if (!alreadyPinned) {
-                              persistFeedback(match.thought.id, "pinned");
-                              return [match.thought.id, ...current];
-                            }
-                            return current.filter((id) => id !== match.thought.id);
-                          });
-                        }}
-                      >
-                        <Pin size={12} strokeWidth={1.8} />
-                        固定
-                      </button>
-                      {onAttachToTopic && match.thought.topicIds[0] && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
                         <button
-                          className="theme-card-overlay rounded-xl px-2.5 py-1.5 text-[11px] text-muted transition hover:text-ink"
+                          className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] transition ${
+                            feedback[match.thought.id] === "helpful"
+                              ? "bg-sage/10 text-sage"
+                              : "theme-card-overlay text-muted hover:text-ink"
+                          }`}
                           type="button"
                           onClick={() => {
-                            onAttachToTopic(match.thought.id, match.thought.topicIds[0]);
-                            persistFeedback(match.thought.id, "same_topic");
+                            setFeedback((current) => ({
+                              ...current,
+                              [match.thought.id]: "helpful",
+                            }));
+                            persistFeedback(match.thought.id, "helpful");
                           }}
                         >
-                          加入同一主题
+                          <Check size={12} strokeWidth={1.8} />
+                          有帮助
                         </button>
-                      )}
-                    </div>
-                  </article>
-                ))}
+                        <button
+                          className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] transition ${
+                            feedback[match.thought.id] === "irrelevant"
+                              ? "bg-clay/10 text-clay"
+                              : "theme-card-overlay text-muted hover:text-ink"
+                          }`}
+                          type="button"
+                          onClick={() => {
+                            setFeedback((current) => ({
+                              ...current,
+                              [match.thought.id]: "irrelevant",
+                            }));
+                            persistFeedback(match.thought.id, "irrelevant");
+                          }}
+                        >
+                          <X size={12} strokeWidth={1.8} />
+                          不相关
+                        </button>
+                        <button
+                          className="theme-card-overlay inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] text-muted transition hover:text-ink"
+                          type="button"
+                          onClick={() => {
+                            setPinnedIds((current) => {
+                              const alreadyPinned = current.includes(match.thought.id);
+                              if (!alreadyPinned) {
+                                persistFeedback(match.thought.id, "pinned");
+                                return [match.thought.id, ...current];
+                              }
+                              return current.filter((id) => id !== match.thought.id);
+                            });
+                          }}
+                        >
+                          <Pin size={12} strokeWidth={1.8} />
+                          固定
+                        </button>
+                        {onAttachToTopic && match.thought.topicIds[0] && (
+                          <button
+                            className="theme-card-overlay rounded-xl px-2.5 py-1.5 text-[11px] text-muted transition hover:text-ink"
+                            type="button"
+                            onClick={() => {
+                              onAttachToTopic(match.thought.id, match.thought.topicIds[0]);
+                              persistFeedback(match.thought.id, "same_topic");
+                            }}
+                          >
+                            加入同一主题
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
               </div>
+            ))
+          ) : (
+            <div className="theme-card-soft rounded-[22px] p-3.5 text-sm leading-6 text-muted">
+              暂时还没有足够接近的旧想法。继续写几句，或者多记录几天后，这里会更有用。
             </div>
-          ))}
+          )}
         </div>
       </section>
 
+      {relatedTopics.length > 0 && (
       <section className="frost-panel rounded-[28px] p-4">
         <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
           <Layers3 size={16} strokeWidth={1.8} />
@@ -194,6 +201,7 @@ export function RelatedMemoriesPanel({
           ))}
         </div>
       </section>
+      )}
     </aside>
   );
 }

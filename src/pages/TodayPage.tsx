@@ -80,6 +80,11 @@ export function TodayPage({
     draft.trim().length > 8
       ? topics.filter((topic) => inferTopicIds(draft, topics).includes(topic.id))
       : [];
+  const relatedPanelDescription =
+    draft.trim().length > 0
+      ? "根据你正在写的内容，先把可能有用的旧记录放到旁边。"
+      : "先展示和最新记录相关的旧想法，继续输入时会实时更新。";
+  const feedbackContext = draft.trim().length > 0 ? draft : thoughts[0]?.content;
   const briefThought =
     thoughts.find((thought) => thought.status === "inbox" && thought.relatedIds.length > 0) ??
     thoughts.find((thought) => thought.relatedIds.length > 1) ??
@@ -114,6 +119,17 @@ export function TodayPage({
           }}
           onDraftChange={onDraftChange}
         />
+
+        <div className="mt-5 xl:hidden">
+          <RelatedMemoriesPanel
+            description={relatedPanelDescription}
+            feedbackContext={feedbackContext}
+            matches={relatedMatches}
+            topics={topics}
+            onOpenThought={onOpenThought}
+            onOpenTopic={onOpenTopic}
+          />
+        </div>
 
         {thoughts.length === 0 && (
           <section className="frost-panel mt-5 rounded-[24px] p-5">
@@ -248,14 +264,10 @@ export function TodayPage({
         )}
       </section>
 
-      <div className="xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:overflow-auto xl:pr-1 subtle-scrollbar">
+      <div className="hidden xl:block xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:overflow-auto xl:pr-1 subtle-scrollbar">
         <RelatedMemoriesPanel
-          description={
-            draft.trim().length > 0
-              ? "根据你正在写的内容，先把可能有用的旧记录放到旁边。"
-              : "先展示和最新记录相关的旧想法，继续输入时会实时更新。"
-          }
-          feedbackContext={draft.trim().length > 0 ? draft : thoughts[0]?.content}
+          description={relatedPanelDescription}
+          feedbackContext={feedbackContext}
           matches={relatedMatches}
           topics={topics}
           onOpenThought={onOpenThought}
