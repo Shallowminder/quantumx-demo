@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpenText,
   ChartNoAxesCombined,
@@ -53,6 +53,8 @@ export function MobileNav({
   onStylePreferenceChange: (preference: StylePreference) => void;
 }) {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
   const resolvedActiveKey = resolveActiveKey(activeView);
   const isOverflowActive = useMemo(
     () => overflowNavItems.some((item) => item.key === resolvedActiveKey),
@@ -63,6 +65,34 @@ export function MobileNav({
     setIsMoreOpen(false);
   }, [activeView]);
 
+  useEffect(() => {
+    if (!isMoreOpen) return undefined;
+
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target as Node;
+      if (
+        !menuRef.current?.contains(target) &&
+        !navRef.current?.contains(target)
+      ) {
+        setIsMoreOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsMoreOpen(false);
+      }
+    }
+
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMoreOpen]);
+
   return (
     <>
       {isMoreOpen && (
@@ -71,7 +101,10 @@ export function MobileNav({
             aria-hidden="true"
             className="theme-overlay-dim pointer-events-none fixed inset-0 z-30 backdrop-blur-[2px] lg:hidden"
           />
-          <div className="frost-panel-strong fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+5.6rem)] z-40 max-h-[min(72vh,560px)] overflow-y-auto rounded-[26px] p-2 lg:hidden subtle-scrollbar">
+          <div
+            ref={menuRef}
+            className="frost-panel-strong fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+5.6rem)] z-40 max-h-[min(72vh,560px)] overflow-y-auto rounded-[26px] p-2 lg:hidden subtle-scrollbar"
+          >
             <div className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-[0.18em] text-muted/80">
               更多
             </div>
@@ -119,7 +152,10 @@ export function MobileNav({
         </>
       )}
 
-      <nav className="frost-panel fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-40 rounded-[28px] p-1.5 lg:hidden">
+      <nav
+        ref={navRef}
+        className="frost-panel fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-40 rounded-[28px] p-1.5 lg:hidden"
+      >
         <div className="grid grid-cols-5 gap-1">
           {primaryNavItems.map((item) => {
             const Icon = item.icon;

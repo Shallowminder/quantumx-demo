@@ -67,7 +67,7 @@ export function AccountMenu({
   useEffect(() => {
     if (!open) return undefined;
 
-    function handlePointerDown(event: MouseEvent) {
+    function handlePointerDown(event: PointerEvent) {
       const target = event.target as Node;
       if (
         !rootRef.current?.contains(target) &&
@@ -77,8 +77,18 @@ export function AccountMenu({
       }
     }
 
-    window.addEventListener("mousedown", handlePointerDown);
-    return () => window.removeEventListener("mousedown", handlePointerDown);
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [open]);
 
   useLayoutEffect(() => {
@@ -205,7 +215,13 @@ export function AccountMenu({
                 <p className="mb-3 text-sm leading-7 text-muted">
                   邮箱登录已经移到这里了。输入邮箱后，QuantumX 会给你发一封登录链接。
                 </p>
-                <div className="flex gap-2">
+                <form
+                  className="flex gap-2"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void sendMagicLink();
+                  }}
+                >
                   <label className="relative min-w-0 flex-1">
                     <Mail
                       className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
@@ -223,12 +239,11 @@ export function AccountMenu({
                   <button
                     className="theme-primary-button rounded-xl px-3.5 py-2.5 text-sm font-medium transition"
                     disabled={busy || email.trim().length === 0}
-                    type="button"
-                    onClick={() => void sendMagicLink()}
+                    type="submit"
                   >
                     发送链接
                   </button>
-                </div>
+                </form>
               </div>
             ) : (
               <div>
