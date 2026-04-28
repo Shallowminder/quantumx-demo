@@ -1,9 +1,11 @@
 import type {
   CloudSyncMetadata,
+  DistillOutputType,
   QuantumXDataExport,
   QuantumXDataSnapshot,
   SavedDistill,
   Thought,
+  ThoughtStatus,
   Topic,
 } from "../types";
 
@@ -103,22 +105,56 @@ export function writeScopedSnapshot(
   writeStoredValue(keys.captureDraft, normalizedSnapshot.captureDraft);
 }
 
+function normalizeThoughtStatus(status: unknown): ThoughtStatus {
+  if (
+    status === "inbox" ||
+    status === "linked" ||
+    status === "themed" ||
+    status === "distilled" ||
+    status === "archived"
+  ) {
+    return status;
+  }
+
+  if (status === "captured") return "inbox";
+  if (status === "reviewed") return "themed";
+  if (status === "drafted") return "distilled";
+
+  return "inbox";
+}
+
+function normalizeTopicAccent(accent: unknown): Topic["accent"] {
+  if (
+    accent === "sage" ||
+    accent === "clay" ||
+    accent === "blue" ||
+    accent === "amber" ||
+    accent === "stone"
+  ) {
+    return accent;
+  }
+
+  return "stone";
+}
+
+function normalizeDistillOutputType(outputType: unknown): DistillOutputType {
+  if (
+    outputType === "文章提纲" ||
+    outputType === "复盘框架" ||
+    outputType === "观点卡片"
+  ) {
+    return outputType;
+  }
+
+  return "文章提纲";
+}
+
 export function normalizeThoughts(storedThoughts: Thought[]): Thought[] {
   if (!Array.isArray(storedThoughts)) return [];
 
   return storedThoughts
     .filter((thought) => thought && typeof thought.id === "string")
     .map((thought) => {
-      const legacyStatus = thought.status as string;
-      const status =
-        legacyStatus === "captured"
-          ? "inbox"
-          : legacyStatus === "reviewed"
-            ? "themed"
-            : legacyStatus === "drafted"
-              ? "distilled"
-              : thought.status;
-
       return {
         ...thought,
         content: thought.content ?? "",
@@ -128,7 +164,7 @@ export function normalizeThoughts(storedThoughts: Thought[]): Thought[] {
         topicIds: Array.isArray(thought.topicIds) ? thought.topicIds : [],
         relatedIds: Array.isArray(thought.relatedIds) ? thought.relatedIds : [],
         questions: Array.isArray(thought.questions) ? thought.questions : [],
-        status: status ?? "inbox",
+        status: normalizeThoughtStatus(thought.status),
       };
     });
 }
@@ -144,7 +180,7 @@ export function normalizeTopics(storedTopics: Topic[]): Topic[] {
       summary: topic.summary ?? "这个主题还在形成。",
       description: topic.description ?? "先继续收集相关记录。",
       updatedAt: topic.updatedAt ?? new Date().toISOString(),
-      accent: topic.accent ?? "stone",
+      accent: normalizeTopicAccent(topic.accent),
       thoughtIds: Array.isArray(topic.thoughtIds) ? topic.thoughtIds : [],
       signals: Array.isArray(topic.signals) ? topic.signals : [],
       distill: topic.distill ?? {
@@ -166,7 +202,7 @@ export function normalizeDistills(storedDistills: SavedDistill[]): SavedDistill[
       ...draft,
       topicId: draft.topicId ?? "",
       title: draft.title ?? "未命名草稿",
-      outputType: draft.outputType ?? "文章提纲",
+      outputType: normalizeDistillOutputType(draft.outputType),
       content: draft.content ?? "",
       sourceThoughtIds: Array.isArray(draft.sourceThoughtIds)
         ? draft.sourceThoughtIds
