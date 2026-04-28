@@ -102,23 +102,15 @@ export function DistillPage({
   const [generationMessage, setGenerationMessage] = useState("");
   const selectedTopic =
     topics.find((topic) => topic.id === selectedTopicId) ?? topics[0];
-  if (!selectedTopic) {
-    return (
-      <div className="frost-panel-strong rounded-[28px] p-6">
-        <div className="mb-2 text-sm font-semibold text-ink">还没有可蒸馏的主题</div>
-        <p className="text-sm leading-7 text-muted">
-          蒸馏输出需要先有主题和来源记录。你可以先回到 Today 记录一点内容，或者在主题页先新建一个主题。
-        </p>
-      </div>
-    );
-  }
   const sourceThoughts = useMemo(
-    () =>
-      thoughts.filter(
+    () => {
+      if (!selectedTopic) return [];
+      return thoughts.filter(
         (thought) =>
           selectedTopic.thoughtIds.includes(thought.id) ||
           thought.topicIds.includes(selectedTopic.id),
-      ),
+      );
+    },
     [selectedTopic, thoughts],
   );
   const [selectedThoughtIds, setSelectedThoughtIds] = useState<string[]>(() =>
@@ -130,17 +122,27 @@ export function DistillPage({
     [selectedThoughtIds, sourceThoughts],
   );
   const [editableContent, setEditableContent] = useState(() =>
-    buildDistillContent(selectedTopic, selectedThoughts, outputType),
+    selectedTopic
+      ? buildDistillContent(selectedTopic, selectedThoughts, outputType)
+      : "",
   );
 
   useEffect(() => {
     if (activeDraftId) return;
+    if (!selectedTopic) {
+      setSelectedThoughtIds([]);
+      return;
+    }
     const nextIds = sourceThoughts.slice(0, 4).map((thought) => thought.id);
     setSelectedThoughtIds(nextIds);
-  }, [activeDraftId, selectedTopicId, sourceThoughts]);
+  }, [activeDraftId, selectedTopic, selectedTopicId, sourceThoughts]);
 
   useEffect(() => {
     if (activeDraftId) return;
+    if (!selectedTopic) {
+      setEditableContent("");
+      return;
+    }
     setEditableContent(
       buildDistillContent(selectedTopic, selectedThoughts, outputType),
     );
@@ -155,6 +157,7 @@ export function DistillPage({
   }
 
   async function generateDistill() {
+    if (!selectedTopic) return;
     if (selectedThoughts.length === 0) return;
 
     setIsGenerating(true);
@@ -191,6 +194,7 @@ export function DistillPage({
   }
 
   function saveDraft() {
+    if (!selectedTopic) return;
     if (selectedThoughts.length === 0) return;
 
     if (activeDraftId) {
@@ -231,6 +235,17 @@ export function DistillPage({
 
   async function copyMarkdown() {
     await navigator.clipboard.writeText(editableContent);
+  }
+
+  if (!selectedTopic) {
+    return (
+      <div className="frost-panel-strong rounded-[28px] p-6">
+        <div className="mb-2 text-sm font-semibold text-ink">还没有可蒸馏的主题</div>
+        <p className="text-sm leading-7 text-muted">
+          蒸馏输出需要先有主题和来源记录。你可以先回到 Today 记录一点内容，或者在主题页先新建一个主题。
+        </p>
+      </div>
+    );
   }
 
   return (

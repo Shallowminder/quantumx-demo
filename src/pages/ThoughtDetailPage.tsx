@@ -243,6 +243,20 @@ export function ThoughtDetailPage({
           <ThoughtStatusTrail thought={thought} />
         </div>
 
+        <div className="mt-4 xl:hidden">
+          <RelatedMemoriesPanel
+            description="这些旧记录和当前想法有相同主题或相近关键词。"
+            feedbackContext={thought.content}
+            matches={relatedMatches}
+            sourceThoughtId={thought.id}
+            title="相关旧想法"
+            topics={topics}
+            onAttachToTopic={(_, topicId) => onAttachThoughtToTopic(thought.id, topicId)}
+            onOpenThought={onOpenThought}
+            onOpenTopic={onOpenTopic}
+          />
+        </div>
+
         <section className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="frost-panel rounded-[24px] p-5">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
@@ -259,7 +273,7 @@ export function ThoughtDetailPage({
             </div>
             <div className="space-y-2">
               {thought.questions.map((question) => (
-                <p key={question} className="rounded-[18px] bg-[rgba(247,244,238,0.92)] px-3 py-2.5 text-sm leading-6 text-ink">
+                <p key={question} className="theme-card-soft rounded-[18px] px-3 py-2.5 text-sm leading-6 text-ink">
                   {question}
                 </p>
               ))}
@@ -276,7 +290,7 @@ export function ThoughtDetailPage({
             {thoughtTopics.map((topic) => (
               <button
                 key={topic.id}
-                className="rounded-[20px] bg-[rgba(247,244,238,0.92)] p-4 text-left transition hover:bg-white"
+                className="theme-card-soft rounded-[20px] p-4 text-left transition"
                 type="button"
                 onClick={() => onOpenTopic(topic.id)}
               >
@@ -290,7 +304,7 @@ export function ThoughtDetailPage({
               .map((topic) => (
                 <button
                   key={topic.id}
-                  className="rounded-[20px] border border-dashed border-white/70 bg-white/70 p-4 text-left transition hover:bg-white"
+                  className="theme-card-overlay rounded-[20px] border border-dashed border-line/70 p-4 text-left transition hover:text-ink"
                   type="button"
                   onClick={() => onAttachThoughtToTopic(thought.id, topic.id)}
                 >
@@ -304,7 +318,7 @@ export function ThoughtDetailPage({
         </section>
       </section>
 
-      <div className="xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:overflow-auto xl:pr-1 subtle-scrollbar">
+      <div className="hidden xl:block xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:overflow-auto xl:pr-1 subtle-scrollbar">
         <RelatedMemoriesPanel
           description="这些旧记录和当前想法有相同主题或相近关键词。"
           feedbackContext={thought.content}
