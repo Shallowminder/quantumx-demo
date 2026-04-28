@@ -6,6 +6,7 @@ import type {
   Thought,
   Topic,
 } from "../types";
+import { normalizeSnapshot } from "../lib/persistence";
 
 export interface CloudMigrationResult {
   summary: SnapshotSummary;
@@ -70,10 +71,16 @@ interface DraftRow {
   updated_at: string;
 }
 
+function getValidTime(value?: string) {
+  if (!value) return null;
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? null : time;
+}
+
 function latestActivity(values: Array<string | undefined>) {
   return values
-    .filter((value): value is string => Boolean(value))
-    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+    .filter((value): value is string => getValidTime(value) !== null)
+    .sort((a, b) => (getValidTime(b) ?? 0) - (getValidTime(a) ?? 0))[0];
 }
 
 export function summarizeSnapshot(snapshot: QuantumXDataSnapshot): SnapshotSummary {
@@ -282,6 +289,7 @@ async function upsertCaptureDraft(
 export async function migrateLocalSnapshotToSupabase(
   snapshot: QuantumXDataSnapshot,
 ): Promise<CloudMigrationResult> {
+  const normalizedSnapshot = normalizeSnapshot(snapshot);
   const supabase = await getSupabaseClient();
   if (!supabase) {
     throw new Error("Supabase is not configured.");
@@ -300,25 +308,25 @@ export async function migrateLocalSnapshotToSupabase(
   });
   if (profileError) throw profileError;
 
-  const topicIdMap = await upsertTopics(supabase, userId, snapshot);
-  const thoughtIdMap = await upsertThoughts(supabase, userId, snapshot);
-  await updateRelatedThoughts(supabase, snapshot.thoughts, thoughtIdMap);
+  const topicIdMap = await upsertTopics(supabase, userId, normalizedSnapshot);
+  const thoughtIdMap = await upsertThoughts(supabase, userId, normalizedSnapshot);
+  await updateRelatedThoughts(supabase, normalizedSnapshot.thoughts, thoughtIdMap);
   const links = await upsertThoughtTopicLinks(
     supabase,
     userId,
-    snapshot,
+    normalizedSnapshot,
     thoughtIdMap,
     topicIdMap,
   );
   const drafts = await upsertDistillDrafts(
     supabase,
     userId,
-    snapshot,
+    normalizedSnapshot,
     thoughtIdMap,
     topicIdMap,
   );
-  const captureDraft = await upsertCaptureDraft(supabase, userId, snapshot);
-  const summary = summarizeSnapshot(snapshot);
+  const captureDraft = await upsertCaptureDraft(supabase, userId, normalizedSnapshot);
+  const summary = summarizeSnapshot(normalizedSnapshot);
 
   return {
     summary,
@@ -456,12 +464,12 @@ export async function restoreSnapshotFromSupabase(): Promise<CloudRestoreResult>
     updatedAt: row.updated_at,
   }));
 
-  const snapshot: QuantumXDataSnapshot = {
+  const snapshot = normalizeSnapshot({
     thoughts,
     topics,
     savedDistills,
     captureDraft: captureDraftResponse.data?.content ?? "",
-  };
+  });
   const summary = summarizeSnapshot(snapshot);
 
   return {

@@ -4,6 +4,7 @@ import type {
   QuantumXDataExport,
   QuantumXDataSnapshot,
   SavedDistill,
+  SnapshotSummary,
   Thought,
   ThoughtStatus,
   Topic,
@@ -149,16 +150,54 @@ function normalizeDistillOutputType(outputType: unknown): DistillOutputType {
   return "文章提纲";
 }
 
+function normalizeIsoDate(
+  value: unknown,
+  fallback = new Date().toISOString(),
+): string {
+  if (typeof value !== "string") return fallback;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return fallback;
+  return date.toISOString();
+}
+
+function normalizeOptionalIsoDate(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return undefined;
+  return date.toISOString();
+}
+
+function normalizeCount(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? Math.floor(value)
+    : 0;
+}
+
+function normalizeSnapshotSummary(summary: unknown): SnapshotSummary | undefined {
+  if (!summary || typeof summary !== "object") return undefined;
+  const candidate = summary as Partial<SnapshotSummary>;
+
+  return {
+    thoughts: normalizeCount(candidate.thoughts),
+    topics: normalizeCount(candidate.topics),
+    drafts: normalizeCount(candidate.drafts),
+    hasCaptureDraft: candidate.hasCaptureDraft === true,
+    latestActivityAt: normalizeOptionalIsoDate(candidate.latestActivityAt),
+  };
+}
+
 export function normalizeThoughts(storedThoughts: Thought[]): Thought[] {
   if (!Array.isArray(storedThoughts)) return [];
 
   return storedThoughts
     .filter((thought) => thought && typeof thought.id === "string")
     .map((thought) => {
+      const createdAt = normalizeIsoDate(thought.createdAt);
+
       return {
         ...thought,
         content: thought.content ?? "",
-        createdAt: thought.createdAt ?? new Date().toISOString(),
+        createdAt,
         source: thought.source ?? "导入记录",
         summary: thought.summary ?? thought.content ?? "未命名想法",
         topicIds: Array.isArray(thought.topicIds) ? thought.topicIds : [],
@@ -179,7 +218,7 @@ export function normalizeTopics(storedTopics: Topic[]): Topic[] {
       name: topic.name ?? "未命名主题",
       summary: topic.summary ?? "这个主题还在形成。",
       description: topic.description ?? "先继续收集相关记录。",
-      updatedAt: topic.updatedAt ?? new Date().toISOString(),
+      updatedAt: normalizeIsoDate(topic.updatedAt),
       accent: normalizeTopicAccent(topic.accent),
       thoughtIds: Array.isArray(topic.thoughtIds) ? topic.thoughtIds : [],
       signals: Array.isArray(topic.signals) ? topic.signals : [],
@@ -198,18 +237,23 @@ export function normalizeDistills(storedDistills: SavedDistill[]): SavedDistill[
 
   return storedDistills
     .filter((draft) => draft && typeof draft.id === "string")
-    .map((draft) => ({
-      ...draft,
-      topicId: draft.topicId ?? "",
-      title: draft.title ?? "未命名草稿",
-      outputType: normalizeDistillOutputType(draft.outputType),
-      content: draft.content ?? "",
-      sourceThoughtIds: Array.isArray(draft.sourceThoughtIds)
-        ? draft.sourceThoughtIds
-        : [],
-      createdAt: draft.createdAt ?? new Date().toISOString(),
-      updatedAt: draft.updatedAt ?? draft.createdAt ?? new Date().toISOString(),
-    }));
+    .map((draft) => {
+      const createdAt = normalizeIsoDate(draft.createdAt);
+      const updatedAt = normalizeIsoDate(draft.updatedAt, createdAt);
+
+      return {
+        ...draft,
+        topicId: draft.topicId ?? "",
+        title: draft.title ?? "未命名草稿",
+        outputType: normalizeDistillOutputType(draft.outputType),
+        content: draft.content ?? "",
+        sourceThoughtIds: Array.isArray(draft.sourceThoughtIds)
+          ? draft.sourceThoughtIds
+          : [],
+        createdAt,
+        updatedAt,
+      };
+    });
 }
 
 export function normalizeSnapshot(
@@ -311,15 +355,9 @@ export function normalizeCloudSyncMetadata(
   if (!metadata || typeof metadata !== "object") return {};
 
   return {
-    lastPushedAt:
-      typeof metadata.lastPushedAt === "string" ? metadata.lastPushedAt : undefined,
-    lastPulledAt:
-      typeof metadata.lastPulledAt === "string" ? metadata.lastPulledAt : undefined,
-    lastKnownCloudSummary:
-      metadata.lastKnownCloudSummary &&
-      typeof metadata.lastKnownCloudSummary === "object"
-        ? metadata.lastKnownCloudSummary
-        : undefined,
+    lastPushedAt: normalizeOptionalIsoDate(metadata.lastPushedAt),
+    lastPulledAt: normalizeOptionalIsoDate(metadata.lastPulledAt),
+    lastKnownCloudSummary: normalizeSnapshotSummary(metadata.lastKnownCloudSummary),
   };
 }
 
