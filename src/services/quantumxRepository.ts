@@ -1,4 +1,5 @@
 import {
+  normalizeSnapshot,
   readScopedSnapshot,
   writeScopedSnapshot,
 } from "../lib/persistence";
@@ -30,14 +31,14 @@ export function createSupabaseQuantumXRepository(): QuantumXRepository {
     async loadSnapshot(fallback) {
       try {
         const result = await restoreSnapshotFromSupabase();
-        return result.snapshot;
+        return normalizeSnapshot(result.snapshot);
       } catch {
         return fallback;
       }
     },
 
     async saveSnapshot(snapshot) {
-      await migrateLocalSnapshotToSupabase(snapshot);
+      await migrateLocalSnapshotToSupabase(normalizeSnapshot(snapshot));
     },
   };
 }

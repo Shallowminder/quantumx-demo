@@ -17,6 +17,7 @@ import {
 import {
   ANONYMOUS_STORAGE_SCOPE,
   getStorageScope,
+  normalizeSnapshot,
   readScopedCloudSyncMetadata,
   readScopedSnapshot,
   writeScopedCloudSyncMetadata,
@@ -241,11 +242,47 @@ export default function App() {
   }
 
   function updateThought(thoughtId: string, patch: Partial<Thought>) {
+    const nextTopicIds = patch.topicIds
+      ? Array.from(
+          new Set(
+            patch.topicIds.filter((topicId) =>
+              topics.some((topic) => topic.id === topicId),
+            ),
+          ),
+        )
+      : undefined;
+
     setThoughts((current) =>
       current.map((thought) =>
-        thought.id === thoughtId ? { ...thought, ...patch } : thought,
+        thought.id === thoughtId
+          ? {
+              ...thought,
+              ...patch,
+              ...(nextTopicIds ? { topicIds: nextTopicIds } : {}),
+            }
+          : thought,
       ),
     );
+
+    if (nextTopicIds) {
+      setTopics((current) =>
+        current.map((topic) => {
+          const shouldContainThought = nextTopicIds.includes(topic.id);
+          const hasThought = topic.thoughtIds.includes(thoughtId);
+
+          if (shouldContainThought === hasThought) return topic;
+
+          return {
+            ...topic,
+            thoughtIds: shouldContainThought
+              ? Array.from(new Set([...topic.thoughtIds, thoughtId]))
+              : topic.thoughtIds.filter((id) => id !== thoughtId),
+            updatedAt: new Date().toISOString(),
+          };
+        }),
+      );
+    }
+
     setToast({ message: "想法已更新。" });
   }
 
@@ -324,26 +361,28 @@ export default function App() {
     snapshot: QuantumXDataSnapshot,
     options?: ImportDataOptions,
   ) {
+    const normalizedSnapshot = normalizeSnapshot(snapshot);
     const useSeedFallback = options?.useSeedFallback ?? true;
     const nextThoughts =
-      snapshot.thoughts.length > 0 || !useSeedFallback
-        ? snapshot.thoughts
+      normalizedSnapshot.thoughts.length > 0 || !useSeedFallback
+        ? normalizedSnapshot.thoughts
         : seedThoughts;
     const nextTopics =
-      snapshot.topics.length > 0 || !useSeedFallback
-        ? snapshot.topics
+      normalizedSnapshot.topics.length > 0 || !useSeedFallback
+        ? normalizedSnapshot.topics
         : seedTopics;
 
     setThoughts(nextThoughts);
     setTopics(nextTopics);
-    setSavedDistills(snapshot.savedDistills);
-    setCaptureDraft(snapshot.captureDraft);
+    setSavedDistills(normalizedSnapshot.savedDistills);
+    setCaptureDraft(normalizedSnapshot.captureDraft);
     setSnapshotScope(options?.storageScope ?? currentStorageScope);
     setSelectedThoughtId(nextThoughts[0]?.id ?? "");
     setSelectedTopicId(nextTopics[0]?.id ?? "");
     setDataMode(options?.dataMode ?? "local");
     if (options?.dataMode === "cloud") {
-      lastCloudSyncedSignatureRef.current = createSnapshotSignature(snapshot);
+      lastCloudSyncedSignatureRef.current =
+        createSnapshotSignature(normalizedSnapshot);
       hasShownCloudSyncErrorRef.current = false;
       setCloudSyncState("synced");
     } else {

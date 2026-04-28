@@ -81,14 +81,14 @@ export function readScopedSnapshot(
       ? readStoredValue(CAPTURE_DRAFT_STORAGE_KEY, fallback.captureDraft)
       : fallback.captureDraft;
 
-  return {
+  return normalizeSnapshot({
     thoughts: normalizeThoughts(readStoredValue(keys.thoughts, thoughtsFallback)),
     topics: normalizeTopics(readStoredValue(keys.topics, topicsFallback)),
     savedDistills: normalizeDistills(
       readStoredValue(keys.distills, distillsFallback),
     ),
     captureDraft: readStoredValue(keys.captureDraft, captureDraftFallback),
-  };
+  });
 }
 
 export function writeScopedSnapshot(
@@ -96,10 +96,11 @@ export function writeScopedSnapshot(
   snapshot: QuantumXDataSnapshot,
 ) {
   const keys = getScopedStorageKeys(scope);
-  writeStoredValue(keys.thoughts, snapshot.thoughts);
-  writeStoredValue(keys.topics, snapshot.topics);
-  writeStoredValue(keys.distills, snapshot.savedDistills);
-  writeStoredValue(keys.captureDraft, snapshot.captureDraft);
+  const normalizedSnapshot = normalizeSnapshot(snapshot);
+  writeStoredValue(keys.thoughts, normalizedSnapshot.thoughts);
+  writeStoredValue(keys.topics, normalizedSnapshot.topics);
+  writeStoredValue(keys.distills, normalizedSnapshot.savedDistills);
+  writeStoredValue(keys.captureDraft, normalizedSnapshot.captureDraft);
 }
 
 export function normalizeThoughts(storedThoughts: Thought[]): Thought[] {
@@ -175,15 +176,80 @@ export function normalizeDistills(storedDistills: SavedDistill[]): SavedDistill[
     }));
 }
 
+export function normalizeSnapshot(
+  snapshot: Partial<QuantumXDataSnapshot>,
+): QuantumXDataSnapshot {
+  const normalizedThoughts = normalizeThoughts(
+    (snapshot.thoughts ?? []) as Thought[],
+  );
+  const normalizedTopics = normalizeTopics((snapshot.topics ?? []) as Topic[]);
+  const normalizedDistills = normalizeDistills(
+    (snapshot.savedDistills ?? []) as SavedDistill[],
+  );
+  const validThoughtIds = new Set(normalizedThoughts.map((thought) => thought.id));
+  const validTopicIds = new Set(normalizedTopics.map((topic) => topic.id));
+  const topicToThoughtIds = new Map<string, Set<string>>();
+  const thoughtToTopicIds = new Map<string, Set<string>>();
+
+  for (const thought of normalizedThoughts) {
+    const thoughtTopics = new Set<string>();
+    for (const topicId of thought.topicIds) {
+      if (!validTopicIds.has(topicId)) continue;
+      thoughtTopics.add(topicId);
+      if (!topicToThoughtIds.has(topicId)) {
+        topicToThoughtIds.set(topicId, new Set());
+      }
+      topicToThoughtIds.get(topicId)?.add(thought.id);
+    }
+    thoughtToTopicIds.set(thought.id, thoughtTopics);
+  }
+
+  for (const topic of normalizedTopics) {
+    const topicThoughts = topicToThoughtIds.get(topic.id) ?? new Set<string>();
+    for (const thoughtId of topic.thoughtIds) {
+      if (!validThoughtIds.has(thoughtId)) continue;
+      topicThoughts.add(thoughtId);
+      if (!thoughtToTopicIds.has(thoughtId)) {
+        thoughtToTopicIds.set(thoughtId, new Set());
+      }
+      thoughtToTopicIds.get(thoughtId)?.add(topic.id);
+    }
+    topicToThoughtIds.set(topic.id, topicThoughts);
+  }
+
+  return {
+    thoughts: normalizedThoughts.map((thought) => ({
+      ...thought,
+      topicIds: Array.from(thoughtToTopicIds.get(thought.id) ?? []),
+      relatedIds: thought.relatedIds.filter((id) => validThoughtIds.has(id)),
+    })),
+    topics: normalizedTopics.map((topic) => ({
+      ...topic,
+      thoughtIds: Array.from(topicToThoughtIds.get(topic.id) ?? []),
+    })),
+    savedDistills: normalizedDistills.map((draft) => ({
+      ...draft,
+      topicId: validTopicIds.has(draft.topicId) ? draft.topicId : "",
+      sourceThoughtIds: draft.sourceThoughtIds.filter((id) =>
+        validThoughtIds.has(id),
+      ),
+    })),
+    captureDraft:
+      typeof snapshot.captureDraft === "string" ? snapshot.captureDraft : "",
+  };
+}
+
 export function createDataExport(
   snapshot: QuantumXDataSnapshot,
 ): QuantumXDataExport {
+  const normalizedSnapshot = normalizeSnapshot(snapshot);
+
   return {
     app: "QuantumX",
     version: 1,
     exportedAt: new Date().toISOString(),
     note: "QuantumX 本地数据备份。导入会覆盖当前浏览器里的本地记录。",
-    data: snapshot,
+    data: normalizedSnapshot,
   };
 }
 
@@ -193,15 +259,7 @@ export function parseDataExport(raw: string): QuantumXDataSnapshot {
   };
   const data: Partial<QuantumXDataSnapshot> = parsed.data ?? {};
 
-  return {
-    thoughts: normalizeThoughts((data.thoughts ?? []) as Thought[]),
-    topics: normalizeTopics((data.topics ?? []) as Topic[]),
-    savedDistills: normalizeDistills(
-      (data.savedDistills ?? []) as SavedDistill[],
-    ),
-    captureDraft:
-      typeof data.captureDraft === "string" ? data.captureDraft : "",
-  };
+  return normalizeSnapshot(data);
 }
 
 export function getStorageSizeLabel(snapshot: QuantumXDataSnapshot): string {
