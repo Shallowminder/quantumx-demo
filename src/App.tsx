@@ -122,8 +122,12 @@ export default function App() {
   const [activeView, setActiveView] = useState<ViewKey>("today");
   const [thoughts, setThoughts] = useState<Thought[]>(() => initialSnapshot.thoughts);
   const [topics, setTopics] = useState<Topic[]>(() => initialSnapshot.topics);
-  const [selectedThoughtId, setSelectedThoughtId] = useState(seedThoughts[0].id);
-  const [selectedTopicId, setSelectedTopicId] = useState(seedTopics[0].id);
+  const [selectedThoughtId, setSelectedThoughtId] = useState(
+    initialSnapshot.thoughts[0]?.id ?? "",
+  );
+  const [selectedTopicId, setSelectedTopicId] = useState(
+    initialSnapshot.topics[0]?.id ?? "",
+  );
   const [captureDraft, setCaptureDraft] = useState(() => initialSnapshot.captureDraft);
   const [savedDistills, setSavedDistills] = useState<SavedDistill[]>(() =>
     initialSnapshot.savedDistills,
@@ -166,8 +170,7 @@ export default function App() {
   const selectedThought = useMemo(() => {
     return (
       thoughts.find((thought) => thought.id === selectedThoughtId) ??
-      thoughts[0] ??
-      seedThoughts[0]
+      thoughts[0]
     );
   }, [selectedThoughtId, thoughts]);
 
@@ -207,7 +210,7 @@ export default function App() {
       actionLabel: "撤销",
       onAction: () => {
         setThoughts((current) => current.filter((item) => item.id !== thought.id));
-        setSelectedThoughtId(seedThoughts[0].id);
+        setSelectedThoughtId((current) => (current === thought.id ? "" : current));
         setToast({ message: "已撤销刚才保存的想法。" });
       },
     });
@@ -336,8 +339,8 @@ export default function App() {
     setSavedDistills(snapshot.savedDistills);
     setCaptureDraft(snapshot.captureDraft);
     setSnapshotScope(options?.storageScope ?? currentStorageScope);
-    setSelectedThoughtId(nextThoughts[0]?.id ?? seedThoughts[0].id);
-    setSelectedTopicId(nextTopics[0]?.id ?? seedTopics[0].id);
+    setSelectedThoughtId(nextThoughts[0]?.id ?? "");
+    setSelectedTopicId(nextTopics[0]?.id ?? "");
     setDataMode(options?.dataMode ?? "local");
     if (options?.dataMode === "cloud") {
       lastCloudSyncedSignatureRef.current = createSnapshotSignature(snapshot);
@@ -644,6 +647,12 @@ export default function App() {
   }, [currentSnapshot, currentStorageScope, localQuantumXRepository, snapshotScope]);
 
   useEffect(() => {
+    if (activeView === "detail" && !selectedThought) {
+      setActiveView("today");
+    }
+  }, [activeView, selectedThought]);
+
+  useEffect(() => {
     if (!toast) return undefined;
     const timer = window.setTimeout(() => setToast(null), 3200);
     return () => window.clearTimeout(timer);
@@ -765,7 +774,7 @@ export default function App() {
             />
           )}
 
-          {activeView === "detail" && (
+          {activeView === "detail" && selectedThought && (
             <ThoughtDetailPage
               thought={selectedThought}
               thoughts={thoughts}
@@ -774,7 +783,7 @@ export default function App() {
               onAttachThoughtToTopic={attachThoughtToTopic}
               onContinueFromThought={continueFromThought}
               onGenerateFromThought={(thought) => {
-                setSelectedTopicId(thought.topicIds[0] ?? topics[0]?.id ?? seedTopics[0].id);
+                setSelectedTopicId(thought.topicIds[0] ?? topics[0]?.id ?? "");
                 setActiveView("distill");
               }}
               onOpenThought={openThought}
