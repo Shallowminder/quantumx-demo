@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Cloud, LogOut, Mail, ShieldCheck } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { authRepository } from "../services/authRepository";
@@ -20,6 +20,12 @@ export function AccountMenu({
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [menuPosition, setMenuPosition] = useState({
+    left: 16,
+    maxHeight: 520,
+    top: 88,
+    width: 336,
+  });
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -64,6 +70,41 @@ export function AccountMenu({
     return () => window.removeEventListener("mousedown", handlePointerDown);
   }, [open]);
 
+  useLayoutEffect(() => {
+    if (!open) return undefined;
+
+    function updatePosition() {
+      const trigger = rootRef.current;
+      if (!trigger) return;
+
+      const rect = trigger.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const desiredWidth = compact ? 320 : 336;
+      const width = Math.max(280, Math.min(desiredWidth, viewportWidth - 32));
+      const preferredLeft = align === "right" ? rect.right - width : rect.left;
+      const left = Math.min(Math.max(16, preferredLeft), viewportWidth - width - 16);
+      const top = Math.min(rect.bottom + 12, viewportHeight - 120);
+      const maxHeight = Math.max(260, viewportHeight - top - 16);
+
+      setMenuPosition({
+        left,
+        maxHeight,
+        top,
+        width,
+      });
+    }
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [align, compact, open]);
+
   const initials = useMemo(() => {
     const seed = session?.user.email?.trim().charAt(0) ?? "Q";
     return seed.toUpperCase();
@@ -102,7 +143,7 @@ export function AccountMenu({
   return (
     <div className="relative" ref={rootRef}>
       <button
-        className={`theme-surface-ghost inline-flex items-center rounded-2xl text-left transition hover:bg-white hover:text-ink ${
+        className={`theme-surface-ghost inline-flex items-center rounded-2xl text-left transition hover:bg-white hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sage/45 ${
           compact ? "gap-0 p-2" : "gap-2 px-2.5 py-2"
         }`}
         type="button"
@@ -132,9 +173,13 @@ export function AccountMenu({
 
       {open && (
         <div
-          className={`frost-panel-strong absolute top-[calc(100%+0.75rem)] z-40 w-[320px] rounded-[26px] p-4 shadow-[0_24px_70px_rgba(20,20,20,0.14)] ${
-            align === "right" ? "right-0" : "left-0"
-          }`}
+          className="frost-panel-strong fixed z-50 overflow-y-auto rounded-[26px] p-4 shadow-[0_24px_70px_rgba(20,20,20,0.14)] subtle-scrollbar"
+          style={{
+            left: menuPosition.left,
+            maxHeight: menuPosition.maxHeight,
+            top: menuPosition.top,
+            width: menuPosition.width,
+          }}
         >
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
             <ShieldCheck size={16} strokeWidth={1.8} />
