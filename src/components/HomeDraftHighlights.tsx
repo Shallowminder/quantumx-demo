@@ -38,7 +38,7 @@ export function HomeDraftHighlights({
             return (
               <button
                 key={draft.id}
-                className="theme-card-overlay flex w-full items-start gap-3 rounded-2xl p-4 text-left shadow-[0_10px_28px_rgba(45,43,37,0.04)] transition hover:text-ink"
+                className="theme-card-overlay flex w-full items-start gap-3 rounded-2xl p-4 text-left shadow-[0_10px_28px_rgb(var(--shadow-rgb)_/_0.04)] transition hover:text-ink"
                 type="button"
                 onClick={onOpenDistill}
               >

@@ -34,25 +34,25 @@ const styleOptions: Array<{
     value: "cold-white",
     label: "冷白极简",
     subtitle: "更清爽、更工具感",
-    swatches: ["#FFFFFF", "#F2F6FA", "#D5DCE6", "#2A303A"],
+    swatches: ["#FFFFFF", "#F5F8FC", "#E2E8F0", "#262D38"],
   },
   {
     value: "moonlight",
     label: "月光蓝灰",
     subtitle: "安静、理性、适合作为默认",
-    swatches: ["#EBF1F8", "#D8E5F2", "#4E707A", "#1A2F4A"],
+    swatches: ["#E6EFF8", "#D0E0F0", "#3D7077", "#133752"],
   },
   {
     value: "glass",
     label: "黑白玻璃",
     subtitle: "更克制，也更适合展示",
-    swatches: ["#FAFAFB", "#E2E3E8", "#656970", "#0C0D0F"],
+    swatches: ["#F9F9FA", "#E0E1E6", "#5D5F64", "#090A0C"],
   },
   {
     value: "dark-first",
     label: "深色优先",
     subtitle: "更沉浸，适合夜间写作",
-    swatches: ["#1B212B", "#343E4C", "#87ABAE", "#EFF5FB"],
+    swatches: ["#141A23", "#303C4C", "#7DB0AE", "#F0F5FA"],
   },
 ];
 
@@ -86,7 +86,7 @@ export function ThemeToggle({
               key={option.value}
               className={`rounded-[22px] border px-3 py-3 text-left transition ${
                 active
-                  ? "theme-surface-ghost-strong border-line/80 text-ink shadow-[0_16px_34px_rgba(24,28,36,0.08)]"
+                  ? "theme-surface-ghost-strong border-line/80 text-ink shadow-[0_16px_34px_rgb(var(--shadow-rgb)_/_0.08)]"
                   : "theme-surface-soft border-transparent text-muted hover:border-line/70 hover:text-ink"
               }`}
               type="button"
@@ -120,7 +120,7 @@ export function ThemeToggle({
               key={option.value}
               className={`rounded-[22px] border px-3.5 py-3.5 text-left transition ${
                 active
-                  ? "theme-surface-ghost-strong border-line/80 text-ink shadow-[0_18px_36px_rgba(24,28,36,0.08)]"
+                  ? "theme-surface-ghost-strong border-line/80 text-ink shadow-[0_18px_36px_rgb(var(--shadow-rgb)_/_0.08)]"
                   : "theme-surface-soft border-transparent text-muted hover:border-line/70 hover:text-ink"
               }`}
               type="button"
@@ -130,7 +130,7 @@ export function ThemeToggle({
                 {option.swatches.map((swatch) => (
                   <span
                     key={swatch}
-                    className="h-7 flex-1 rounded-full border border-line/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
+                    className="h-7 flex-1 rounded-full border border-line/50 shadow-[inset_0_1px_0_rgb(var(--highlight-rgb)_/_0.25)]"
                     style={{ backgroundColor: swatch }}
                   />
                 ))}

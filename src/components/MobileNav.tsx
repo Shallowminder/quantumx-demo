@@ -84,77 +84,79 @@ export function MobileNav({
       }
     }
 
+    function handleScroll(event: Event) {
+      const target = event.target as Node | null;
+      if (target && menuRef.current?.contains(target)) return;
+      setIsMoreOpen(false);
+    }
+
     window.addEventListener("pointerdown", handlePointerDown);
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("scroll", handleScroll, true);
 
     return () => {
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("scroll", handleScroll, true);
     };
   }, [isMoreOpen]);
 
   return (
     <>
       {isMoreOpen && (
-        <>
-          <div
-            aria-hidden="true"
-            className="theme-overlay-dim pointer-events-none fixed inset-0 z-30 backdrop-blur-[2px] lg:hidden"
-          />
-          <div
-            ref={menuRef}
-            className="frost-panel-strong fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+5.6rem)] z-40 max-h-[min(72vh,560px)] overflow-y-auto rounded-[26px] p-2 lg:hidden subtle-scrollbar"
-          >
-            <div className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-[0.18em] text-muted/80">
-              更多
-            </div>
-            <div className="space-y-1">
-              {overflowNavItems.map((item) => {
-                const Icon = item.icon;
-                const active = resolvedActiveKey === item.key;
-
-                return (
-                  <button
-                    key={item.key}
-                    className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition ${
-                      active
-                        ? "theme-surface-ghost-strong text-ink shadow-[0_12px_28px_rgba(37,37,33,0.08)]"
-                        : "text-muted hover:bg-[rgb(var(--surface-overlay-rgb)/0.72)] hover:text-ink"
-                    }`}
-                    type="button"
-                    onClick={() => {
-                      setIsMoreOpen(false);
-                      onNavigate(item.key);
-                    }}
-                  >
-                    <div className="theme-surface-ghost flex h-9 w-9 items-center justify-center rounded-2xl text-ink">
-                      <Icon size={18} strokeWidth={1.8} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-ink">{item.label}</div>
-                      <div className="text-xs text-muted">{item.note}</div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="soft-divider mt-3 border-t px-3 pb-2 pt-4">
-              <ThemeToggle
-                compact
-                stylePreference={stylePreference}
-                preference={preference}
-                resolvedTheme={resolvedTheme}
-                onAppearanceChange={onThemePreferenceChange}
-                onStyleChange={onStylePreferenceChange}
-              />
-            </div>
+        <div
+          ref={menuRef}
+          className="frost-panel-strong fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+5.45rem)] z-50 max-h-[min(54vh,430px)] overflow-y-auto rounded-[26px] p-2 lg:hidden subtle-scrollbar"
+        >
+          <div className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-[0.18em] text-muted/80">
+            更多
           </div>
-        </>
+          <div className="space-y-1">
+            {overflowNavItems.map((item) => {
+              const Icon = item.icon;
+              const active = resolvedActiveKey === item.key;
+
+              return (
+                <button
+                  key={item.key}
+                  className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition ${
+                    active
+                      ? "theme-surface-ghost-strong text-ink shadow-[0_12px_28px_rgb(var(--shadow-rgb)_/_0.08)]"
+                      : "text-muted hover:bg-[rgb(var(--surface-overlay-rgb)/0.72)] hover:text-ink"
+                  }`}
+                  type="button"
+                  onClick={() => {
+                    setIsMoreOpen(false);
+                    onNavigate(item.key);
+                  }}
+                >
+                  <div className="theme-surface-ghost flex h-9 w-9 items-center justify-center rounded-2xl text-ink">
+                    <Icon size={18} strokeWidth={1.8} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-ink">{item.label}</div>
+                    <div className="text-xs text-muted">{item.note}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <div className="soft-divider mt-3 border-t px-3 pb-2 pt-4">
+            <ThemeToggle
+              compact
+              stylePreference={stylePreference}
+              preference={preference}
+              resolvedTheme={resolvedTheme}
+              onAppearanceChange={onThemePreferenceChange}
+              onStyleChange={onStylePreferenceChange}
+            />
+          </div>
+        </div>
       )}
 
       <nav
         ref={navRef}
-        className="frost-panel fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-40 rounded-[28px] p-1.5 lg:hidden"
+        className="frost-panel fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-50 rounded-[28px] p-1.5 lg:hidden"
       >
         <div className="grid grid-cols-5 gap-1">
           {primaryNavItems.map((item) => {
@@ -166,7 +168,7 @@ export function MobileNav({
                 key={item.key}
                 className={`flex min-h-[62px] flex-col items-center justify-center gap-1 rounded-[22px] px-2 py-2 text-[11px] transition ${
                   active
-                    ? "theme-surface-ghost-strong text-ink shadow-[0_10px_28px_rgba(37,37,33,0.08)]"
+                    ? "theme-surface-ghost-strong text-ink shadow-[0_10px_28px_rgb(var(--shadow-rgb)_/_0.08)]"
                     : "text-muted"
                 }`}
                 type="button"
@@ -181,7 +183,7 @@ export function MobileNav({
           <button
             className={`flex min-h-[62px] flex-col items-center justify-center gap-1 rounded-[22px] px-2 py-2 text-[11px] transition ${
               isMoreOpen || isOverflowActive
-                ? "theme-surface-ghost-strong text-ink shadow-[0_10px_28px_rgba(37,37,33,0.08)]"
+                ? "theme-surface-ghost-strong text-ink shadow-[0_10px_28px_rgb(var(--shadow-rgb)_/_0.08)]"
                 : "text-muted"
             }`}
             type="button"

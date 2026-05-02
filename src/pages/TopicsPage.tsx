@@ -89,7 +89,7 @@ export function TopicsPage({
           />
           <button
             aria-label="新建主题"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-ink text-white transition hover:bg-black"
+            className="theme-primary-button inline-flex h-10 w-10 items-center justify-center rounded-xl transition"
             type="submit"
           >
             <Plus size={16} strokeWidth={1.8} />
@@ -130,7 +130,7 @@ export function TopicsPage({
             />
             <button
               aria-label="新建主题"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-ink text-white transition hover:bg-black"
+              className="theme-primary-button inline-flex h-10 w-10 items-center justify-center rounded-xl transition"
               type="submit"
             >
               <Plus size={16} strokeWidth={1.8} />

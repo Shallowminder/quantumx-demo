@@ -19,7 +19,7 @@ export function IconButton({
       title={label}
       className={`inline-flex h-9 w-9 items-center justify-center rounded-md border transition ${
         active
-          ? "border-ink bg-ink text-white"
+          ? "theme-primary-button border-transparent"
           : "theme-button-muted hover:border-sage"
       } ${className}`}
       type="button"

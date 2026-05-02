@@ -101,8 +101,9 @@ export function AccountMenu({
       const rect = trigger.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-      const desiredWidth = compact ? 320 : 336;
-      const width = Math.max(280, Math.min(desiredWidth, viewportWidth - 32));
+      const desiredWidth = compact ? 320 : 252;
+      const minWidth = compact ? 280 : 236;
+      const width = Math.max(minWidth, Math.min(desiredWidth, viewportWidth - 32));
       const preferredLeft = align === "right" ? rect.right - width : rect.left;
       const left = Math.min(Math.max(16, preferredLeft), viewportWidth - width - 16);
       const top = Math.min(rect.bottom + 12, viewportHeight - 120);
@@ -166,7 +167,7 @@ export function AccountMenu({
       ? createPortal(
           <div
             ref={panelRef}
-            className="frost-panel-strong fixed z-[80] overflow-y-auto rounded-[26px] p-4 shadow-[0_24px_70px_rgba(20,20,20,0.14)] subtle-scrollbar"
+            className="frost-panel-strong fixed z-[80] overflow-y-auto rounded-[26px] p-4 shadow-[0_24px_70px_rgb(var(--shadow-rgb)_/_0.14)] subtle-scrollbar"
             style={{
               left: menuPosition.left,
               maxHeight: menuPosition.maxHeight,
@@ -216,7 +217,7 @@ export function AccountMenu({
                   邮箱登录已经移到这里了。输入邮箱后，QuantumX 会给你发一封登录链接。
                 </p>
                 <form
-                  className="flex gap-2"
+                  className="grid gap-2"
                   onSubmit={(event) => {
                     event.preventDefault();
                     void sendMagicLink();

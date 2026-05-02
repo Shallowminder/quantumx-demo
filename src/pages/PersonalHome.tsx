@@ -55,7 +55,7 @@ export function PersonalHome({
                 这里会慢慢变成你的思考主页。先从今天的一句话开始。
               </p>
               <button
-                className="mt-4 inline-flex items-center gap-2 rounded-full bg-sage px-4 py-2 text-sm font-medium text-white transition hover:bg-sage/90"
+                className="theme-primary-button mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition"
                 type="button"
                 onClick={() => onNavigate("today")}
               >
