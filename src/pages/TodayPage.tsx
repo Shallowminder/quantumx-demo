@@ -4,7 +4,11 @@ import { CaptureComposer } from "../components/CaptureComposer";
 import { RelatedMemoriesPanel } from "../components/RelatedMemoriesPanel";
 import { ThoughtCard } from "../components/ThoughtCard";
 import { findRelatedMemoryMatches, inferTopicIds } from "../lib/memory";
-import { fetchRelatedMemoryMatches } from "../services/recallRepository";
+import {
+  fetchRelatedMemoryResult,
+  type RecallSource,
+  type RecallStrategy,
+} from "../services/recallRepository";
 import type { MemoryMatch, Thought, Topic } from "../types";
 
 interface TodayPageProps {
@@ -45,20 +49,29 @@ export function TodayPage({
   );
   const [relatedMatches, setRelatedMatches] =
     useState<MemoryMatch[]>(localRelatedMatches);
+  const [recallSource, setRecallSource] = useState<RecallSource>("local");
+  const [recallStrategy, setRecallStrategy] = useState<RecallStrategy>("local");
+  const [recallLoading, setRecallLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setRelatedMatches(localRelatedMatches);
+    setRecallSource("local");
+    setRecallStrategy("local");
+    setRecallLoading(recallInput.trim().length >= 2 && thoughts.length > 0);
 
     const timer = window.setTimeout(async () => {
-      const nextMatches = await fetchRelatedMemoryMatches(
+      const result = await fetchRelatedMemoryResult(
         recallInput,
         thoughts,
         topics,
         5,
       );
       if (!cancelled) {
-        setRelatedMatches(nextMatches);
+        setRelatedMatches(result.matches);
+        setRecallSource(result.source);
+        setRecallStrategy(result.strategy);
+        setRecallLoading(false);
       }
     }, draft.trim().length > 0 ? 320 : 120);
 
@@ -124,7 +137,10 @@ export function TodayPage({
           <RelatedMemoriesPanel
             description={relatedPanelDescription}
             feedbackContext={feedbackContext}
+            isLoading={recallLoading}
             matches={relatedMatches}
+            recallSource={recallSource}
+            recallStrategy={recallStrategy}
             topics={topics}
             onOpenThought={onOpenThought}
             onOpenTopic={onOpenTopic}
@@ -268,7 +284,10 @@ export function TodayPage({
         <RelatedMemoriesPanel
           description={relatedPanelDescription}
           feedbackContext={feedbackContext}
+          isLoading={recallLoading}
           matches={relatedMatches}
+          recallSource={recallSource}
+          recallStrategy={recallStrategy}
           topics={topics}
           onOpenThought={onOpenThought}
           onOpenTopic={onOpenTopic}

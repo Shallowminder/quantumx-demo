@@ -3,6 +3,7 @@ import { Check, Clock3, Layers3, Pin, X } from "lucide-react";
 import { MemoryRecallExplanation } from "./MemoryRecallExplanation";
 import { formatMonthDay } from "../lib/date";
 import { recordMemoryFeedback } from "../services/memoryFeedbackRepository";
+import type { RecallSource, RecallStrategy } from "../services/recallRepository";
 import type { MemoryFeedbackType, MemoryMatch, MemoryMatchKind, Topic } from "../types";
 
 interface RelatedMemoriesPanelProps {
@@ -11,6 +12,9 @@ interface RelatedMemoriesPanelProps {
   matches: MemoryMatch[];
   topics: Topic[];
   feedbackContext?: string;
+  isLoading?: boolean;
+  recallSource?: RecallSource;
+  recallStrategy?: RecallStrategy;
   sourceThoughtId?: string;
   onAttachToTopic?: (thoughtId: string, topicId: string) => void;
   onOpenThought: (thoughtId: string) => void;
@@ -23,12 +27,22 @@ const kindLabels: Record<MemoryMatchKind, string> = {
   counterpoint: "不同角度",
 };
 
+const strategyLabels: Record<RecallStrategy, string> = {
+  local: "本地规则",
+  lexical: "关键词召回",
+  semantic: "语义召回",
+  empty: "暂无结果",
+};
+
 export function RelatedMemoriesPanel({
   title = "相关旧想法",
   description = "根据你正在写的内容，从历史记录里找回。",
   matches,
   topics,
   feedbackContext,
+  isLoading = false,
+  recallSource = "local",
+  recallStrategy = "local",
   sourceThoughtId,
   onAttachToTopic,
   onOpenThought,
@@ -65,7 +79,16 @@ export function RelatedMemoriesPanel({
   return (
     <aside className="space-y-4">
       <section className="frost-panel rounded-[28px] p-4">
-        <div className="mb-1 text-sm font-semibold text-ink">{title}</div>
+        <div className="mb-1 flex items-start justify-between gap-3">
+          <div className="text-sm font-semibold text-ink">{title}</div>
+          <span className="theme-pill shrink-0 rounded-full px-2.5 py-1 text-[11px] text-muted">
+            {isLoading
+              ? "匹配中"
+              : recallSource === "cloud"
+                ? strategyLabels[recallStrategy]
+                : "本地规则"}
+          </span>
+        </div>
         <p className="mb-4 text-sm leading-6 text-muted">{description}</p>
         <div className="space-y-3">
           {groupedMatches.length > 0 ? (

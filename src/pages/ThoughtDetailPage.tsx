@@ -14,7 +14,11 @@ import { ThoughtStatusTrail } from "../components/ThoughtStatusTrail";
 import { TopicBadge } from "../components/TopicBadge";
 import { formatDayLabel } from "../lib/date";
 import { findRelatedMemoryMatches } from "../lib/memory";
-import { fetchRelatedMemoryMatches } from "../services/recallRepository";
+import {
+  fetchRelatedMemoryResult,
+  type RecallSource,
+  type RecallStrategy,
+} from "../services/recallRepository";
 import type { MemoryMatch, Thought, ThoughtStatus, Topic } from "../types";
 
 interface ThoughtDetailPageProps {
@@ -61,6 +65,9 @@ export function ThoughtDetailPage({
   );
   const [relatedMatches, setRelatedMatches] =
     useState<MemoryMatch[]>(localRelatedMatches);
+  const [recallSource, setRecallSource] = useState<RecallSource>("local");
+  const [recallStrategy, setRecallStrategy] = useState<RecallStrategy>("local");
+  const [recallLoading, setRecallLoading] = useState(false);
 
   useEffect(() => {
     setContentDraft(thought.content);
@@ -72,11 +79,17 @@ export function ThoughtDetailPage({
   useEffect(() => {
     let cancelled = false;
     setRelatedMatches(localRelatedMatches);
+    setRecallSource("local");
+    setRecallStrategy("local");
+    setRecallLoading(thought.content.trim().length >= 2 && thoughts.length > 0);
 
     const timer = window.setTimeout(async () => {
-      const nextMatches = await fetchRelatedMemoryMatches(thought, thoughts, topics, 5);
+      const result = await fetchRelatedMemoryResult(thought, thoughts, topics, 5);
       if (!cancelled) {
-        setRelatedMatches(nextMatches);
+        setRelatedMatches(result.matches);
+        setRecallSource(result.source);
+        setRecallStrategy(result.strategy);
+        setRecallLoading(false);
       }
     }, 120);
 
@@ -247,7 +260,10 @@ export function ThoughtDetailPage({
           <RelatedMemoriesPanel
             description="这些旧记录和当前想法有相同主题或相近关键词。"
             feedbackContext={thought.content}
+            isLoading={recallLoading}
             matches={relatedMatches}
+            recallSource={recallSource}
+            recallStrategy={recallStrategy}
             sourceThoughtId={thought.id}
             title="相关旧想法"
             topics={topics}
@@ -322,7 +338,10 @@ export function ThoughtDetailPage({
         <RelatedMemoriesPanel
           description="这些旧记录和当前想法有相同主题或相近关键词。"
           feedbackContext={thought.content}
+          isLoading={recallLoading}
           matches={relatedMatches}
+          recallSource={recallSource}
+          recallStrategy={recallStrategy}
           sourceThoughtId={thought.id}
           title="相关旧想法"
           topics={topics}

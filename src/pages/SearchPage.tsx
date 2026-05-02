@@ -83,8 +83,8 @@ export function SearchPage({
           找回想法
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-          先用本地全文搜索把旧记录、主题和草稿找回来。后续接入 embedding 后，
-          这里会升级成真正的语义召回。
+          先用本地全文搜索把旧记录、主题和草稿找回来。相关旧想法已经开始接入云端语义召回，
+          搜索页会继续补上同样的解释和反馈。
         </p>
       </header>
 
@@ -285,17 +285,17 @@ export function SearchPage({
               为什么先做搜索
             </div>
             <p className="text-sm leading-7 text-muted">
-              真正可用的 QuantumX 必须能把旧材料找回来。本地搜索是第一步，
-              后续会接入语义向量召回，让相近问题也能被带回。
+              真正可用的 QuantumX 必须能把旧材料找回来。本地搜索负责直接命中，
+              相关旧想法负责把语义相近的问题带回来。
             </p>
           </div>
 
           <div className="frost-panel rounded-[1.25rem] p-5">
             <div className="mb-3 text-sm font-semibold text-ink">下一步会升级</div>
             <div className="space-y-3 text-sm leading-6 text-muted">
-              <p>1. 全文搜索接数据库索引。</p>
-              <p>2. 记录生成 embedding。</p>
-              <p>3. 搜索结果显示语义相似原因和用户反馈。</p>
+              <p>1. 把搜索结果接入云端索引。</p>
+              <p>2. 复用已生成的 embedding 做语义排序。</p>
+              <p>3. 搜索结果显示相似原因和用户反馈。</p>
             </div>
           </div>
         </aside>
