@@ -2,11 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   BookOpenText,
+  Check,
   FileText,
   Filter,
+  Pin,
   Search,
   Sparkles,
+  X,
 } from "lucide-react";
+import { MemoryRecallExplanation } from "../components/MemoryRecallExplanation";
 import { TopicBadge } from "../components/TopicBadge";
 import { formatMonthDay } from "../lib/date";
 import {
@@ -21,7 +25,15 @@ import {
   type RecallSource,
   type RecallStrategy,
 } from "../services/recallRepository";
-import type { MemoryMatch, SavedDistill, Thought, ThoughtStatus, Topic } from "../types";
+import { recordMemoryFeedback } from "../services/memoryFeedbackRepository";
+import type {
+  MemoryFeedbackType,
+  MemoryMatch,
+  SavedDistill,
+  Thought,
+  ThoughtStatus,
+  Topic,
+} from "../types";
 
 interface SearchPageProps {
   savedDistills: SavedDistill[];
@@ -113,6 +125,16 @@ function mergeSearchResults(
     .slice(0, 40);
 }
 
+function sortPinnedResults(results: SearchResult[], pinnedIds: string[]) {
+  if (pinnedIds.length === 0) return results;
+  return [...results].sort((a, b) => {
+    const aPinned = a.kind === "thought" && pinnedIds.includes(a.id);
+    const bPinned = b.kind === "thought" && pinnedIds.includes(b.id);
+    if (aPinned === bPinned) return 0;
+    return aPinned ? -1 : 1;
+  });
+}
+
 export function SearchPage({
   savedDistills,
   thoughts,
@@ -132,6 +154,8 @@ export function SearchPage({
   const [recallSource, setRecallSource] = useState<RecallSource>("local");
   const [recallStrategy, setRecallStrategy] = useState<RecallStrategy>("local");
   const [recallLoading, setRecallLoading] = useState(false);
+  const [feedback, setFeedback] = useState<Record<string, MemoryFeedbackType>>({});
+  const [pinnedIds, setPinnedIds] = useState<string[]>([]);
   const suggestions = useMemo(
     () => getSearchSuggestions(thoughts, topics),
     [thoughts, topics],
@@ -148,6 +172,14 @@ export function SearchPage({
   const results = useMemo(
     () => mergeSearchResults(localResults, semanticResults, filters),
     [filters, localResults, semanticResults],
+  );
+  const visibleResults = useMemo(
+    () => sortPinnedResults(results, pinnedIds),
+    [pinnedIds, results],
+  );
+  const semanticMatchByThoughtId = useMemo(
+    () => new Map(semanticMatches.map((match) => [match.thought.id, match])),
+    [semanticMatches],
   );
   const recallLabel = recallLoading
     ? "语义匹配中"
@@ -189,6 +221,29 @@ export function SearchPage({
       return;
     }
     onNavigateDistill();
+  }
+
+  function persistFeedback(thoughtId: string, feedbackType: MemoryFeedbackType) {
+    setFeedback((current) => ({
+      ...current,
+      [thoughtId]: feedbackType,
+    }));
+    void recordMemoryFeedback({
+      feedbackType,
+      targetThoughtId: thoughtId,
+      context: query,
+    }).catch(() => {
+      // Search feedback should stay lightweight even when cloud writes fail.
+    });
+  }
+
+  function togglePinned(thoughtId: string) {
+    setPinnedIds((current) => {
+      const alreadyPinned = current.includes(thoughtId);
+      if (alreadyPinned) return current.filter((id) => id !== thoughtId);
+      persistFeedback(thoughtId, "pinned");
+      return [thoughtId, ...current];
+    });
   }
 
   return (
@@ -311,11 +366,11 @@ export function SearchPage({
               <span className="theme-pill rounded-full px-2.5 py-1 text-xs text-muted">
                 {recallLabel}
               </span>
-              <span className="text-sm text-muted">{results.length} 条</span>
+              <span className="text-sm text-muted">{visibleResults.length} 条</span>
             </div>
           </div>
 
-          {results.length === 0 ? (
+          {visibleResults.length === 0 ? (
             <div className="frost-panel rounded-[26px] p-8 text-center">
               <div className="theme-surface-soft mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl text-muted">
                 <Search size={18} strokeWidth={1.8} />
@@ -326,7 +381,7 @@ export function SearchPage({
             </div>
           ) : (
             <div className="space-y-3">
-              {results.map((result) => {
+              {visibleResults.map((result) => {
                 const resultTopics = topics.filter((topic) =>
                   result.topicIds.includes(topic.id),
                 );
@@ -334,6 +389,14 @@ export function SearchPage({
                   result.kind === "thought"
                     ? thoughts.find((thought) => thought.id === result.id)
                     : undefined;
+                const semanticMatch =
+                  result.kind === "thought"
+                    ? semanticMatchByThoughtId.get(result.id)
+                    : undefined;
+                const isPinned =
+                  result.kind === "thought" && pinnedIds.includes(result.id);
+                const resultFeedback =
+                  result.kind === "thought" ? feedback[result.id] : undefined;
 
                 return (
                   <article
@@ -358,6 +421,10 @@ export function SearchPage({
                         {result.status && (
                           <span>{statusLabel(result.status as ThoughtStatus)}</span>
                         )}
+                        {semanticMatch && (
+                          <span>{recallStrategyLabels[recallStrategy]}</span>
+                        )}
+                        {isPinned && <span>已固定</span>}
                       </div>
                       <h3 className="mb-2 text-[15px] font-semibold text-ink">
                         {result.title}
@@ -385,15 +452,68 @@ export function SearchPage({
                         : "最近更新"}
                     </div>
 
+                    {semanticMatch && (
+                      <MemoryRecallExplanation match={semanticMatch} topics={topics} />
+                    )}
+
                     {sourceThought && (
-                      <button
-                        className="theme-button-muted mt-3 inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition"
-                        type="button"
-                        onClick={() => onContinueFromThought(sourceThought)}
-                      >
-                        从这条继续写
-                        <ArrowRight size={13} strokeWidth={1.8} />
-                      </button>
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        <button
+                          className="theme-button-muted inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition"
+                          type="button"
+                          onClick={() => onContinueFromThought(sourceThought)}
+                        >
+                          从这条继续写
+                          <ArrowRight size={13} strokeWidth={1.8} />
+                        </button>
+                        <button
+                          className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
+                            resultFeedback === "helpful"
+                              ? "bg-sage/10 text-sage"
+                              : "theme-button-muted"
+                          }`}
+                          type="button"
+                          onClick={() => persistFeedback(sourceThought.id, "helpful")}
+                        >
+                          <Check size={13} strokeWidth={1.8} />
+                          有帮助
+                        </button>
+                        <button
+                          className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
+                            resultFeedback === "irrelevant"
+                              ? "bg-clay/10 text-clay"
+                              : "theme-button-muted"
+                          }`}
+                          type="button"
+                          onClick={() => persistFeedback(sourceThought.id, "irrelevant")}
+                        >
+                          <X size={13} strokeWidth={1.8} />
+                          不相关
+                        </button>
+                        <button
+                          className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
+                            isPinned ? "bg-amber/10 text-amber" : "theme-button-muted"
+                          }`}
+                          type="button"
+                          onClick={() => togglePinned(sourceThought.id)}
+                        >
+                          <Pin size={13} strokeWidth={1.8} />
+                          固定
+                        </button>
+                        {sourceThought.topicIds.length > 0 && (
+                          <button
+                            className={`rounded-md px-2.5 py-1.5 text-xs transition ${
+                              resultFeedback === "same_topic"
+                                ? "bg-sage/10 text-sage"
+                                : "theme-button-muted"
+                            }`}
+                            type="button"
+                            onClick={() => persistFeedback(sourceThought.id, "same_topic")}
+                          >
+                            标记同主题
+                          </button>
+                        )}
+                      </div>
                     )}
                   </article>
                 );
