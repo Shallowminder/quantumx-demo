@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   BookOpenText,
@@ -16,7 +16,12 @@ import {
   type SearchResult,
 } from "../lib/search";
 import { statusLabel } from "../lib/visualization";
-import type { SavedDistill, Thought, ThoughtStatus, Topic } from "../types";
+import {
+  fetchRelatedMemoryResult,
+  type RecallSource,
+  type RecallStrategy,
+} from "../services/recallRepository";
+import type { MemoryMatch, SavedDistill, Thought, ThoughtStatus, Topic } from "../types";
 
 interface SearchPageProps {
   savedDistills: SavedDistill[];
@@ -40,6 +45,74 @@ function resultKindLabel(kind: SearchResult["kind"]) {
   return kind === "thought" ? "想法" : "草稿";
 }
 
+const recallStrategyLabels: Record<RecallStrategy, string> = {
+  local: "本地规则",
+  lexical: "关键词召回",
+  semantic: "语义召回",
+  empty: "暂无语义结果",
+};
+
+function passesSearchFilters(result: SearchResult, filters: SearchFilters) {
+  if (filters.kind !== "all" && result.kind !== filters.kind) return false;
+  if (filters.topicId !== "all" && !result.topicIds.includes(filters.topicId)) {
+    return false;
+  }
+  if (filters.status !== "all" && result.status !== filters.status) return false;
+  return true;
+}
+
+function semanticResult(
+  match: MemoryMatch,
+  recallStrategy: RecallStrategy,
+): SearchResult {
+  return {
+    id: match.thought.id,
+    kind: "thought",
+    title: match.thought.summary,
+    body: match.thought.content,
+    date: match.thought.createdAt,
+    topicIds: match.thought.topicIds,
+    status: match.thought.status,
+    score: 8 + match.score * 12,
+    reasons: [`${recallStrategyLabels[recallStrategy]}：${match.reason}`],
+  };
+}
+
+function mergeSearchResults(
+  localResults: SearchResult[],
+  semanticResults: SearchResult[],
+  filters: SearchFilters,
+) {
+  const merged = new Map<string, SearchResult>();
+
+  localResults.forEach((result) => {
+    merged.set(`${result.kind}:${result.id}`, result);
+  });
+
+  semanticResults.forEach((result) => {
+    const key = `${result.kind}:${result.id}`;
+    const existing = merged.get(key);
+    if (!existing) {
+      merged.set(key, result);
+      return;
+    }
+
+    merged.set(key, {
+      ...existing,
+      score: existing.score + result.score,
+      reasons: Array.from(new Set([...result.reasons, ...existing.reasons])),
+    });
+  });
+
+  return Array.from(merged.values())
+    .filter((result) => passesSearchFilters(result, filters))
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    })
+    .slice(0, 40);
+}
+
 export function SearchPage({
   savedDistills,
   thoughts,
@@ -55,14 +128,60 @@ export function SearchPage({
     topicId: "all",
     status: "all",
   });
+  const [semanticMatches, setSemanticMatches] = useState<MemoryMatch[]>([]);
+  const [recallSource, setRecallSource] = useState<RecallSource>("local");
+  const [recallStrategy, setRecallStrategy] = useState<RecallStrategy>("local");
+  const [recallLoading, setRecallLoading] = useState(false);
   const suggestions = useMemo(
     () => getSearchSuggestions(thoughts, topics),
     [thoughts, topics],
   );
-  const results = useMemo(
+  const localResults = useMemo(
     () => searchWorkspace(query, filters, thoughts, topics, savedDistills),
     [filters, query, savedDistills, thoughts, topics],
   );
+  const semanticResults = useMemo(
+    () =>
+      semanticMatches.map((match) => semanticResult(match, recallStrategy)),
+    [recallStrategy, semanticMatches],
+  );
+  const results = useMemo(
+    () => mergeSearchResults(localResults, semanticResults, filters),
+    [filters, localResults, semanticResults],
+  );
+  const recallLabel = recallLoading
+    ? "语义匹配中"
+    : recallSource === "cloud"
+      ? recallStrategyLabels[recallStrategy]
+      : "本地搜索";
+
+  useEffect(() => {
+    const cleanQuery = query.trim();
+    let cancelled = false;
+    setSemanticMatches([]);
+    setRecallSource("local");
+    setRecallStrategy("local");
+
+    if (cleanQuery.length < 2 || thoughts.length === 0) {
+      setRecallLoading(false);
+      return undefined;
+    }
+
+    setRecallLoading(true);
+    const timer = window.setTimeout(async () => {
+      const result = await fetchRelatedMemoryResult(cleanQuery, thoughts, topics, 12);
+      if (cancelled) return;
+      setSemanticMatches(result.matches);
+      setRecallSource(result.source);
+      setRecallStrategy(result.strategy);
+      setRecallLoading(false);
+    }, 280);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [query, thoughts, topics]);
 
   function openResult(result: SearchResult) {
     if (result.kind === "thought") {
@@ -77,14 +196,14 @@ export function SearchPage({
       <header className="frost-panel-strong mb-6 rounded-[28px] px-6 py-7 sm:px-8">
         <div className="mb-3 flex items-center gap-2 text-sm text-muted">
           <Search size={16} strokeWidth={1.8} />
-          本地搜索
+          本地搜索 + 语义召回
         </div>
         <h1 className="text-3xl font-semibold tracking-normal text-ink sm:text-4xl">
           找回想法
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-          先用本地全文搜索把旧记录、主题和草稿找回来。相关旧想法已经开始接入云端语义召回，
-          搜索页会继续补上同样的解释和反馈。
+          先用本地全文搜索命中明确内容，再用云端 recall 把语义相近的旧想法带回来。
+          没有登录或云端不可用时，会自动回到本地规则。
         </p>
       </header>
 
@@ -188,7 +307,12 @@ export function SearchPage({
             <h2 className="text-base font-semibold text-ink">
               {query.trim() ? "搜索结果" : "最近可找回的材料"}
             </h2>
-            <span className="text-sm text-muted">{results.length} 条</span>
+            <div className="flex items-center gap-2">
+              <span className="theme-pill rounded-full px-2.5 py-1 text-xs text-muted">
+                {recallLabel}
+              </span>
+              <span className="text-sm text-muted">{results.length} 条</span>
+            </div>
           </div>
 
           {results.length === 0 ? (
@@ -285,17 +409,17 @@ export function SearchPage({
               为什么先做搜索
             </div>
             <p className="text-sm leading-7 text-muted">
-              真正可用的 QuantumX 必须能把旧材料找回来。本地搜索负责直接命中，
-              相关旧想法负责把语义相近的问题带回来。
+              真正可用的 QuantumX 必须能把旧材料找回来。这里会先做直接命中，
+              再把云端语义召回结果合并进来。
             </p>
           </div>
 
           <div className="frost-panel rounded-[1.25rem] p-5">
-            <div className="mb-3 text-sm font-semibold text-ink">下一步会升级</div>
+            <div className="mb-3 text-sm font-semibold text-ink">当前召回状态</div>
             <div className="space-y-3 text-sm leading-6 text-muted">
-              <p>1. 把搜索结果接入云端索引。</p>
-              <p>2. 复用已生成的 embedding 做语义排序。</p>
-              <p>3. 搜索结果显示相似原因和用户反馈。</p>
+              <p>1. 本地搜索：标题、正文、主题、草稿直接命中。</p>
+              <p>2. 云端 recall：复用 embedding，把相近想法排进结果。</p>
+              <p>3. 当前策略：{recallLabel}。</p>
             </div>
           </div>
         </aside>
