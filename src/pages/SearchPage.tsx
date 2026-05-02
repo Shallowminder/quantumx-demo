@@ -156,6 +156,7 @@ export function SearchPage({
   const [recallLoading, setRecallLoading] = useState(false);
   const [feedback, setFeedback] = useState<Record<string, MemoryFeedbackType>>({});
   const [pinnedIds, setPinnedIds] = useState<string[]>([]);
+  const [expandedActionIds, setExpandedActionIds] = useState<string[]>([]);
   const suggestions = useMemo(
     () => getSearchSuggestions(thoughts, topics),
     [thoughts, topics],
@@ -244,6 +245,14 @@ export function SearchPage({
       persistFeedback(thoughtId, "pinned");
       return [thoughtId, ...current];
     });
+  }
+
+  function toggleExpandedActions(resultId: string) {
+    setExpandedActionIds((current) =>
+      current.includes(resultId)
+        ? current.filter((id) => id !== resultId)
+        : [...current, resultId],
+    );
   }
 
   return (
@@ -397,6 +406,7 @@ export function SearchPage({
                   result.kind === "thought" && pinnedIds.includes(result.id);
                 const resultFeedback =
                   result.kind === "thought" ? feedback[result.id] : undefined;
+                const actionsExpanded = expandedActionIds.includes(result.id);
 
                 return (
                   <article
@@ -409,7 +419,7 @@ export function SearchPage({
                       onClick={() => openResult(result)}
                     >
                       <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted">
-                          <span className="theme-card-soft inline-flex items-center gap-1 rounded-full px-2 py-0.5">
+                        <span className="theme-card-soft inline-flex items-center gap-1 rounded-full px-2 py-0.5">
                           {result.kind === "thought" ? (
                             <FileText size={12} strokeWidth={1.8} />
                           ) : (
@@ -467,52 +477,65 @@ export function SearchPage({
                           <ArrowRight size={13} strokeWidth={1.8} />
                         </button>
                         <button
-                          className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
-                            resultFeedback === "helpful"
-                              ? "theme-accent-tint"
-                              : "theme-button-muted"
-                          }`}
+                          className="theme-button-muted inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition sm:hidden"
                           type="button"
-                          onClick={() => persistFeedback(sourceThought.id, "helpful")}
+                          onClick={() => toggleExpandedActions(result.id)}
                         >
-                          <Check size={13} strokeWidth={1.8} />
-                          有帮助
+                          {actionsExpanded ? "收起反馈" : "反馈"}
                         </button>
-                        <button
-                          className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
-                            resultFeedback === "irrelevant"
-                              ? "theme-danger-tint"
-                              : "theme-button-muted"
+                        <div
+                          className={`w-full flex-wrap gap-1.5 sm:flex sm:w-auto ${
+                            actionsExpanded ? "flex" : "hidden"
                           }`}
-                          type="button"
-                          onClick={() => persistFeedback(sourceThought.id, "irrelevant")}
                         >
-                          <X size={13} strokeWidth={1.8} />
-                          不相关
-                        </button>
-                        <button
-                          className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
-                            isPinned ? "theme-warning-tint" : "theme-button-muted"
-                          }`}
-                          type="button"
-                          onClick={() => togglePinned(sourceThought.id)}
-                        >
-                          <Pin size={13} strokeWidth={1.8} />
-                          固定
-                        </button>
-                        {sourceThought.topicIds.length > 0 && (
                           <button
-                            className={`rounded-md px-2.5 py-1.5 text-xs transition ${
-                              resultFeedback === "same_topic"
+                            className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
+                              resultFeedback === "helpful"
                                 ? "theme-accent-tint"
                                 : "theme-button-muted"
                             }`}
                             type="button"
-                            onClick={() => persistFeedback(sourceThought.id, "same_topic")}
+                            onClick={() => persistFeedback(sourceThought.id, "helpful")}
                           >
-                            标记同主题
+                            <Check size={13} strokeWidth={1.8} />
+                            有帮助
                           </button>
-                        )}
+                          <button
+                            className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
+                              resultFeedback === "irrelevant"
+                                ? "theme-danger-tint"
+                                : "theme-button-muted"
+                            }`}
+                            type="button"
+                            onClick={() => persistFeedback(sourceThought.id, "irrelevant")}
+                          >
+                            <X size={13} strokeWidth={1.8} />
+                            不相关
+                          </button>
+                          <button
+                            className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
+                              isPinned ? "theme-warning-tint" : "theme-button-muted"
+                            }`}
+                            type="button"
+                            onClick={() => togglePinned(sourceThought.id)}
+                          >
+                            <Pin size={13} strokeWidth={1.8} />
+                            固定
+                          </button>
+                          {sourceThought.topicIds.length > 0 && (
+                            <button
+                              className={`rounded-md px-2.5 py-1.5 text-xs transition ${
+                                resultFeedback === "same_topic"
+                                  ? "theme-accent-tint"
+                                  : "theme-button-muted"
+                              }`}
+                              type="button"
+                              onClick={() => persistFeedback(sourceThought.id, "same_topic")}
+                            >
+                              标记同主题
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
                   </article>

@@ -250,8 +250,8 @@ export function DistillPage({
 
   return (
     <div className="grid gap-7 xl:grid-cols-[380px_minmax(0,1fr)]">
-      <section className="space-y-4">
-        <header>
+      <section className="order-2 space-y-4 xl:order-1">
+        <header className="hidden xl:block">
           <div className="mb-2 flex items-center gap-2 text-sm text-muted">
             <BookOpenText size={16} strokeWidth={1.8} />
             基于你的历史记录
@@ -387,7 +387,17 @@ export function DistillPage({
         )}
       </section>
 
-      <section className="frost-panel-strong rounded-[30px] p-5 sm:p-7">
+      <section className="frost-panel-strong order-1 rounded-[30px] p-5 sm:p-7 xl:order-2">
+        <div className="mb-5 xl:hidden">
+          <div className="mb-2 flex items-center gap-2 text-sm text-muted">
+            <BookOpenText size={16} strokeWidth={1.8} />
+            基于你的历史记录
+          </div>
+          <h1 className="text-2xl font-semibold tracking-normal text-ink">
+            蒸馏输出
+          </h1>
+        </div>
+
         <div className="mb-6 flex flex-col gap-3 border-b soft-divider pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <TopicBadge topic={selectedTopic} />
@@ -398,9 +408,9 @@ export function DistillPage({
               这份内容来自你选中的 {selectedThoughts.length} 条记录，可以继续编辑后保存。
             </p>
           </div>
-          <div className="flex flex-wrap gap-2 sm:justify-end">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
             <button
-              className="theme-button-secondary inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition disabled:text-muted"
+              className="theme-button-secondary inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition disabled:text-muted sm:w-auto"
               disabled={selectedThoughts.length === 0 || isGenerating}
               type="button"
               onClick={() => void generateDistill()}
@@ -413,7 +423,7 @@ export function DistillPage({
               {isGenerating ? "生成中" : "AI 生成"}
             </button>
             <button
-              className="theme-primary-button inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition disabled:text-muted"
+              className="theme-primary-button inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition disabled:text-muted sm:w-auto"
               disabled={selectedThoughts.length === 0}
               type="button"
               onClick={saveDraft}
@@ -428,7 +438,7 @@ export function DistillPage({
           {outputTypes.map((type) => (
             <button
               key={type}
-              className={`rounded-full px-3.5 py-2 text-sm transition ${
+              className={`flex-1 rounded-full px-3.5 py-2 text-sm transition sm:flex-none ${
                 outputType === type
                   ? "theme-primary-button"
                   : "theme-button-muted"
@@ -459,7 +469,7 @@ export function DistillPage({
           </div>
         )}
 
-        <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-ink">
           <FilePenLine size={16} strokeWidth={1.8} />
           <span className="flex-1">可编辑输出</span>
           <button
@@ -472,7 +482,7 @@ export function DistillPage({
           </button>
         </div>
         <textarea
-          className="theme-input min-h-[520px] w-full resize-y rounded-[24px] px-5 py-4 font-mono text-sm leading-7 text-ink outline-none transition"
+          className="theme-input min-h-[360px] w-full resize-y rounded-[24px] px-5 py-4 font-mono text-sm leading-7 text-ink outline-none transition sm:min-h-[520px]"
           value={editableContent}
           onChange={(event) => setEditableContent(event.target.value)}
         />
