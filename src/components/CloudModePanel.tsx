@@ -471,7 +471,7 @@ export function CloudModePanel({
             : "当前本地和云端都还比较空，你可以先记录一点内容，再决定是否需要同步。";
 
     return (
-      <div className="mb-4 rounded-[22px] border border-sage/15 bg-sage/10 px-4 py-4 text-sm text-ink">
+      <div className="theme-accent-soft mb-4 rounded-[22px] px-4 py-4 text-sm">
         <div className="mb-1 flex items-center gap-2 font-medium">
           <CheckCircle2 size={15} strokeWidth={1.8} />
           登录成功，下一步这样做会更顺
@@ -554,7 +554,7 @@ export function CloudModePanel({
 
       {session ? (
         <div>
-          <div className="mb-3 rounded-[18px] bg-sage/10 px-3 py-2.5 text-sm leading-6 text-ink">
+          <div className="theme-accent-soft mb-3 rounded-[18px] px-3 py-2.5 text-sm leading-6">
             <span className="inline-flex items-center gap-1.5">
               <CheckCircle2 size={15} strokeWidth={1.8} />
               已登录：{session.user.email ?? "当前用户"}
@@ -618,7 +618,7 @@ export function CloudModePanel({
                 : "还没有从云端恢复"}
             </div>
           </div>
-          <div className="mb-4 rounded-[20px] border border-amber/20 bg-amber/10 px-3.5 py-3.5 text-sm leading-6 text-ink">
+          <div className="theme-warning-soft mb-4 rounded-[20px] px-3.5 py-3.5 text-sm leading-6">
             <div className="mb-1 flex items-center gap-2 font-medium">
               <AlertTriangle size={15} strokeWidth={1.8} />
               同步建议

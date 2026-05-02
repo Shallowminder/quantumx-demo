@@ -1,11 +1,11 @@
 import type { Topic } from "../types";
 
 const accentClasses: Record<Topic["accent"], string> = {
-  sage: "bg-sage/10 text-sage border-sage/20",
-  clay: "bg-clay/10 text-clay border-clay/20",
-  blue: "bg-mist/60 text-ink border-line/70",
-  amber: "bg-amber/15 text-clay border-amber/30",
-  stone: "theme-chip-soft",
+  sage: "theme-topic-sage",
+  clay: "theme-topic-clay",
+  blue: "theme-topic-blue",
+  amber: "theme-topic-amber",
+  stone: "theme-topic-stone",
 };
 
 export function TopicBadge({ topic }: { topic: Topic }) {

@@ -33,15 +33,15 @@ export function ThoughtStatusTrail({ thought }: { thought: Thought }) {
               {index < steps.length - 1 && (
                 <div
                   className={`absolute left-4 top-4 hidden h-px w-[calc(100%+0.75rem)] sm:block ${
-                    index < currentIndex ? "bg-sage/50" : "bg-line"
+                    index < currentIndex ? "theme-accent-line" : "bg-line"
                   }`}
                 />
               )}
               <div
                 className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border ${
                   active
-                    ? "border-sage/40 bg-sage/10 text-sage"
-                    : "border-line bg-mist/45 text-muted"
+                    ? "theme-accent-tint border-transparent"
+                    : "theme-calendar-empty text-muted"
                 }`}
               >
                 <Icon size={15} strokeWidth={1.8} />

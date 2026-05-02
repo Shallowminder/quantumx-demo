@@ -102,7 +102,7 @@ export function DataPage({
     if (cloudSyncState === "pending") {
       return {
         icon: CloudUpload,
-        tone: "border-amber/30 bg-amber/10 text-ink",
+        tone: "theme-warning-soft",
         title: "检测到新的修改",
         detail: "这些改动会在很短时间内推到云端，暂时不用手动再点一次同步。",
       };
@@ -111,7 +111,7 @@ export function DataPage({
     if (cloudSyncState === "syncing") {
       return {
         icon: LoaderCircle,
-        tone: "border-sage/25 bg-sage/10 text-ink",
+        tone: "theme-accent-soft",
         title: "正在同步到云端",
         detail: "当前浏览器里的最新修改正在写入 Supabase。",
         spinning: true,
@@ -121,7 +121,7 @@ export function DataPage({
     if (cloudSyncState === "error") {
       return {
         icon: AlertTriangle,
-        tone: "border-clay/25 bg-clay/10 text-ink",
+        tone: "theme-danger-soft",
         title: "最近一次同步没有完成",
         detail: "当前修改还在这个浏览器里。你可以稍后重试，或者先下载一份备份。",
       };
@@ -129,7 +129,7 @@ export function DataPage({
 
     return {
       icon: CheckCircle2,
-      tone: "border-sage/25 bg-sage/10 text-ink",
+      tone: "theme-accent-soft",
       title: "本地与云端已对齐",
       detail: lastCloudEventAt
         ? `最近同步：${formatDateTime(lastCloudEventAt)}`
@@ -239,7 +239,7 @@ export function DataPage({
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <section className="frost-panel-strong rounded-[26px] p-5 sm:p-6">
           <div className="mb-5 flex items-start gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sage/10 text-sage">
+            <div className="theme-icon-soft flex h-10 w-10 items-center justify-center rounded-xl">
               <Database size={19} strokeWidth={1.8} />
             </div>
             <div>
@@ -292,7 +292,7 @@ export function DataPage({
           </div>
 
           {importMessage && (
-            <div className="mt-4 rounded-lg border border-sage/20 bg-sage/10 px-4 py-3 text-sm leading-6 text-ink">
+            <div className="theme-accent-soft mt-4 rounded-lg px-4 py-3 text-sm leading-6">
               {importMessage}
             </div>
           )}

@@ -6,7 +6,7 @@ export function MiniSparkline({ values }: { values: number[] }) {
       {values.map((value, index) => (
         <span
           key={`${value}-${index}`}
-          className="w-1.5 rounded-full bg-sage/45"
+          className="theme-spark-bar w-1.5 rounded-full"
           style={{ height: `${Math.max(4, (value / max) * 20)}px` }}
         />
       ))}

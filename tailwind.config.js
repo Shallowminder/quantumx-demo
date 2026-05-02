@@ -24,8 +24,8 @@ export default {
         ],
       },
       boxShadow: {
-        soft: "0 16px 44px rgba(45, 43, 37, 0.06)",
-        inset: "inset 0 1px 0 rgba(255,255,255,0.7)",
+        soft: "0 16px 44px rgb(var(--shadow-rgb) / 0.06)",
+        inset: "inset 0 1px 0 rgb(var(--highlight-rgb) / 0.7)",
       },
     },
   },

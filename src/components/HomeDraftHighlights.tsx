@@ -42,7 +42,7 @@ export function HomeDraftHighlights({
                 type="button"
                 onClick={onOpenDistill}
               >
-                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-sage/10 text-sage">
+                <div className="theme-icon-soft mt-0.5 flex h-8 w-8 items-center justify-center rounded-full">
                   <FileText size={16} strokeWidth={1.8} />
                 </div>
                 <div>

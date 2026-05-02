@@ -145,7 +145,7 @@ export function InsightsPage({
                   </h2>
                   <p className="text-sm leading-6 text-muted">{item.note}</p>
                   <button
-                    className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-sage"
+                    className="theme-accent-text mt-3 inline-flex items-center gap-2 text-sm font-medium"
                     type="button"
                     onClick={() => topic && onOpenTopic(topic.id)}
                   >
@@ -180,7 +180,7 @@ export function InsightsPage({
                   </div>
                   <div className="theme-card-soft h-2 overflow-hidden rounded-full">
                     <div
-                      className="h-full rounded-full bg-sage/70"
+                      className="theme-accent-meter h-full rounded-full"
                       style={{ width: `${Math.max(20, (count / thoughts.length) * 100)}%` }}
                     />
                   </div>
@@ -199,7 +199,7 @@ export function InsightsPage({
                 <div key={item.day} className="flex flex-1 flex-col items-center gap-2">
                   <div className="theme-card-soft flex h-28 w-full items-end rounded-[14px] px-2 pb-2">
                     <div
-                      className="w-full rounded bg-clay/55"
+                      className="theme-danger-tint w-full rounded"
                       style={{ height: `${Math.max(18, (item.count / maxCount) * 100)}%` }}
                     />
                   </div>

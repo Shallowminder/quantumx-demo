@@ -11,11 +11,11 @@ interface ThinkingCalendarProps {
 
 function intensityClass(day: CalendarDaySummary, selected: boolean) {
   const total = day.thoughtCount + day.draftCount;
-  if (selected) return "border-sage bg-sage/70";
-  if (total === 0) return "border-transparent theme-card-soft";
-  if (total <= 2) return "border-transparent bg-sage/20 hover:bg-sage/30";
-  if (total <= 4) return "border-transparent bg-sage/40 hover:bg-sage/50";
-  return "border-transparent bg-sage/65 hover:bg-sage/75";
+  if (selected) return "theme-calendar-selected";
+  if (total === 0) return "theme-calendar-empty";
+  if (total <= 2) return "theme-calendar-light";
+  if (total <= 4) return "theme-calendar-medium";
+  return "theme-calendar-strong";
 }
 
 export function ThinkingCalendar({

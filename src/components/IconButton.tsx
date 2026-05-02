@@ -20,7 +20,7 @@ export function IconButton({
       className={`inline-flex h-9 w-9 items-center justify-center rounded-md border transition ${
         active
           ? "theme-primary-button border-transparent"
-          : "theme-button-muted hover:border-sage"
+          : "theme-button-muted hover:border-line"
       } ${className}`}
       type="button"
       {...props}

@@ -123,7 +123,7 @@ export function RelatedMemoriesPanel({
                         <button
                           className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] transition ${
                             feedback[match.thought.id] === "helpful"
-                              ? "bg-sage/10 text-sage"
+                              ? "theme-accent-tint"
                               : "theme-card-overlay text-muted hover:text-ink"
                           }`}
                           type="button"
@@ -141,7 +141,7 @@ export function RelatedMemoriesPanel({
                         <button
                           className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] transition ${
                             feedback[match.thought.id] === "irrelevant"
-                              ? "bg-clay/10 text-clay"
+                              ? "theme-danger-tint"
                               : "theme-card-overlay text-muted hover:text-ink"
                           }`}
                           type="button"

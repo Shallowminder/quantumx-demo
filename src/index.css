@@ -474,4 +474,141 @@ button {
       inset 0 1px 0 rgb(var(--highlight-rgb) / 0.14),
       0 12px 28px rgb(var(--primary-shadow-rgb) / 0.16);
   }
+
+  .theme-focus-ring {
+    outline: none;
+  }
+
+  .theme-focus-ring:focus-visible {
+    box-shadow: 0 0 0 3px rgb(var(--sage-rgb) / 0.32);
+  }
+
+  .theme-accent-soft {
+    background: rgb(var(--sage-rgb) / 0.12);
+    border: 1px solid rgb(var(--sage-rgb) / 0.18);
+    color: rgb(var(--ink-rgb));
+  }
+
+  .theme-accent-tint {
+    background: rgb(var(--sage-rgb) / 0.12);
+    color: rgb(var(--sage-rgb));
+  }
+
+  .theme-accent-text {
+    color: rgb(var(--sage-rgb));
+  }
+
+  .theme-accent-line {
+    background: rgb(var(--sage-rgb) / 0.5);
+  }
+
+  .theme-accent-meter {
+    background: rgb(var(--sage-rgb) / 0.68);
+  }
+
+  .theme-meter-track {
+    background: rgb(var(--mist-rgb) / 0.5);
+  }
+
+  .theme-warning-soft {
+    background: rgb(var(--amber-rgb) / 0.12);
+    border: 1px solid rgb(var(--amber-rgb) / 0.24);
+    color: rgb(var(--ink-rgb));
+  }
+
+  .theme-warning-tint {
+    background: rgb(var(--amber-rgb) / 0.12);
+    color: rgb(var(--amber-rgb));
+  }
+
+  .theme-danger-soft {
+    background: rgb(var(--clay-rgb) / 0.12);
+    border: 1px solid rgb(var(--clay-rgb) / 0.22);
+    color: rgb(var(--ink-rgb));
+  }
+
+  .theme-danger-tint {
+    background: rgb(var(--clay-rgb) / 0.12);
+    color: rgb(var(--clay-rgb));
+  }
+
+  .theme-hero-glow {
+    background: rgb(var(--sage-rgb) / 0.1);
+  }
+
+  .theme-icon-soft {
+    background: rgb(var(--sage-rgb) / 0.12);
+    color: rgb(var(--sage-rgb));
+  }
+
+  .theme-calendar-empty {
+    background: rgb(var(--surface-soft-rgb) / 0.9);
+    border-color: transparent;
+  }
+
+  .theme-calendar-light {
+    background: rgb(var(--sage-rgb) / 0.18);
+    border-color: transparent;
+  }
+
+  .theme-calendar-light:hover {
+    background: rgb(var(--sage-rgb) / 0.28);
+  }
+
+  .theme-calendar-medium {
+    background: rgb(var(--sage-rgb) / 0.4);
+    border-color: transparent;
+  }
+
+  .theme-calendar-medium:hover {
+    background: rgb(var(--sage-rgb) / 0.52);
+  }
+
+  .theme-calendar-strong {
+    background: rgb(var(--sage-rgb) / 0.68);
+    border-color: transparent;
+  }
+
+  .theme-calendar-strong:hover {
+    background: rgb(var(--sage-rgb) / 0.78);
+  }
+
+  .theme-calendar-selected {
+    background: rgb(var(--sage-rgb) / 0.72);
+    border-color: rgb(var(--sage-rgb) / 0.9);
+  }
+
+  .theme-spark-bar {
+    background: rgb(var(--sage-rgb) / 0.46);
+  }
+
+  .theme-topic-sage {
+    background: rgb(var(--sage-rgb) / 0.12);
+    border-color: rgb(var(--sage-rgb) / 0.22);
+    color: rgb(var(--sage-rgb));
+  }
+
+  .theme-topic-clay {
+    background: rgb(var(--clay-rgb) / 0.12);
+    border-color: rgb(var(--clay-rgb) / 0.22);
+    color: rgb(var(--clay-rgb));
+  }
+
+  .theme-topic-blue {
+    background: rgb(var(--mist-rgb) / 0.62);
+    border-color: rgb(var(--line-rgb) / 0.72);
+    color: rgb(var(--ink-rgb));
+  }
+
+  .theme-topic-amber {
+    background: rgb(var(--amber-rgb) / 0.14);
+    border-color: rgb(var(--amber-rgb) / 0.28);
+    color: rgb(var(--clay-rgb));
+  }
+
+  .theme-topic-stone {
+    background: rgb(var(--surface-soft-rgb) / 0.9);
+    border-color: rgb(var(--panel-border-rgb) / 0.48);
+    color: rgb(var(--muted-rgb));
+  }
 }

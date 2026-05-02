@@ -182,7 +182,7 @@ export function AccountMenu({
 
             {session ? (
               <div>
-                <div className="rounded-[18px] bg-sage/10 px-3.5 py-3 text-sm leading-6 text-ink">
+                <div className="theme-accent-soft rounded-[18px] px-3.5 py-3 text-sm leading-6">
                   当前账号：{session.user.email ?? "已登录用户"}
                 </div>
                 <p className="mt-3 text-sm leading-7 text-muted">
@@ -277,7 +277,7 @@ export function AccountMenu({
   return (
     <div className="relative" ref={rootRef}>
       <button
-        className={`theme-surface-ghost inline-flex items-center rounded-2xl text-left transition hover:bg-[rgb(var(--surface-strong-rgb)/0.9)] hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sage/45 ${
+        className={`theme-focus-ring theme-surface-ghost inline-flex items-center rounded-2xl text-left transition hover:bg-[rgb(var(--surface-strong-rgb)/0.9)] hover:text-ink ${
           compact ? "gap-0 p-2" : "gap-2 px-2.5 py-2"
         }`}
         type="button"

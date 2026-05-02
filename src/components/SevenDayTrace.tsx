@@ -32,10 +32,10 @@ export function SevenDayTrace({
               <div
                 className={`mx-auto h-4 w-4 rounded-full border ${
                   level === "empty"
-                    ? "border-line bg-mist/45"
+                    ? "theme-calendar-empty"
                     : level === "light"
-                      ? "border-sage/30 bg-sage/25"
-                      : "border-sage/50 bg-sage"
+                      ? "theme-calendar-light"
+                      : "theme-calendar-strong"
                 }`}
               />
               <div className="mt-2 text-[11px] text-muted">{day.count} 条</div>

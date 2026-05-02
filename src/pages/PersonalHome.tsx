@@ -34,7 +34,7 @@ export function PersonalHome({
   return (
     <div className="mx-auto max-w-6xl">
       <section className="frost-panel-strong relative overflow-hidden rounded-[28px] px-5 py-9 sm:px-8 sm:py-12">
-        <div className="pointer-events-none absolute inset-x-10 top-0 h-28 rounded-full bg-sage/10 blur-3xl" />
+        <div className="theme-hero-glow pointer-events-none absolute inset-x-10 top-0 h-28 rounded-full blur-3xl" />
         <div className="relative max-w-3xl">
           <div className="theme-brand-mark mb-5 inline-flex h-10 w-10 items-center justify-center rounded-2xl">
             <NotebookPen size={18} strokeWidth={1.8} />

@@ -469,7 +469,7 @@ export function SearchPage({
                         <button
                           className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
                             resultFeedback === "helpful"
-                              ? "bg-sage/10 text-sage"
+                              ? "theme-accent-tint"
                               : "theme-button-muted"
                           }`}
                           type="button"
@@ -481,7 +481,7 @@ export function SearchPage({
                         <button
                           className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
                             resultFeedback === "irrelevant"
-                              ? "bg-clay/10 text-clay"
+                              ? "theme-danger-tint"
                               : "theme-button-muted"
                           }`}
                           type="button"
@@ -492,7 +492,7 @@ export function SearchPage({
                         </button>
                         <button
                           className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition ${
-                            isPinned ? "bg-amber/10 text-amber" : "theme-button-muted"
+                            isPinned ? "theme-warning-tint" : "theme-button-muted"
                           }`}
                           type="button"
                           onClick={() => togglePinned(sourceThought.id)}
@@ -504,7 +504,7 @@ export function SearchPage({
                           <button
                             className={`rounded-md px-2.5 py-1.5 text-xs transition ${
                               resultFeedback === "same_topic"
-                                ? "bg-sage/10 text-sage"
+                                ? "theme-accent-tint"
                                 : "theme-button-muted"
                             }`}
                             type="button"

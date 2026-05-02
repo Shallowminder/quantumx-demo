@@ -41,9 +41,9 @@ export function SourceComposition({
                 <span>{row.topic.name}</span>
                 <span>{row.count} 条</span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-mist/55">
+              <div className="theme-meter-track h-2 overflow-hidden rounded-full">
                 <div
-                  className="h-full rounded-full bg-sage/70"
+                  className="theme-accent-meter h-full rounded-full"
                   style={{ width: `${Math.max(18, (row.count / maxCount) * 100)}%` }}
                 />
               </div>

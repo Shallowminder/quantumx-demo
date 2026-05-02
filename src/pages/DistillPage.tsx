@@ -454,7 +454,7 @@ export function DistillPage({
         </div>
 
         {generationMessage && (
-          <div className="mb-4 rounded-[20px] bg-sage/10 px-4 py-3 text-sm leading-6 text-ink">
+          <div className="theme-accent-soft mb-4 rounded-[20px] px-4 py-3 text-sm leading-6">
             {generationMessage}
           </div>
         )}

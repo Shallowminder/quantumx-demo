@@ -33,7 +33,7 @@ export function TopicGrowthTimeline({
                 {index < items.length - 1 && (
                   <div className="absolute top-5 h-[calc(100%+0.5rem)] w-px bg-line" />
                 )}
-                <div className="relative z-10 mt-1 flex h-5 w-5 items-center justify-center rounded-full border border-sage/35 bg-sage/10 text-sage">
+                <div className="theme-accent-tint relative z-10 mt-1 flex h-5 w-5 items-center justify-center rounded-full border-transparent">
                   <Circle size={8} fill="currentColor" strokeWidth={0} />
                 </div>
               </div>
