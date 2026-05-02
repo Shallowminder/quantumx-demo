@@ -8,6 +8,7 @@ import {
   Layers3,
   NotebookPen,
   Search,
+  X,
 } from "lucide-react";
 import type {
   ResolvedTheme,
@@ -84,72 +85,83 @@ export function MobileNav({
       }
     }
 
-    function handleScroll(event: Event) {
-      const target = event.target as Node | null;
-      if (target && menuRef.current?.contains(target)) return;
-      setIsMoreOpen(false);
-    }
-
     window.addEventListener("pointerdown", handlePointerDown);
     window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("scroll", handleScroll, true);
 
     return () => {
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("scroll", handleScroll, true);
     };
   }, [isMoreOpen]);
 
   return (
     <>
       {isMoreOpen && (
-        <div
-          ref={menuRef}
-          className="frost-panel-strong fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+5.45rem)] z-50 max-h-[min(54vh,430px)] overflow-y-auto rounded-[26px] p-2 lg:hidden subtle-scrollbar"
-        >
-          <div className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-[0.18em] text-muted/80">
-            更多
-          </div>
-          <div className="space-y-1">
-            {overflowNavItems.map((item) => {
-              const Icon = item.icon;
-              const active = resolvedActiveKey === item.key;
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            aria-label="关闭更多菜单"
+            className="theme-overlay-dim absolute inset-0 h-full w-full"
+            type="button"
+            onClick={() => setIsMoreOpen(false)}
+          />
+          <div
+            ref={menuRef}
+            className="frost-panel-strong absolute inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+6.2rem)] max-h-[min(72vh,620px)] overflow-y-auto overscroll-contain rounded-[30px] p-3 pb-5 subtle-scrollbar"
+          >
+            <div className="sticky top-0 z-10 -mx-1 mb-2 flex items-center justify-between rounded-[22px] bg-[rgb(var(--panel-strong-rgb))] px-3 py-2 shadow-[0_10px_28px_rgb(var(--shadow-rgb)_/_0.08)]">
+              <div>
+                <div className="text-sm font-semibold text-ink">更多</div>
+                <div className="text-xs text-muted">导航、外观和显示设置</div>
+              </div>
+              <button
+                aria-label="关闭更多菜单"
+                className="theme-button-muted flex h-9 w-9 items-center justify-center rounded-2xl"
+                type="button"
+                onClick={() => setIsMoreOpen(false)}
+              >
+                <X size={16} strokeWidth={1.8} />
+              </button>
+            </div>
+            <div className="space-y-1">
+              {overflowNavItems.map((item) => {
+                const Icon = item.icon;
+                const active = resolvedActiveKey === item.key;
 
-              return (
-                <button
-                  key={item.key}
-                  className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition ${
-                    active
-                      ? "theme-surface-ghost-strong text-ink shadow-[0_12px_28px_rgb(var(--shadow-rgb)_/_0.08)]"
-                      : "text-muted hover:bg-[rgb(var(--surface-overlay-rgb)/0.72)] hover:text-ink"
-                  }`}
-                  type="button"
-                  onClick={() => {
-                    setIsMoreOpen(false);
-                    onNavigate(item.key);
-                  }}
-                >
-                  <div className="theme-surface-ghost flex h-9 w-9 items-center justify-center rounded-2xl text-ink">
-                    <Icon size={18} strokeWidth={1.8} />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-ink">{item.label}</div>
-                    <div className="text-xs text-muted">{item.note}</div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-          <div className="soft-divider mt-3 border-t px-3 pb-2 pt-4">
-            <ThemeToggle
-              compact
-              stylePreference={stylePreference}
-              preference={preference}
-              resolvedTheme={resolvedTheme}
-              onAppearanceChange={onThemePreferenceChange}
-              onStyleChange={onStylePreferenceChange}
-            />
+                return (
+                  <button
+                    key={item.key}
+                    className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition ${
+                      active
+                        ? "theme-surface-ghost-strong text-ink shadow-[0_12px_28px_rgb(var(--shadow-rgb)_/_0.08)]"
+                        : "text-muted hover:bg-[rgb(var(--surface-overlay-rgb)/0.72)] hover:text-ink"
+                    }`}
+                    type="button"
+                    onClick={() => {
+                      setIsMoreOpen(false);
+                      onNavigate(item.key);
+                    }}
+                  >
+                    <div className="theme-surface-ghost flex h-9 w-9 items-center justify-center rounded-2xl text-ink">
+                      <Icon size={18} strokeWidth={1.8} />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-ink">{item.label}</div>
+                      <div className="text-xs text-muted">{item.note}</div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="soft-divider mt-3 border-t px-3 pb-3 pt-4">
+              <ThemeToggle
+                compact
+                stylePreference={stylePreference}
+                preference={preference}
+                resolvedTheme={resolvedTheme}
+                onAppearanceChange={onThemePreferenceChange}
+                onStyleChange={onStylePreferenceChange}
+              />
+            </div>
           </div>
         </div>
       )}
