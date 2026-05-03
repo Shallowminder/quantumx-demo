@@ -10,7 +10,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { MemoryRecallExplanation } from "../components/MemoryRecallExplanation";
+import { MemoryMatchCard } from "../components/MemoryMatchCard";
 import { TopicBadge } from "../components/TopicBadge";
 import { formatMonthDay } from "../lib/date";
 import {
@@ -463,7 +463,13 @@ export function SearchPage({
                     </div>
 
                     {semanticMatch && (
-                      <MemoryRecallExplanation match={semanticMatch} topics={topics} />
+                      <div className="mt-4">
+                        <MemoryMatchCard
+                          compact
+                          match={semanticMatch}
+                          onOpenThought={onOpenThought}
+                        />
+                      </div>
                     )}
 
                     {sourceThought && (
