@@ -121,6 +121,7 @@ export interface QuantumXDataExport {
 export interface CloudSyncMetadata {
   lastPushedAt?: string;
   lastPulledAt?: string;
+  lastCloudSummaryFetchedAt?: string;
   lastKnownCloudSummary?: SnapshotSummary;
 }
 

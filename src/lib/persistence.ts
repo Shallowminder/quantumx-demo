@@ -357,6 +357,9 @@ export function normalizeCloudSyncMetadata(
   return {
     lastPushedAt: normalizeOptionalIsoDate(metadata.lastPushedAt),
     lastPulledAt: normalizeOptionalIsoDate(metadata.lastPulledAt),
+    lastCloudSummaryFetchedAt: normalizeOptionalIsoDate(
+      metadata.lastCloudSummaryFetchedAt,
+    ),
     lastKnownCloudSummary: normalizeSnapshotSummary(metadata.lastKnownCloudSummary),
   };
 }
