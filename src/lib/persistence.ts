@@ -358,6 +358,9 @@ export function normalizeCloudSyncMetadata(
     lastLocalSavedAt: normalizeOptionalIsoDate(metadata.lastLocalSavedAt),
     lastPushedAt: normalizeOptionalIsoDate(metadata.lastPushedAt),
     lastPulledAt: normalizeOptionalIsoDate(metadata.lastPulledAt),
+    lastCloudSummaryFetchedAt: normalizeOptionalIsoDate(
+      metadata.lastCloudSummaryFetchedAt,
+    ),
     lastKnownCloudSummary: normalizeSnapshotSummary(metadata.lastKnownCloudSummary),
   };
 }

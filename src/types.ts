@@ -122,6 +122,7 @@ export interface CloudSyncMetadata {
   lastLocalSavedAt?: string;
   lastPushedAt?: string;
   lastPulledAt?: string;
+  lastCloudSummaryFetchedAt?: string;
   lastKnownCloudSummary?: SnapshotSummary;
 }
 

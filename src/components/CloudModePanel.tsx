@@ -72,6 +72,22 @@ export function CloudModePanel({
   const qrScriptRequestedRef = useRef(false);
   const localSummary = summarizeSnapshot(snapshot);
   const effectiveCloudSummary = cloudSummary ?? syncMetadata.lastKnownCloudSummary ?? null;
+  const localContentCount =
+    localSummary.thoughts +
+    localSummary.topics +
+    localSummary.drafts +
+    (localSummary.hasCaptureDraft ? 1 : 0);
+  const cloudContentCount = effectiveCloudSummary
+    ? effectiveCloudSummary.thoughts +
+      effectiveCloudSummary.topics +
+      effectiveCloudSummary.drafts +
+      (effectiveCloudSummary.hasCaptureDraft ? 1 : 0)
+    : 0;
+  const shouldShowConflictHint =
+    Boolean(session) &&
+    dataMode !== "cloud" &&
+    localContentCount > 0 &&
+    cloudContentCount > 0;
   const callbackUrl = getAuthRedirectUrl();
   const weChatQrParams = useMemo(() => {
     if (!wechatQrUrl) return null;
@@ -132,6 +148,10 @@ export function CloudModePanel({
       .then((summary) => {
         if (cancelled) return;
         setCloudSummary(summary);
+        updateSyncMetadata({
+          lastKnownCloudSummary: summary,
+          lastCloudSummaryFetchedAt: new Date().toISOString(),
+        });
       })
       .catch(() => {
         if (cancelled) return;
@@ -387,7 +407,10 @@ export function CloudModePanel({
     try {
       const summary = await fetchCloudSnapshotSummary();
       setCloudSummary(summary);
-      updateSyncMetadata({ lastKnownCloudSummary: summary });
+      updateSyncMetadata({
+        lastKnownCloudSummary: summary,
+        lastCloudSummaryFetchedAt: new Date().toISOString(),
+      });
       setMessage("已刷新云端摘要。");
     } catch {
       setMessage("暂时无法读取云端摘要，请稍后再试。");
@@ -617,7 +640,29 @@ export function CloudModePanel({
                 ? formatDayLabel(syncMetadata.lastPulledAt)
                 : "还没有从云端恢复"}
             </div>
+            <div>
+              云端摘要刷新：
+              {syncMetadata.lastCloudSummaryFetchedAt
+                ? formatDayLabel(syncMetadata.lastCloudSummaryFetchedAt)
+                : "还没有刷新云端摘要"}
+            </div>
           </div>
+          {shouldShowConflictHint && (
+            <div className="theme-warning-soft mb-4 rounded-[20px] px-3.5 py-3.5 text-sm leading-6">
+              <div className="mb-1 flex items-center gap-2 font-medium">
+                <AlertTriangle size={15} strokeWidth={1.8} />
+                这台设备和云端都有内容
+              </div>
+              <p>
+                上传/更新会把本地内容写到云端，但不会删除云端旧数据；从云端恢复会覆盖当前浏览器本地数据。建议先下载 JSON 备份，再选择方向。
+              </p>
+              <div className="mt-3 space-y-1 text-xs text-muted">
+                <p>1. 先在左侧下载备份</p>
+                <p>2. 如果这台设备最新，点“上传/更新到云端”</p>
+                <p>3. 如果云端最新，点“从云端恢复”</p>
+              </div>
+            </div>
+          )}
           <div className="theme-warning-soft mb-4 rounded-[20px] px-3.5 py-3.5 text-sm leading-6">
             <div className="mb-1 flex items-center gap-2 font-medium">
               <AlertTriangle size={15} strokeWidth={1.8} />
