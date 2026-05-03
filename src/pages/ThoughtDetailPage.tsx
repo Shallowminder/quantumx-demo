@@ -9,7 +9,7 @@ import {
   Link2,
   PenLine,
 } from "lucide-react";
-import { RelatedMemoriesPanel } from "../components/RelatedMemoriesPanel";
+import { MemoryMatchCard } from "../components/MemoryMatchCard";
 import { ThoughtStatusTrail } from "../components/ThoughtStatusTrail";
 import { TopicBadge } from "../components/TopicBadge";
 import { formatDayLabel } from "../lib/date";
@@ -40,6 +40,13 @@ const statusLabels: Record<ThoughtStatus, string> = {
   themed: "已加入主题",
   distilled: "已用于蒸馏",
   archived: "已归档",
+};
+
+const strategyLabels: Record<RecallStrategy, string> = {
+  local: "本地规则",
+  lexical: "关键词召回",
+  semantic: "语义召回",
+  empty: "暂无结果",
 };
 
 export function ThoughtDetailPage({
@@ -113,6 +120,47 @@ export function ThoughtDetailPage({
       current.includes(topicId)
         ? current.filter((id) => id !== topicId)
         : [...current, topicId],
+    );
+  }
+
+  function renderRelatedMemories() {
+    const recallLabel = recallLoading
+      ? "匹配中"
+      : recallSource === "cloud"
+        ? strategyLabels[recallStrategy]
+        : "本地规则";
+
+    return (
+      <aside className="space-y-4">
+        <section className="frost-panel rounded-[28px] p-4">
+          <div className="mb-1 flex items-start justify-between gap-3">
+            <div className="text-sm font-semibold text-ink">相关旧想法</div>
+            <span className="theme-pill shrink-0 rounded-full px-2.5 py-1 text-[11px] text-muted">
+              {recallLabel}
+            </span>
+          </div>
+          <p className="mb-4 text-sm leading-6 text-muted">
+            这些旧记录和当前想法有相同主题或相近关键词。
+          </p>
+
+          {relatedMatches.length > 0 ? (
+            <div className="space-y-2">
+              {relatedMatches.map((match) => (
+                <MemoryMatchCard
+                  key={match.thought.id}
+                  compact
+                  match={match}
+                  onOpenThought={onOpenThought}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="theme-card-soft rounded-[22px] p-3.5 text-sm leading-6 text-muted">
+              暂时还没有足够接近的旧想法。继续写几句，或者多记录几天后，这里会更有用。
+            </div>
+          )}
+        </section>
+      </aside>
     );
   }
 
@@ -257,20 +305,7 @@ export function ThoughtDetailPage({
         </div>
 
         <div className="mt-4 xl:hidden">
-          <RelatedMemoriesPanel
-            description="这些旧记录和当前想法有相同主题或相近关键词。"
-            feedbackContext={thought.content}
-            isLoading={recallLoading}
-            matches={relatedMatches}
-            recallSource={recallSource}
-            recallStrategy={recallStrategy}
-            sourceThoughtId={thought.id}
-            title="相关旧想法"
-            topics={topics}
-            onAttachToTopic={(_, topicId) => onAttachThoughtToTopic(thought.id, topicId)}
-            onOpenThought={onOpenThought}
-            onOpenTopic={onOpenTopic}
-          />
+          {renderRelatedMemories()}
         </div>
 
         <section className="mt-4 grid gap-4 md:grid-cols-2">
@@ -335,20 +370,7 @@ export function ThoughtDetailPage({
       </section>
 
       <div className="hidden xl:block xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:overflow-auto xl:pr-1 subtle-scrollbar">
-        <RelatedMemoriesPanel
-          description="这些旧记录和当前想法有相同主题或相近关键词。"
-          feedbackContext={thought.content}
-          isLoading={recallLoading}
-          matches={relatedMatches}
-          recallSource={recallSource}
-          recallStrategy={recallStrategy}
-          sourceThoughtId={thought.id}
-          title="相关旧想法"
-          topics={topics}
-          onAttachToTopic={(_, topicId) => onAttachThoughtToTopic(thought.id, topicId)}
-          onOpenThought={onOpenThought}
-          onOpenTopic={onOpenTopic}
-        />
+        {renderRelatedMemories()}
       </div>
     </div>
   );
