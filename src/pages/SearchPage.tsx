@@ -155,9 +155,6 @@ export function SearchPage({
   const [recallStrategy, setRecallStrategy] = useState<RecallStrategy>("local");
   const [recallLoading, setRecallLoading] = useState(false);
   const [feedback, setFeedback] = useState<Record<string, MemoryFeedbackType>>({});
-  const [memoryFeedbackByThoughtId, setMemoryFeedbackByThoughtId] = useState<
-    Record<string, MemoryFeedbackType>
-  >({});
   const [pinnedIds, setPinnedIds] = useState<string[]>([]);
   const [expandedActionIds, setExpandedActionIds] = useState<string[]>([]);
   const suggestions = useMemo(
@@ -470,16 +467,11 @@ export function SearchPage({
                         <MemoryMatchCard
                           compact
                           match={semanticMatch}
-                          selectedFeedback={
-                            memoryFeedbackByThoughtId[semanticMatch.thought.id] ?? null
-                          }
+                          selectedFeedback={feedback[semanticMatch.thought.id] ?? null}
                           showFeedback
-                          onFeedback={(thoughtId, nextFeedback) =>
-                            setMemoryFeedbackByThoughtId((current) => ({
-                              ...current,
-                              [thoughtId]: nextFeedback,
-                            }))
-                          }
+                          onFeedback={(thoughtId, nextFeedback) => {
+                            persistFeedback(thoughtId, nextFeedback);
+                          }}
                           onOpenThought={onOpenThought}
                         />
                       </div>
