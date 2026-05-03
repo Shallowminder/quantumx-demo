@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, CalendarDays, Inbox, RotateCcw, X } from "lucide-react";
 import { CaptureComposer } from "../components/CaptureComposer";
-import { RelatedMemoriesPanel } from "../components/RelatedMemoriesPanel";
+import { MemoryMatchCard } from "../components/MemoryMatchCard";
 import { ThoughtCard } from "../components/ThoughtCard";
 import { findRelatedMemoryMatches, inferTopicIds } from "../lib/memory";
 import {
@@ -23,6 +23,13 @@ interface TodayPageProps {
   onOpenThought: (thoughtId: string) => void;
   onOpenTopic: (topicId: string) => void;
 }
+
+const strategyLabels: Record<RecallStrategy, string> = {
+  local: "本地规则",
+  lexical: "关键词召回",
+  semantic: "语义召回",
+  empty: "暂无结果",
+};
 
 export function TodayPage({
   draft,
@@ -97,12 +104,52 @@ export function TodayPage({
     draft.trim().length > 0
       ? "根据你正在写的内容，先把可能有用的旧记录放到旁边。"
       : "先展示和最新记录相关的旧想法，继续输入时会实时更新。";
-  const feedbackContext = draft.trim().length > 0 ? draft : thoughts[0]?.content;
   const briefThought =
     thoughts.find((thought) => thought.status === "inbox" && thought.relatedIds.length > 0) ??
     thoughts.find((thought) => thought.relatedIds.length > 1) ??
     thoughts[0];
   const briefTopic = topics.find((topic) => briefThought?.topicIds.includes(topic.id));
+
+  function renderRelatedMemories() {
+    const recallLabel = recallLoading
+      ? "匹配中"
+      : recallSource === "cloud"
+        ? strategyLabels[recallStrategy]
+        : "本地规则";
+
+    return (
+      <aside className="space-y-4">
+        <section className="frost-panel rounded-[28px] p-4">
+          <div className="mb-1 flex items-start justify-between gap-3">
+            <div className="text-sm font-semibold text-ink">相关旧想法</div>
+            <span className="theme-pill shrink-0 rounded-full px-2.5 py-1 text-[11px] text-muted">
+              {recallLabel}
+            </span>
+          </div>
+          <p className="mb-4 text-sm leading-6 text-muted">
+            {relatedPanelDescription}
+          </p>
+
+          {relatedMatches.length > 0 ? (
+            <div className="space-y-2">
+              {relatedMatches.map((match) => (
+                <MemoryMatchCard
+                  key={match.thought.id}
+                  compact
+                  match={match}
+                  onOpenThought={onOpenThought}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="theme-card-soft rounded-[22px] p-3.5 text-sm leading-6 text-muted">
+              暂时还没有足够接近的旧想法。继续写几句，或者多记录几天后，这里会更有用。
+            </div>
+          )}
+        </section>
+      </aside>
+    );
+  }
 
   return (
     <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -134,17 +181,7 @@ export function TodayPage({
         />
 
         <div className="mt-5 xl:hidden">
-          <RelatedMemoriesPanel
-            description={relatedPanelDescription}
-            feedbackContext={feedbackContext}
-            isLoading={recallLoading}
-            matches={relatedMatches}
-            recallSource={recallSource}
-            recallStrategy={recallStrategy}
-            topics={topics}
-            onOpenThought={onOpenThought}
-            onOpenTopic={onOpenTopic}
-          />
+          {renderRelatedMemories()}
         </div>
 
         {thoughts.length === 0 && (
@@ -281,17 +318,7 @@ export function TodayPage({
       </section>
 
       <div className="hidden xl:block xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:overflow-auto xl:pr-1 subtle-scrollbar">
-        <RelatedMemoriesPanel
-          description={relatedPanelDescription}
-          feedbackContext={feedbackContext}
-          isLoading={recallLoading}
-          matches={relatedMatches}
-          recallSource={recallSource}
-          recallStrategy={recallStrategy}
-          topics={topics}
-          onOpenThought={onOpenThought}
-          onOpenTopic={onOpenTopic}
-        />
+        {renderRelatedMemories()}
       </div>
     </div>
   );
