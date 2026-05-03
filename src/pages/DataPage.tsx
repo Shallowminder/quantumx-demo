@@ -72,6 +72,9 @@ export function DataPage({
 }: DataPageProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [importMessage, setImportMessage] = useState("");
+  const [pendingImport, setPendingImport] =
+    useState<QuantumXDataSnapshot | null>(null);
+  const [pendingImportName, setPendingImportName] = useState("");
   const snapshot = useMemo(
     () => ({ thoughts, topics, savedDistills, captureDraft }),
     [captureDraft, savedDistills, thoughts, topics],
@@ -88,6 +91,9 @@ export function DataPage({
   const dataSize = getStorageSizeLabel(snapshot);
   const lastCloudEventAt =
     cloudSyncMetadata.lastPushedAt ?? cloudSyncMetadata.lastPulledAt;
+  const lastLocalSavedLabel = cloudSyncMetadata.lastLocalSavedAt
+    ? formatDateTime(cloudSyncMetadata.lastLocalSavedAt)
+    : "还没有本地保存记录";
 
   function renderSyncStatus() {
     if (dataMode === "local" || cloudSyncState === "local") {
@@ -95,7 +101,9 @@ export function DataPage({
         icon: CloudOff,
         tone: "border-line theme-surface-ghost text-muted",
         title: "当前是本地模式",
-        detail: "记录会先保存在这个浏览器里。登录并同步后，才会开始跟随云端。",
+        detail: cloudSyncMetadata.lastLocalSavedAt
+          ? `记录已保存在这个浏览器里，最近本地保存：${lastLocalSavedLabel}。登录并上传后，才会开始跟随云端。`
+          : "记录会先保存在这个浏览器里。登录并上传后，才会开始跟随云端。",
       };
     }
 
@@ -159,19 +167,38 @@ export function DataPage({
     try {
       const raw = await file.text();
       const imported = parseDataExport(raw);
-      const confirmed = window.confirm(
-        "导入备份会覆盖当前浏览器里的 QuantumX 本地数据。确认继续吗？",
-      );
-      if (!confirmed) return;
-      onImportData(imported);
-      setImportMessage(
-        `已导入 ${imported.thoughts.length} 条记录、${imported.topics.length} 个主题和 ${imported.savedDistills.length} 份草稿。`,
-      );
+      setPendingImport(imported);
+      setPendingImportName(file.name);
+      setImportMessage("");
     } catch {
+      setPendingImport(null);
+      setPendingImportName("");
       setImportMessage("这个文件暂时无法识别。请确认它是 QuantumX 导出的 JSON 备份。");
-    } finally {
       if (inputRef.current) inputRef.current.value = "";
     }
+  }
+
+  function confirmPendingImport() {
+    if (!pendingImport) return;
+
+    const confirmed = window.confirm(
+      "导入备份会覆盖当前浏览器里的 QuantumX 本地数据。确认继续吗？",
+    );
+    if (!confirmed) return;
+
+    onImportData(pendingImport);
+    setImportMessage(
+      `已导入 ${pendingImport.thoughts.length} 条记录、${pendingImport.topics.length} 个主题和 ${pendingImport.savedDistills.length} 份草稿。`,
+    );
+    setPendingImport(null);
+    setPendingImportName("");
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
+  function cancelPendingImport() {
+    setPendingImport(null);
+    setPendingImportName("");
+    if (inputRef.current) inputRef.current.value = "";
   }
 
   return (
@@ -259,6 +286,7 @@ export function DataPage({
                   ? new Date(latestThought.createdAt).toLocaleDateString("zh-CN")
                   : "暂无"}
               </span>
+              <span>最近本地保存：{lastLocalSavedLabel}</span>
             </div>
           </div>
 
@@ -291,6 +319,52 @@ export function DataPage({
             />
           </div>
 
+          {pendingImport && (
+            <div className="theme-card-soft mt-4 rounded-[22px] px-4 py-4 text-sm leading-6 text-muted">
+              <div className="mb-3 flex items-start gap-3">
+                <div className="theme-icon-soft mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
+                  <FileUp size={16} strokeWidth={1.8} />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-ink">导入前预览</div>
+                  <div className="mt-1 break-all text-xs text-muted">
+                    文件名：{pendingImportName || "未命名 JSON 文件"}
+                  </div>
+                </div>
+              </div>
+              <div className="theme-card-overlay rounded-[18px] px-3.5 py-3">
+                <div>
+                  将导入：{pendingImport.thoughts.length} 条记录、
+                  {pendingImport.topics.length} 个主题、
+                  {pendingImport.savedDistills.length} 份草稿
+                </div>
+                <div className="mt-1">
+                  未提交草稿：
+                  {pendingImport.captureDraft.trim() ? "有" : "无"}
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-6 text-muted">
+                导入会覆盖当前浏览器里的本地数据，建议先下载备份。
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  className="theme-primary-button rounded-xl px-3.5 py-2.5 text-sm font-medium transition"
+                  type="button"
+                  onClick={confirmPendingImport}
+                >
+                  确认导入并覆盖
+                </button>
+                <button
+                  className="theme-button-muted rounded-xl px-3.5 py-2.5 text-sm transition"
+                  type="button"
+                  onClick={cancelPendingImport}
+                >
+                  取消
+                </button>
+              </div>
+            </div>
+          )}
+
           {importMessage && (
             <div className="theme-accent-soft mt-4 rounded-lg px-4 py-3 text-sm leading-6">
               {importMessage}
@@ -321,12 +395,12 @@ export function DataPage({
           <div className="frost-panel rounded-[26px] p-5">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
               <CheckCircle2 size={16} strokeWidth={1.8} />
-              下一步落地
+              下一步增强
             </div>
             <div className="space-y-3 text-sm leading-6 text-muted">
-              <p>1. 接入账号和云数据库，让记录跟随用户。</p>
-              <p>2. 用向量检索做真实相关旧想法召回。</p>
-              <p>3. 保存每次 AI 蒸馏的来源和用户反馈。</p>
+              <p>1. 增加导入前预览，避免误覆盖当前浏览器数据。</p>
+              <p>2. 明确区分“上传更新”和“完整替换”，减少同步误解。</p>
+              <p>3. 补齐账号删除、数据清除和隐私说明。</p>
             </div>
           </div>
         </aside>

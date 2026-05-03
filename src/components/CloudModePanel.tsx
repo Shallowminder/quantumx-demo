@@ -284,7 +284,7 @@ export function CloudModePanel({
       : "暂无云端摘要";
 
     return window.confirm(
-      `准备把本地数据上传到云端。\n\n本地：${localSummary.thoughts} 条记录、${localSummary.topics} 个主题、${localSummary.drafts} 份草稿\n云端：${cloudText}\n\n已存在的同 client_id 数据会被更新。确认继续吗？`,
+      `准备把本地数据上传/更新到云端。\n\n本地：${localSummary.thoughts} 条记录、${localSummary.topics} 个主题、${localSummary.drafts} 份草稿\n云端：${cloudText}\n\n这会新增或更新同 client_id 的记录、主题和草稿，但不会自动删除云端已有的其他旧数据。建议先下载 JSON 备份。确认继续吗？`,
     );
   }
 
@@ -294,7 +294,7 @@ export function CloudModePanel({
       : "暂无云端摘要";
 
     return window.confirm(
-      `准备从云端恢复数据到当前浏览器。\n\n本地：${localSummary.thoughts} 条记录、${localSummary.topics} 个主题、${localSummary.drafts} 份草稿\n云端：${cloudText}\n\n这会覆盖当前浏览器里的本地数据。建议先下载备份。确认继续吗？`,
+      `准备从云端恢复数据到当前浏览器。\n\n本地：${localSummary.thoughts} 条记录、${localSummary.topics} 个主题、${localSummary.drafts} 份草稿\n云端：${cloudText}\n\n从云端恢复会覆盖当前浏览器本地数据，但不会删除云端数据。建议先下载 JSON 备份。确认继续吗？`,
     );
   }
 
@@ -486,7 +486,7 @@ export function CloudModePanel({
 
     const detail =
       localCount > 0 && cloudCount > 0
-        ? "如果这台设备上的内容是最新的，就先同步到云端；如果你之前在别的设备上已经整理过内容，就先从云端恢复。"
+        ? "如果这台设备上的内容是最新的，就先上传/更新到云端；如果你之前在别的设备上已经整理过内容，就先从云端恢复。"
         : localCount > 0
           ? "这样这台设备里的记录、主题和草稿会成为你的第一份云端副本。"
           : cloudCount > 0
@@ -509,7 +509,7 @@ export function CloudModePanel({
             onClick={() => void syncToCloud()}
           >
             <CloudUpload size={15} strokeWidth={1.8} />
-            把这台设备同步到云端
+            上传/更新到云端
           </button>
           <button
             className="theme-button-muted inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition disabled:opacity-60"
@@ -683,7 +683,7 @@ export function CloudModePanel({
               onClick={() => void syncToCloud()}
             >
               <CloudUpload size={15} strokeWidth={1.8} />
-              同步到云端
+              上传/更新到云端
             </button>
             <button
               className="theme-button-secondary inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition disabled:opacity-60"
