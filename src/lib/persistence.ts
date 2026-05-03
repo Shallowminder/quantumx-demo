@@ -355,6 +355,7 @@ export function normalizeCloudSyncMetadata(
   if (!metadata || typeof metadata !== "object") return {};
 
   return {
+    lastLocalSavedAt: normalizeOptionalIsoDate(metadata.lastLocalSavedAt),
     lastPushedAt: normalizeOptionalIsoDate(metadata.lastPushedAt),
     lastPulledAt: normalizeOptionalIsoDate(metadata.lastPulledAt),
     lastKnownCloudSummary: normalizeSnapshotSummary(metadata.lastKnownCloudSummary),

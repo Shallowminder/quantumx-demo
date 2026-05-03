@@ -682,7 +682,13 @@ export default function App() {
 
   useEffect(() => {
     if (snapshotScope !== currentStorageScope) return;
-    void localQuantumXRepository.saveSnapshot(currentSnapshot);
+    void localQuantumXRepository.saveSnapshot(currentSnapshot).then(() => {
+      setCloudMetadataScope(currentStorageScope);
+      setCloudSyncMetadata((current) => ({
+        ...current,
+        lastLocalSavedAt: new Date().toISOString(),
+      }));
+    });
   }, [currentSnapshot, currentStorageScope, localQuantumXRepository, snapshotScope]);
 
   useEffect(() => {
