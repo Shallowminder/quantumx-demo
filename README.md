@@ -1,101 +1,142 @@
-# QuantumX Demo
+# QuantumX
 
-QuantumX 是一个 AI Native 的个人思考沉淀工具 Demo。它面向学生、写作者、研究者和长期自我成长的人，强调低摩擦记录、相关旧记录召回、主题沉淀、基于历史记录的蒸馏输出和轻量个人洞察。
+QuantumX 是一个 AI Native 的个人思考沉淀工具。它面向学生、写作者、研究者、知识工作者和长期自我成长的人，帮助用户低摩擦记录日常想法，并把旧记录、主题、草稿和个人洞察慢慢连接起来。
 
-## 体验重点
+它不是科幻概念演示，也不是普通笔记软件。QuantumX 的第一阶段目标很朴素：
+
+> 写下一句话，让相关旧想法回来；把零散记录整理成主题，再蒸馏成可以继续写的草稿。
+
+线上 Demo：
+
+[https://quantumx-demo-xi.vercel.app](https://quantumx-demo-xi.vercel.app)
+
+## 当前阶段
+
+QuantumX 已经从纯前端 Demo 推进到可用原型阶段：
+
+- 本地优先：未登录也能记录、整理、搜索、蒸馏和备份。
+- 账号登录：支持 Supabase Email Magic Link 登录。
+- 云端同步：登录后数据按账号隔离，并同步到 Supabase。
+- AI 蒸馏：通过 Supabase Edge Function 调用 OpenAI-compatible provider，当前已验证 DeepSeek 可用。
+- 语义召回：已接入 `thought_embeddings`、`recall` 和 `embed-thoughts`，相关旧想法优先走云端 embedding 召回，失败时回退本地规则。
+- 四套外观：支持浅色、深色、跟随系统，以及多种 Apple-like 的低饱和视觉风格。
+- 移动端优化：底部导航、头像登录菜单、滚动锁定、Search 和 Distill 手机端布局已经过多轮修正。
+
+## 核心体验
 
 - 快速记录：像写备忘录一样输入一句想法。
 - 今日思考：看到最近记录、待整理内容和系统重新带回的旧想法。
-- 相关旧想法：输入时自动带出过去相近的记录，并解释召回原因。
-- 找回想法：本地搜索旧记录和草稿，按主题、状态和类型筛选。
-- 主题沉淀：展示主题的最早记录、最近更新、待整理材料和正在形成的问题。
-- 蒸馏输出：选择来源记录，生成可编辑提纲、复盘框架和观点卡片，并保存为草稿。
-- 个人洞察：轻量回看最近关注的话题、可整理主题和下一步动作。
-- 我的思考：一个私人的长期思考主页，汇总记录、主题、草稿和思考日历。
+- 相关旧想法：输入或搜索时召回过去相近的记录，并解释为什么推荐。
+- 找回想法：支持本地搜索 + 云端语义召回，按类型、主题、状态筛选。
+- 主题沉淀：展示主题的记录数量、最早出现、最近更新、关键记录和正在形成的问题。
+- 蒸馏输出：选择主题和来源记录，生成文章提纲、复盘框架或观点卡片。
+- 草稿库：AI 或本地模板生成的内容可以编辑、保存、删除和复制 Markdown。
+- 我的思考：私人长期思考主页，包含长期主题、输出草稿和思考日历。
+- 个人洞察：以轻量周回顾形式提示最近反复出现的主题和下一步整理动作。
+- 数据与隐私：支持 JSON 备份/恢复、登录状态、云同步状态和本地/云端摘要。
 
-## 已加入的真实工具细节
+## 已完成的关键能力
 
-- 本地持久化：新增想法、快速记录草稿和蒸馏草稿会保存到 `localStorage`。
-- 按账号隔离本地缓存：游客模式和每个已登录账号都会使用各自的本地缓存空间，避免同一台设备切换邮箱时互相混用记录。
-- 新设备自动带回云端：同一账号在新设备登录后，如果本地还是空的但云端已经有内容，QuantumX 会自动把云端内容恢复到这台设备。
-- 快捷输入：`Cmd/Ctrl + K` 聚焦快速记录，`Cmd/Ctrl + Enter` 保存，`Esc` 清空草稿，保存后保持输入焦点。
-- 保存撤销：误保存后可以在轻提示里撤销。
-- 今日提示：Today 顶部会提示一条“今天可以继续”的线索。
-- 待整理区：新记录先进入“待整理”，不强迫用户立刻分类。
-- 想法整理：详情页支持编辑原文和摘要、加入主题、标记已整理、归档、继续写和生成草稿。
-- 召回理由：相关旧想法分为直接相关、相似问题和不同角度，并支持有帮助、不相关、固定等反馈。
-- 主题维护：支持新建主题、重命名主题、把未整理想法加入当前主题。
-- 可编辑蒸馏：输出不只是展示，可以继续编辑、保存、打开草稿、删除草稿和复制 Markdown。
-- 过程可视化：想法详情显示状态轨迹，主题页显示成长时间线，相关旧想法显示召回解释，蒸馏页显示来源组成，洞察页显示最近 7 天思考痕迹。
-- 思考日历：在「我的思考」里展示最近一年哪些日子留下过想法，并可点击查看当天摘要。
-- 数据备份：在「数据与隐私」里可以下载 JSON 备份，也可以从备份恢复本地记录。
-- 数据层准备：localStorage 读写已集中到独立 helper，后续接账号、数据库和云同步时更容易替换。
-- 本地搜索：新增「找回想法」页面，先用全文匹配跑通搜索体验。
-- 语义召回第一版：新增 `thought_embeddings` 表、`recall` / `embed-thoughts` Edge Functions 和前端调用路径；已登录云端用户会优先尝试语义召回，失败时自动回退到本地规则召回。
-- 云同步准备：新增 Supabase schema 草案、环境变量模板和 repository 接口，本地模式仍然默认可用。
+### 本地数据
+
+- `localStorage` 保存 thoughts、topics、distill drafts、capture draft、外观设置等数据。
+- 游客模式和不同邮箱账号使用独立本地缓存，避免同一台设备切换账号时串数据。
+- 支持 JSON 备份和恢复。
+- 本地写入后会尽量通过 snapshot repository 同步到云端。
+
+### Supabase 登录与同步
+
+- Supabase Auth Email Magic Link 已跑通。
+- 数据表包括：
+  - `profiles`
+  - `thoughts`
+  - `topics`
+  - `thought_topics`
+  - `distill_drafts`
+  - `memory_feedback`
+  - `capture_drafts`
+  - `thought_embeddings`
+- RLS 已开启，用户数据按 `auth.uid()` 隔离。
+- 同一账号在新设备登录后，如果本地为空且云端已有数据，会自动恢复云端内容。
+- 当前同步模型是本地优先 + snapshot upsert，不是多人实时协作。
+
+### AI 蒸馏
+
+- Supabase Edge Function：`distill`
+- 前端通过 `distillRepository` 调用服务端函数。
+- 支持 OpenAI-compatible `/chat/completions` provider。
+- 可配置 DeepSeek、Kimi/Moonshot、OpenAI 等模型。
+- 如果云端 AI 不可用，会回退到本地模板生成，不阻塞主流程。
+
+### 语义召回
+
+- Supabase Edge Functions：
+  - `recall`
+  - `embed-thoughts`
+- `recall` 会优先使用 embedding 排序相关旧想法。
+- `embed-thoughts` 用于云同步后预热最近 thoughts 的 embeddings。
+- 如果 embedding secrets 未配置或调用失败，会回退到 lexical / local recall。
+- Search、Today、Thought Detail 的相关旧想法已经逐步接入云端 recall。
+- Search 页面已经补齐召回解释和反馈机制。
+
+### 前端体验
+
+- Thought Detail 显示「想法状态轨迹」。
+- Topic Detail 显示「主题成长时间线」。
+- Related Memories 显示「召回解释」和反馈按钮。
+- Distill 显示「来源组成」，强化内容来自历史记录。
+- Insights 显示最近 7 天思考痕迹。
+- Personal Home 显示最近一年思考日历。
+- 四套视觉风格使用语义 token 统一管理，仍在持续清理固定色。
+- 移动端已重点修复头像菜单、底部导航、滚动锁定和页面拥挤问题。
 
 ## 技术栈
 
 - React
 - TypeScript
 - Tailwind CSS
+- Vite
 - lucide-react
 - Framer Motion
-- Vite
+- Supabase Auth / PostgreSQL / Edge Functions
+- localStorage
 
-## Local Development
+## 本地开发
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Build
+默认本地地址：
+
+```text
+http://localhost:5173/
+```
+
+## 构建与检查
 
 ```bash
 npm run lint
 npm run build
-```
-
-## Preview
-
-```bash
 npm run preview
 ```
 
-## Cloud Sync Preparation
-
-当前线上 Demo 仍默认使用本地模式。仓库里已经准备了下一阶段接 Supabase 的基础文件：
-
-- `docs/supabase-schema.sql`：账号、记录、主题、草稿、召回反馈和 RLS 策略草案。
-- `.env.example`：未来接 Supabase 所需的环境变量模板。
-- `.env.example`：未来接 Supabase 所需的环境变量模板，包含微信自定义 OAuth provider 标识。
-- `src/services/quantumxRepository.ts`：数据仓储接口，当前已经包含 localStorage 实现和 Supabase 读取实现，主链路开始向 repository 统一。
-- `src/services/supabaseClient.ts`：可选 Supabase client。没有环境变量时不会启用云端能力。
-- `src/services/authRepository.ts`：邮箱 magic link 登录入口。当前只准备身份会话，数据同步仍保持本地模式。
-- `src/services/cloudMigration.ts`：把当前浏览器里的本地记录、主题、草稿和快速记录草稿迁移到 Supabase。
-- `src/services/recallRepository.ts`：调用 `recall` Edge Function；如果云端不可用或函数未部署，自动回退到本地规则召回。
-- `src/services/embeddingRepository.ts`：在云端同步成功后，后台预热最近一批 thought embeddings，减少首次语义召回时的等待。
-- `src/services/memoryFeedbackRepository.ts`：把 Related Memories 上的「有帮助 / 不相关 / 固定 / 加入同一主题」反馈写回 Supabase 的 `memory_feedback`，未登录或云端暂时不可用时会静默跳过。
-
-如果要启用云端语义召回，还需要在 Supabase Edge Function Secrets 中补齐 embedding 配置：
+当前 `lint` 实际执行 TypeScript build check：
 
 ```bash
-EMBEDDING_API_KEY=
-EMBEDDING_BASE_URL=
-EMBEDDING_MODEL=
-EMBEDDING_PROVIDER=openai-compatible
+tsc -b --pretty false
 ```
 
-`recall` 函数会在查询时按需为缺失或过期的 thought embedding 重新生成向量，并把结果存回 `thought_embeddings`。`embed-thoughts` 则会在云端同步成功后后台预热最近 thoughts 的 embedding。 如果这些 secrets 没填，函数会自动回退到服务端 lexical recall，不会让前端相关旧想法失效。
+## 环境变量
 
-如果要开始接 Supabase，先复制环境变量模板：
+复制模板：
 
 ```bash
 cp .env.example .env.local
 ```
 
-然后填入：
+前端只需要 Supabase public env：
 
 ```bash
 VITE_SUPABASE_URL=
@@ -104,86 +145,165 @@ VITE_SUPABASE_WECHAT_PROVIDER=custom:wechat
 VITE_SUPABASE_AUTH_REDIRECT_PATH=/auth/callback
 ```
 
-不要把 `.env.local` 提交到 Git。
+注意：
 
-配置完成后，「数据与隐私」页会显示邮箱登录入口。登录后可以点击「同步到云端」，
-把当前浏览器里的 thoughts/topics/drafts/capture draft 写入 Supabase 表。
-如果当前浏览器之前已经和这个账号做过同步，QuantumX 会在登录后自动读取该账号最近一次恢复/同步过的云端数据，并在页面里标明当前数据源是「本地读取」还是「云端读取」。
-切到云端模式后，当前浏览器里的编辑会继续先落到本地，再自动 upsert 到 Supabase，尽量让记录和草稿保持跟账号一致。
-云端读取现在也开始通过 repository 接口走主链路，后续把 Today / Topics / Distill / Search 全部收口到统一数据层会更顺。
-本地缓存保存和云端自动同步也开始按整份 snapshot 走 repository，App 里的持久化细节在逐步收拢。
+- `VITE_SUPABASE_ANON_KEY` 是浏览器可用的 Supabase anon key。
+- 不要把 AI key、embedding key、service role key 放进 `VITE_` 环境变量。
+- `.env.local` 不要提交到 Git。
 
-## WeChat Login
+## Supabase 设置
 
-Supabase 当前没有把微信列在内建 Social Auth provider 里；官方推荐的做法是使用 Custom OAuth/OIDC Provider。你可以在 Supabase Dashboard 里新建一个自定义 provider，例如：
+### 1. 数据库 Schema
+
+在 Supabase SQL Editor 中运行：
 
 ```text
-custom:wechat
+docs/supabase-schema.sql
 ```
 
-然后把同样的标识填到：
+这个 schema 会创建账号、记录、主题、草稿、召回反馈、快速记录草稿和 embedding 表，并开启 RLS。
+
+### 2. Email 登录
+
+在 Supabase Auth 中启用 Email provider。QuantumX 当前主线登录方式是 Email Magic Link。
+
+需要确认 Supabase 里的 Site URL 和 Redirect URLs 包含你的线上地址，例如：
+
+```text
+https://quantumx-demo-xi.vercel.app
+https://quantumx-demo-xi.vercel.app/auth/callback
+```
+
+本地调试时也可以加入：
+
+```text
+http://localhost:5173
+http://localhost:5173/auth/callback
+```
+
+### 3. Edge Functions
+
+仓库内已有函数：
+
+```text
+supabase/functions/distill
+supabase/functions/recall
+supabase/functions/embed-thoughts
+```
+
+部署示例：
 
 ```bash
-VITE_SUPABASE_WECHAT_PROVIDER=custom:wechat
+supabase functions deploy distill
+supabase functions deploy recall
+supabase functions deploy embed-thoughts
 ```
 
-前端会通过 `supabase.auth.signInWithOAuth({ provider: 'custom:wechat' })` 发起登录。  
-对应的 Supabase 官方文档：
+## AI Provider Secrets
 
-- [Auth providers overview](https://supabase.com/docs/guides/auth)
-- [Custom OAuth/OIDC Providers](https://supabase.com/docs/guides/auth/custom-oauth-providers)
+AI 蒸馏函数使用 Supabase Edge Function Secrets，不放在 Vercel。
 
-微信 provider 还需要你在 Supabase 里填写微信开放平台提供的 Client ID / Client Secret，以及使用 Supabase Dashboard 显示的 callback URL 去微信侧完成回调配置。
-
-当前「数据与隐私」页除了直接跳转微信授权，也会尝试先拿到 Supabase 返回的 OAuth URL，并在页面里渲染微信 PC 网站登录二维码。二维码链路依赖微信返回的 `qrconnect` 授权地址；如果当前 provider 没有返回可渲染的二维码地址，页面会自动退回到普通「微信登录」跳转。
-登录回调地址现在会统一走 `VITE_SUPABASE_AUTH_REDIRECT_PATH`，默认是 `/auth/callback`。你可以在「数据与隐私」页直接复制当前运行环境下的完整 callback URL，分别填到 Supabase provider 配置和微信开放平台里，少掉一层手算和抄错。
-
-当前同步是本地到云端的单向迁移，不是完整双向实时同步。重复点击会按 `client_id`
-更新同一批本地数据，不会为同一条本地记录无限创建重复行。
-
-现在「数据与隐私」页还会显示本地/云端摘要、当前数据源，以及最近一次上传和恢复时间，帮助用户判断下一步该推本地还是拉云端。
-同时会根据两边最近活动时间和数量差异，给出更明确的同步建议与覆盖提醒，降低误操作风险。
-在进入云端模式后，页面还会显示一个轻量同步状态条，说明当前是本地模式、待同步、正在同步、已对齐还是最近同步失败。
-
-## Deployment
-
-QuantumX 是纯前端本地优先 Demo，没有后端、数据库、账号系统、真实 LLM API 或云同步。当前数据保存在当前浏览器的 `localStorage` 中：
-
-- 换设备不会自动同步。
-- 清理浏览器数据会丢失本地记录。
-- 暂时没有账号、云同步和服务端备份。
-- 可以在「数据与隐私」页面手动下载 JSON 备份，用于迁移或恢复。
-
-## Productization Roadmap
-
-当前版本已经从展示型 Demo 进入本地可用原型阶段。要继续落地成可长期使用的产品，建议按这个顺序推进：
-
-1. 账号与云数据库：根据 `docs/supabase-schema.sql` 接入 Supabase / PostgreSQL，保存用户、记录、主题、草稿和反馈。
-2. 真实召回：继续把当前第一版语义召回从“同步后预热 + query-time 补全”推进到保存 thought 后的即时后台生成、批量回填和更稳定的排序。
-3. AI 蒸馏服务：在服务端调用 LLM 生成摘要、主题建议、提纲和每周回顾。
-4. 数据安全：提供导出、删除账号、备份恢复、隐私说明和错误监控。
-5. 国内可访问部署：如果面向国内朋友试用，优先考虑 EdgeOne Pages 或国内静态托管 + CDN。
-
-### Deploy To Vercel
-
-推荐使用 Vercel 部署：
-
-1. Push project to GitHub.
-2. Open Vercel and import the GitHub repository.
-3. Framework Preset 选择 `Vite`.
-4. Install Command 使用 `npm install`.
-5. Build Command 使用 `npm run build`.
-6. Output Directory 使用 `dist`.
-7. Deploy.
-
-项目根目录已包含 `vercel.json`，用于把所有前端路由回退到 `index.html`，避免后续接入前端路由后刷新页面出现 404。
-
-也可以使用 Vercel CLI：
+OpenAI-compatible provider：
 
 ```bash
-npm install -g vercel
-vercel
-vercel --prod
+AI_PROVIDER=openai-compatible
+AI_API_KEY=
+AI_BASE_URL=
+AI_MODEL=
 ```
 
-CLI 不是必需项；第一版建议直接通过 Vercel 连接 GitHub 仓库自动部署。
+DeepSeek 示例：
+
+```bash
+AI_PROVIDER=deepseek
+AI_API_KEY=your_deepseek_key
+AI_BASE_URL=https://api.deepseek.com
+AI_MODEL=deepseek-chat
+```
+
+如果没有配置 AI secrets，Distill 页面会回退到本地模板。
+
+## Embedding / Recall Secrets
+
+语义召回使用 embedding secrets：
+
+```bash
+EMBEDDING_PROVIDER=openai-compatible
+EMBEDDING_API_KEY=
+EMBEDDING_BASE_URL=
+EMBEDDING_MODEL=
+```
+
+如果没有配置 embedding secrets：
+
+- `recall` 会回退到服务端 lexical recall。
+- 前端会继续保留本地规则召回。
+- 用户仍然可以使用搜索、记录和蒸馏，不会被阻塞。
+
+## 部署
+
+当前推荐 Vercel。
+
+Vercel 配置：
+
+```text
+Framework Preset: Vite
+Install Command: npm install
+Build Command: npm run build
+Output Directory: dist
+```
+
+项目根目录包含 `vercel.json`，用于把前端路由回退到 `index.html`，避免刷新子页面 404。
+
+Vercel 环境变量需要配置：
+
+```bash
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+VITE_SUPABASE_AUTH_REDIRECT_PATH=/auth/callback
+```
+
+AI 和 embedding key 不配置在 Vercel，统一放到 Supabase Edge Function Secrets。
+
+## 数据说明
+
+QuantumX 当前是本地优先工具：
+
+- 未登录时，数据只保存在当前浏览器。
+- 登录后，数据会按账号隔离并同步到 Supabase。
+- 同一个账号在不同设备上可以通过云端恢复和同步。
+- 不同邮箱账号的数据相互独立。
+- 清理浏览器数据会删除该浏览器的本地缓存，但登录账号可以从云端恢复。
+- 当前不是实时多人协作，也不是强一致云文档系统。
+
+## 当前已知问题
+
+- 云同步仍是 snapshot upsert 模式，复杂冲突合并还没有做。
+- 语义召回质量取决于 embedding provider 和历史数据量，冷启动时仍会依赖本地规则。
+- 四套配色仍在持续清理固定色和统一 surface token。
+- 移动端已做多轮修复，但仍需要继续做真实手机回归。
+- 微信登录不是当前主线，第一阶段以邮箱登录为主。
+
+## 下一阶段路线
+
+优先级从高到低：
+
+1. 继续稳定云同步：减少跨设备差异，补齐冲突提示和恢复策略。
+2. 提升语义召回：保存 thought 后更及时生成 embedding，优化 recall 排序和解释。
+3. 完善 Search：继续统一召回解释、反馈和筛选体验。
+4. 继续清理视觉系统：全站 surface token、四套配色、深浅模式和移动端一致性。
+5. 强化 Distill：草稿来源追踪、Markdown 导出、草稿库筛选和更好的编辑体验。
+6. 增加基础产品化能力：错误提示、空状态、隐私说明、账号删除和数据导出。
+
+## 项目判断
+
+QuantumX 现在不是最终产品，但已经不是单纯静态 Demo。它已经具备：
+
+- 可每天使用的本地记录体验；
+- 可登录的账号体系；
+- 可恢复的云端数据；
+- 可调用服务端 AI 的蒸馏能力；
+- 可解释、可反馈的语义召回雏形；
+- 逐步成型的 Apple-like 个人思考工作台 UI。
+
+下一步重点不是继续加宏大概念，而是把「记录一条想法 -> 找回旧想法 -> 整理进主题 -> 蒸馏成草稿」这条日常路径打磨到稳定、可信、顺手。
