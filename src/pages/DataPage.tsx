@@ -88,6 +88,9 @@ export function DataPage({
   const dataSize = getStorageSizeLabel(snapshot);
   const lastCloudEventAt =
     cloudSyncMetadata.lastPushedAt ?? cloudSyncMetadata.lastPulledAt;
+  const lastLocalSavedLabel = cloudSyncMetadata.lastLocalSavedAt
+    ? formatDateTime(cloudSyncMetadata.lastLocalSavedAt)
+    : "还没有本地保存记录";
 
   function renderSyncStatus() {
     if (dataMode === "local" || cloudSyncState === "local") {
@@ -95,7 +98,9 @@ export function DataPage({
         icon: CloudOff,
         tone: "border-line theme-surface-ghost text-muted",
         title: "当前是本地模式",
-        detail: "记录会先保存在这个浏览器里。登录并同步后，才会开始跟随云端。",
+        detail: cloudSyncMetadata.lastLocalSavedAt
+          ? `记录已保存在这个浏览器里，最近本地保存：${lastLocalSavedLabel}。登录并上传后，才会开始跟随云端。`
+          : "记录会先保存在这个浏览器里。登录并上传后，才会开始跟随云端。",
       };
     }
 
@@ -259,6 +264,7 @@ export function DataPage({
                   ? new Date(latestThought.createdAt).toLocaleDateString("zh-CN")
                   : "暂无"}
               </span>
+              <span>最近本地保存：{lastLocalSavedLabel}</span>
             </div>
           </div>
 
@@ -321,12 +327,12 @@ export function DataPage({
           <div className="frost-panel rounded-[26px] p-5">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
               <CheckCircle2 size={16} strokeWidth={1.8} />
-              下一步落地
+              下一步增强
             </div>
             <div className="space-y-3 text-sm leading-6 text-muted">
-              <p>1. 接入账号和云数据库，让记录跟随用户。</p>
-              <p>2. 用向量检索做真实相关旧想法召回。</p>
-              <p>3. 保存每次 AI 蒸馏的来源和用户反馈。</p>
+              <p>1. 增加导入前预览，避免误覆盖当前浏览器数据。</p>
+              <p>2. 明确区分“上传更新”和“完整替换”，减少同步误解。</p>
+              <p>3. 补齐账号删除、数据清除和隐私说明。</p>
             </div>
           </div>
         </aside>
