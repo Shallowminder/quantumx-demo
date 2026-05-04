@@ -17,6 +17,7 @@ import type {
   DistillOutputType,
   SavedDistill,
   Thought,
+  ThoughtStatus,
   Topic,
 } from "../types";
 
@@ -30,6 +31,20 @@ interface DistillPageProps {
 }
 
 const outputTypes: DistillOutputType[] = ["文章提纲", "复盘框架", "观点卡片"];
+const thoughtStatuses: ThoughtStatus[] = [
+  "inbox",
+  "linked",
+  "themed",
+  "distilled",
+  "archived",
+];
+const statusLabels: Record<ThoughtStatus, string> = {
+  inbox: "未整理",
+  linked: "已关联",
+  themed: "已加入主题",
+  distilled: "已用于蒸馏",
+  archived: "已归档",
+};
 
 function buildDistillContent(
   topic: Topic,
@@ -100,6 +115,7 @@ export function DistillPage({
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationMessage, setGenerationMessage] = useState("");
+  const [copyMessage, setCopyMessage] = useState("");
   const selectedTopic =
     topics.find((topic) => topic.id === selectedTopicId) ?? topics[0];
   const sourceThoughts = useMemo(
@@ -121,6 +137,23 @@ export function DistillPage({
       sourceThoughts.filter((thought) => selectedThoughtIds.includes(thought.id)),
     [selectedThoughtIds, sourceThoughts],
   );
+  const sourceSummary = useMemo(() => {
+    const validTimes = selectedThoughts
+      .map((thought) => new Date(thought.createdAt).getTime())
+      .filter((time) => Number.isFinite(time));
+    const earliestTime = validTimes.length > 0 ? Math.min(...validTimes) : null;
+    const latestTime = validTimes.length > 0 ? Math.max(...validTimes) : null;
+    const statusCounts = thoughtStatuses.map((status) => ({
+      status,
+      count: selectedThoughts.filter((thought) => thought.status === status).length,
+    }));
+
+    return {
+      earliestAt: earliestTime ? new Date(earliestTime).toISOString() : null,
+      latestAt: latestTime ? new Date(latestTime).toISOString() : null,
+      statusCounts,
+    };
+  }, [selectedThoughts]);
   const [editableContent, setEditableContent] = useState(() =>
     selectedTopic
       ? buildDistillContent(selectedTopic, selectedThoughts, outputType)
@@ -162,6 +195,7 @@ export function DistillPage({
 
     setIsGenerating(true);
     setGenerationMessage("");
+    setCopyMessage("");
     setActiveDraftId(null);
 
     const fallbackContent = buildDistillContent(
@@ -231,10 +265,16 @@ export function DistillPage({
     setSelectedThoughtIds(draft.sourceThoughtIds);
     setEditableContent(draft.content);
     setGenerationMessage("");
+    setCopyMessage("");
   }
 
   async function copyMarkdown() {
-    await navigator.clipboard.writeText(editableContent);
+    try {
+      await navigator.clipboard.writeText(editableContent);
+      setCopyMessage("已复制 Markdown");
+    } catch {
+      setCopyMessage("复制失败，请手动选择文本");
+    }
   }
 
   if (!selectedTopic) {
@@ -434,6 +474,61 @@ export function DistillPage({
           </div>
         </div>
 
+        <section className="theme-card-soft mb-5 rounded-[24px] p-4">
+          <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-ink">
+            <FilePenLine size={16} strokeWidth={1.8} />
+            本次蒸馏来源
+          </div>
+          {selectedThoughts.length === 0 ? (
+            <p className="mt-3 rounded-[20px] theme-card-overlay p-3 text-sm leading-6 text-muted">
+              先选择主题或来源记录，这里会显示本次蒸馏使用了哪些材料。
+            </p>
+          ) : (
+            <div className="mt-4 space-y-4">
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="theme-card-overlay rounded-[18px] p-3">
+                  <div className="mb-1 text-xs text-muted">主题</div>
+                  <div className="text-sm font-medium text-ink">{selectedTopic.name}</div>
+                </div>
+                <div className="theme-card-overlay rounded-[18px] p-3">
+                  <div className="mb-1 text-xs text-muted">来源记录</div>
+                  <div className="text-sm font-medium text-ink">
+                    {selectedThoughts.length} 条
+                  </div>
+                </div>
+                <div className="theme-card-overlay rounded-[18px] p-3">
+                  <div className="mb-1 text-xs text-muted">时间跨度</div>
+                  <div className="text-sm font-medium text-ink">
+                    {sourceSummary.earliestAt && sourceSummary.latestAt
+                      ? `${formatMonthDay(sourceSummary.earliestAt)} - ${formatMonthDay(
+                          sourceSummary.latestAt,
+                        )}`
+                      : "暂无日期"}
+                  </div>
+                </div>
+                <div className="theme-card-overlay rounded-[18px] p-3">
+                  <div className="mb-1 text-xs text-muted">输出类型</div>
+                  <div className="text-sm font-medium text-ink">{outputType}</div>
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 text-xs text-muted">来源状态分布</div>
+                <div className="flex flex-wrap gap-2">
+                  {sourceSummary.statusCounts.map(({ status, count }) => (
+                    <span
+                      key={status}
+                      className="theme-pill rounded-full px-2.5 py-1 text-xs text-muted"
+                    >
+                      {statusLabels[status]} {count}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+
         <div className="mb-4 flex flex-wrap gap-2">
           {outputTypes.map((type) => (
             <button
@@ -448,6 +543,7 @@ export function DistillPage({
                 setActiveDraftId(null);
                 setOutputType(type);
                 setGenerationMessage("");
+                setCopyMessage("");
               }}
             >
               {type}
@@ -468,6 +564,11 @@ export function DistillPage({
             {generationMessage}
           </div>
         )}
+        {copyMessage && (
+          <div className="theme-card-soft mb-4 rounded-[20px] px-4 py-3 text-sm leading-6 text-muted">
+            {copyMessage}
+          </div>
+        )}
 
         <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-ink">
           <FilePenLine size={16} strokeWidth={1.8} />
@@ -484,7 +585,10 @@ export function DistillPage({
         <textarea
           className="theme-input min-h-[360px] w-full resize-y rounded-[24px] px-5 py-4 font-mono text-sm leading-7 text-ink outline-none transition sm:min-h-[520px]"
           value={editableContent}
-          onChange={(event) => setEditableContent(event.target.value)}
+          onChange={(event) => {
+            setEditableContent(event.target.value);
+            setCopyMessage("");
+          }}
         />
 
         <div className="frost-panel mt-4 rounded-[22px] px-4 py-3 text-sm leading-6 text-muted">
