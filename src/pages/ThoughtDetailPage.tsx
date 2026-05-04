@@ -22,12 +22,14 @@ import {
 import { useMemoryFeedback } from "../hooks/useMemoryFeedback";
 import type {
   MemoryMatch,
+  SavedDistill,
   Thought,
   ThoughtStatus,
   Topic,
 } from "../types";
 
 interface ThoughtDetailPageProps {
+  savedDistills: SavedDistill[];
   thought: Thought;
   thoughts: Thought[];
   topics: Topic[];
@@ -56,6 +58,7 @@ const strategyLabels: Record<RecallStrategy, string> = {
 };
 
 export function ThoughtDetailPage({
+  savedDistills,
   thought,
   thoughts,
   topics,
@@ -72,6 +75,9 @@ export function ThoughtDetailPage({
   const [summaryDraft, setSummaryDraft] = useState(thought.summary);
   const [selectedTopicIds, setSelectedTopicIds] = useState(thought.topicIds);
   const thoughtTopics = topics.filter((topic) => thought.topicIds.includes(topic.id));
+  const referencingDistills = savedDistills.filter((draft) =>
+    draft.sourceThoughtIds.includes(thought.id),
+  );
   const localRelatedMatches = useMemo(
     () => findRelatedMemoryMatches(thought, thoughts, topics, 5),
     [thought, thoughts, topics],
@@ -383,6 +389,31 @@ export function ThoughtDetailPage({
               ))}
           </div>
         </section>
+
+        {referencingDistills.length > 0 && (
+          <section className="frost-panel rounded-[24px] p-5">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
+              <BookOpenText size={16} strokeWidth={1.8} />
+              被这些草稿引用
+            </div>
+            <div className="space-y-2">
+              {referencingDistills.map((draft) => (
+                <article
+                  key={draft.id}
+                  className="theme-card-soft rounded-[20px] p-3.5"
+                >
+                  <div className="mb-1 text-sm font-medium text-ink">
+                    {draft.title}
+                  </div>
+                  <div className="text-xs text-muted">
+                    {draft.outputType} ·{" "}
+                    {formatDayLabel(draft.updatedAt ?? draft.createdAt)}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
       </section>
 
       <div className="hidden xl:block xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:overflow-auto xl:pr-1 subtle-scrollbar">

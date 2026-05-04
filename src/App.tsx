@@ -821,6 +821,7 @@ export default function App() {
 
           {activeView === "detail" && selectedThought && (
             <ThoughtDetailPage
+              savedDistills={savedDistills}
               thought={selectedThought}
               thoughts={thoughts}
               topics={topics}
