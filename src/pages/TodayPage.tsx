@@ -9,8 +9,8 @@ import {
   type RecallSource,
   type RecallStrategy,
 } from "../services/recallRepository";
-import { recordMemoryFeedback } from "../services/memoryFeedbackRepository";
-import type { MemoryFeedbackType, MemoryMatch, Thought, Topic } from "../types";
+import { useMemoryFeedback } from "../hooks/useMemoryFeedback";
+import type { MemoryMatch, Thought, Topic } from "../types";
 
 interface TodayPageProps {
   draft: string;
@@ -60,9 +60,7 @@ export function TodayPage({
   const [recallSource, setRecallSource] = useState<RecallSource>("local");
   const [recallStrategy, setRecallStrategy] = useState<RecallStrategy>("local");
   const [recallLoading, setRecallLoading] = useState(false);
-  const [memoryFeedback, setMemoryFeedback] = useState<
-    Record<string, MemoryFeedbackType>
-  >({});
+  const { feedback: memoryFeedback, persistFeedback } = useMemoryFeedback();
 
   useEffect(() => {
     let cancelled = false;
@@ -114,24 +112,6 @@ export function TodayPage({
     thoughts[0];
   const briefTopic = topics.find((topic) => briefThought?.topicIds.includes(topic.id));
 
-  async function persistMemoryFeedback(
-    thoughtId: string,
-    feedbackType: MemoryFeedbackType,
-  ) {
-    setMemoryFeedback((current) => ({
-      ...current,
-      [thoughtId]: feedbackType,
-    }));
-    await recordMemoryFeedback({
-      feedbackType,
-      sourceThoughtId: thoughts[0]?.id,
-      targetThoughtId: thoughtId,
-      context: draft.trim() || thoughts[0]?.content || "today",
-    }).catch(() => {
-      // Keep today feedback lightweight even when cloud writes fail.
-    });
-  }
-
   function renderRelatedMemories() {
     const recallLabel = recallLoading
       ? "匹配中"
@@ -162,7 +142,11 @@ export function TodayPage({
                   selectedFeedback={memoryFeedback[match.thought.id] ?? null}
                   showFeedback
                   onFeedback={(thoughtId, feedbackType) => {
-                    void persistMemoryFeedback(thoughtId, feedbackType);
+                    void persistFeedback(thoughtId, {
+                      feedbackType,
+                      sourceThoughtId: thoughts[0]?.id,
+                      context: draft.trim() || thoughts[0]?.content || "today",
+                    });
                   }}
                   onOpenThought={onOpenThought}
                 />
