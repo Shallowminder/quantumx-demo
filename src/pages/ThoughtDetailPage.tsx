@@ -19,9 +19,8 @@ import {
   type RecallSource,
   type RecallStrategy,
 } from "../services/recallRepository";
-import { recordMemoryFeedback } from "../services/memoryFeedbackRepository";
+import { useMemoryFeedback } from "../hooks/useMemoryFeedback";
 import type {
-  MemoryFeedbackType,
   MemoryMatch,
   Thought,
   ThoughtStatus,
@@ -82,9 +81,7 @@ export function ThoughtDetailPage({
   const [recallSource, setRecallSource] = useState<RecallSource>("local");
   const [recallStrategy, setRecallStrategy] = useState<RecallStrategy>("local");
   const [recallLoading, setRecallLoading] = useState(false);
-  const [memoryFeedback, setMemoryFeedback] = useState<
-    Record<string, MemoryFeedbackType>
-  >({});
+  const { feedback: memoryFeedback, persistFeedback } = useMemoryFeedback();
 
   useEffect(() => {
     setContentDraft(thought.content);
@@ -133,24 +130,6 @@ export function ThoughtDetailPage({
     );
   }
 
-  async function persistMemoryFeedback(
-    thoughtId: string,
-    feedbackType: MemoryFeedbackType,
-  ) {
-    setMemoryFeedback((current) => ({
-      ...current,
-      [thoughtId]: feedbackType,
-    }));
-    await recordMemoryFeedback({
-      feedbackType,
-      sourceThoughtId: thought.id,
-      targetThoughtId: thoughtId,
-      context: thought.content,
-    }).catch(() => {
-      // Keep detail feedback lightweight even when cloud writes fail.
-    });
-  }
-
   function renderRelatedMemories() {
     const recallLabel = recallLoading
       ? "匹配中"
@@ -181,7 +160,11 @@ export function ThoughtDetailPage({
                   selectedFeedback={memoryFeedback[match.thought.id] ?? null}
                   showFeedback
                   onFeedback={(thoughtId, feedbackType) => {
-                    void persistMemoryFeedback(thoughtId, feedbackType);
+                    void persistFeedback(thoughtId, {
+                      feedbackType,
+                      sourceThoughtId: thought.id,
+                      context: thought.content,
+                    });
                   }}
                   onOpenThought={onOpenThought}
                 />

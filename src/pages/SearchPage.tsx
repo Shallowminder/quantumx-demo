@@ -25,9 +25,8 @@ import {
   type RecallSource,
   type RecallStrategy,
 } from "../services/recallRepository";
-import { recordMemoryFeedback } from "../services/memoryFeedbackRepository";
+import { useMemoryFeedback } from "../hooks/useMemoryFeedback";
 import type {
-  MemoryFeedbackType,
   MemoryMatch,
   SavedDistill,
   Thought,
@@ -154,7 +153,7 @@ export function SearchPage({
   const [recallSource, setRecallSource] = useState<RecallSource>("local");
   const [recallStrategy, setRecallStrategy] = useState<RecallStrategy>("local");
   const [recallLoading, setRecallLoading] = useState(false);
-  const [feedback, setFeedback] = useState<Record<string, MemoryFeedbackType>>({});
+  const { feedback, persistFeedback } = useMemoryFeedback();
   const [pinnedIds, setPinnedIds] = useState<string[]>([]);
   const [expandedActionIds, setExpandedActionIds] = useState<string[]>([]);
   const suggestions = useMemo(
@@ -224,25 +223,14 @@ export function SearchPage({
     onNavigateDistill();
   }
 
-  function persistFeedback(thoughtId: string, feedbackType: MemoryFeedbackType) {
-    setFeedback((current) => ({
-      ...current,
-      [thoughtId]: feedbackType,
-    }));
-    void recordMemoryFeedback({
-      feedbackType,
-      targetThoughtId: thoughtId,
-      context: query,
-    }).catch(() => {
-      // Search feedback should stay lightweight even when cloud writes fail.
-    });
-  }
-
   function togglePinned(thoughtId: string) {
     setPinnedIds((current) => {
       const alreadyPinned = current.includes(thoughtId);
       if (alreadyPinned) return current.filter((id) => id !== thoughtId);
-      persistFeedback(thoughtId, "pinned");
+      void persistFeedback(thoughtId, {
+        feedbackType: "pinned",
+        context: query,
+      });
       return [thoughtId, ...current];
     });
   }
@@ -470,7 +458,10 @@ export function SearchPage({
                           selectedFeedback={feedback[semanticMatch.thought.id] ?? null}
                           showFeedback
                           onFeedback={(thoughtId, nextFeedback) => {
-                            persistFeedback(thoughtId, nextFeedback);
+                            void persistFeedback(thoughtId, {
+                              feedbackType: nextFeedback,
+                              context: query,
+                            });
                           }}
                           onOpenThought={onOpenThought}
                         />
@@ -506,7 +497,12 @@ export function SearchPage({
                                 : "theme-button-muted"
                             }`}
                             type="button"
-                            onClick={() => persistFeedback(sourceThought.id, "helpful")}
+                            onClick={() =>
+                              void persistFeedback(sourceThought.id, {
+                                feedbackType: "helpful",
+                                context: query,
+                              })
+                            }
                           >
                             <Check size={13} strokeWidth={1.8} />
                             有帮助
@@ -518,7 +514,12 @@ export function SearchPage({
                                 : "theme-button-muted"
                             }`}
                             type="button"
-                            onClick={() => persistFeedback(sourceThought.id, "irrelevant")}
+                            onClick={() =>
+                              void persistFeedback(sourceThought.id, {
+                                feedbackType: "irrelevant",
+                                context: query,
+                              })
+                            }
                           >
                             <X size={13} strokeWidth={1.8} />
                             不相关
@@ -541,7 +542,12 @@ export function SearchPage({
                                   : "theme-button-muted"
                               }`}
                               type="button"
-                              onClick={() => persistFeedback(sourceThought.id, "same_topic")}
+                              onClick={() =>
+                                void persistFeedback(sourceThought.id, {
+                                  feedbackType: "same_topic",
+                                  context: query,
+                                })
+                              }
                             >
                               标记同主题
                             </button>
