@@ -115,6 +115,7 @@ export function DistillPage({
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationMessage, setGenerationMessage] = useState("");
+  const [copyMessage, setCopyMessage] = useState("");
   const selectedTopic =
     topics.find((topic) => topic.id === selectedTopicId) ?? topics[0];
   const sourceThoughts = useMemo(
@@ -194,6 +195,7 @@ export function DistillPage({
 
     setIsGenerating(true);
     setGenerationMessage("");
+    setCopyMessage("");
     setActiveDraftId(null);
 
     const fallbackContent = buildDistillContent(
@@ -263,10 +265,16 @@ export function DistillPage({
     setSelectedThoughtIds(draft.sourceThoughtIds);
     setEditableContent(draft.content);
     setGenerationMessage("");
+    setCopyMessage("");
   }
 
   async function copyMarkdown() {
-    await navigator.clipboard.writeText(editableContent);
+    try {
+      await navigator.clipboard.writeText(editableContent);
+      setCopyMessage("已复制 Markdown");
+    } catch {
+      setCopyMessage("复制失败，请手动选择文本");
+    }
   }
 
   if (!selectedTopic) {
@@ -535,6 +543,7 @@ export function DistillPage({
                 setActiveDraftId(null);
                 setOutputType(type);
                 setGenerationMessage("");
+                setCopyMessage("");
               }}
             >
               {type}
@@ -555,6 +564,11 @@ export function DistillPage({
             {generationMessage}
           </div>
         )}
+        {copyMessage && (
+          <div className="theme-card-soft mb-4 rounded-[20px] px-4 py-3 text-sm leading-6 text-muted">
+            {copyMessage}
+          </div>
+        )}
 
         <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-ink">
           <FilePenLine size={16} strokeWidth={1.8} />
@@ -571,7 +585,10 @@ export function DistillPage({
         <textarea
           className="theme-input min-h-[360px] w-full resize-y rounded-[24px] px-5 py-4 font-mono text-sm leading-7 text-ink outline-none transition sm:min-h-[520px]"
           value={editableContent}
-          onChange={(event) => setEditableContent(event.target.value)}
+          onChange={(event) => {
+            setEditableContent(event.target.value);
+            setCopyMessage("");
+          }}
         />
 
         <div className="frost-panel mt-4 rounded-[22px] px-4 py-3 text-sm leading-6 text-muted">
