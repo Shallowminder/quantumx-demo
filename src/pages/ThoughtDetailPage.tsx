@@ -19,7 +19,14 @@ import {
   type RecallSource,
   type RecallStrategy,
 } from "../services/recallRepository";
-import type { MemoryMatch, Thought, ThoughtStatus, Topic } from "../types";
+import { recordMemoryFeedback } from "../services/memoryFeedbackRepository";
+import type {
+  MemoryFeedbackType,
+  MemoryMatch,
+  Thought,
+  ThoughtStatus,
+  Topic,
+} from "../types";
 
 interface ThoughtDetailPageProps {
   thought: Thought;
@@ -75,6 +82,9 @@ export function ThoughtDetailPage({
   const [recallSource, setRecallSource] = useState<RecallSource>("local");
   const [recallStrategy, setRecallStrategy] = useState<RecallStrategy>("local");
   const [recallLoading, setRecallLoading] = useState(false);
+  const [memoryFeedback, setMemoryFeedback] = useState<
+    Record<string, MemoryFeedbackType>
+  >({});
 
   useEffect(() => {
     setContentDraft(thought.content);
@@ -123,6 +133,24 @@ export function ThoughtDetailPage({
     );
   }
 
+  async function persistMemoryFeedback(
+    thoughtId: string,
+    feedbackType: MemoryFeedbackType,
+  ) {
+    setMemoryFeedback((current) => ({
+      ...current,
+      [thoughtId]: feedbackType,
+    }));
+    await recordMemoryFeedback({
+      feedbackType,
+      sourceThoughtId: thought.id,
+      targetThoughtId: thoughtId,
+      context: thought.content,
+    }).catch(() => {
+      // Keep detail feedback lightweight even when cloud writes fail.
+    });
+  }
+
   function renderRelatedMemories() {
     const recallLabel = recallLoading
       ? "匹配中"
@@ -150,6 +178,11 @@ export function ThoughtDetailPage({
                   key={match.thought.id}
                   compact
                   match={match}
+                  selectedFeedback={memoryFeedback[match.thought.id] ?? null}
+                  showFeedback
+                  onFeedback={(thoughtId, feedbackType) => {
+                    void persistMemoryFeedback(thoughtId, feedbackType);
+                  }}
                   onOpenThought={onOpenThought}
                 />
               ))}
