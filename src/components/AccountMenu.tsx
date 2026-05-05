@@ -86,6 +86,8 @@ export function AccountMenu({
     function handleScroll(event: Event) {
       const target = event.target as Node | null;
       if (target && panelRef.current?.contains(target)) return;
+      const activeElement = document.activeElement;
+      if (activeElement && panelRef.current?.contains(activeElement)) return;
       setOpen(false);
     }
 
@@ -107,15 +109,31 @@ export function AccountMenu({
       if (!trigger) return;
 
       const rect = trigger.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+      const visualViewport = window.visualViewport;
+      const viewportWidth = visualViewport?.width ?? window.innerWidth;
+      const viewportHeight = visualViewport?.height ?? window.innerHeight;
+      const viewportLeft = visualViewport?.offsetLeft ?? 0;
+      const viewportTop = visualViewport?.offsetTop ?? 0;
+      const horizontalMargin = 12;
       const desiredWidth = compact ? 320 : 252;
-      const minWidth = compact ? 280 : 236;
-      const width = Math.max(minWidth, Math.min(desiredWidth, viewportWidth - 32));
+      const maxWidth = Math.max(220, viewportWidth - horizontalMargin * 2);
+      const minWidth = Math.min(compact ? 280 : 236, maxWidth);
+      const width = Math.max(minWidth, Math.min(desiredWidth, maxWidth));
       const preferredLeft = align === "right" ? rect.right - width : rect.left;
-      const left = Math.min(Math.max(16, preferredLeft), viewportWidth - width - 16);
-      const top = Math.min(rect.bottom + 12, viewportHeight - 120);
-      const maxHeight = Math.max(260, viewportHeight - top - 16);
+      const left =
+        viewportLeft +
+        Math.min(
+          Math.max(horizontalMargin, preferredLeft - viewportLeft),
+          viewportWidth - width - horizontalMargin,
+        );
+      const preferredTop = rect.bottom + 12;
+      const top =
+        viewportTop +
+        Math.max(
+          12,
+          Math.min(preferredTop - viewportTop, viewportHeight - 120),
+        );
+      const maxHeight = Math.max(220, viewportHeight - (top - viewportTop) - 16);
 
       setMenuPosition({
         left,
@@ -127,8 +145,12 @@ export function AccountMenu({
 
     updatePosition();
     window.addEventListener("resize", updatePosition);
+    window.visualViewport?.addEventListener("resize", updatePosition);
+    window.visualViewport?.addEventListener("scroll", updatePosition);
     return () => {
       window.removeEventListener("resize", updatePosition);
+      window.visualViewport?.removeEventListener("resize", updatePosition);
+      window.visualViewport?.removeEventListener("scroll", updatePosition);
     };
   }, [align, compact, open]);
 
@@ -235,7 +257,10 @@ export function AccountMenu({
                       strokeWidth={1.8}
                     />
                     <input
-                      className="theme-input w-full rounded-[18px] py-2.5 pl-9 pr-3 text-sm text-ink outline-none transition"
+                      autoComplete="email"
+                      className="theme-input w-full rounded-[18px] py-2.5 pl-9 pr-3 text-[16px] text-ink outline-none transition sm:text-sm"
+                      enterKeyHint="send"
+                      inputMode="email"
                       placeholder="邮箱地址"
                       type="email"
                       value={email}
