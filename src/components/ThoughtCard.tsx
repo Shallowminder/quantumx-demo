@@ -8,10 +8,16 @@ import { TopicBadge } from "./TopicBadge";
 interface ThoughtCardProps {
   thought: Thought;
   topics: Topic[];
+  onGenerateDraft?: (thought: Thought) => void;
   onOpen: (thoughtId: string) => void;
 }
 
-export function ThoughtCard({ thought, topics, onOpen }: ThoughtCardProps) {
+export function ThoughtCard({
+  thought,
+  topics,
+  onGenerateDraft,
+  onOpen,
+}: ThoughtCardProps) {
   const thoughtTopics = topics.filter((topic) => thought.topicIds.includes(topic.id));
 
   return (
@@ -35,19 +41,37 @@ export function ThoughtCard({ thought, topics, onOpen }: ThoughtCardProps) {
           </span>
         </div>
         <p className="text-[15px] leading-7 text-ink">{thought.content}</p>
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-2">
-            {thoughtTopics.map((topic) => (
-              <TopicBadge key={topic.id} topic={topic} />
-            ))}
-          </div>
-          <ChevronRight
-            className="shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-ink"
-            size={18}
-            strokeWidth={1.8}
-          />
-        </div>
       </button>
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          {thoughtTopics.map((topic) => (
+            <TopicBadge key={topic.id} topic={topic} />
+          ))}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {onGenerateDraft && (
+            <button
+              className="theme-button-muted rounded-xl px-2.5 py-1.5 text-xs transition hover:text-ink"
+              type="button"
+              onClick={() => onGenerateDraft(thought)}
+            >
+              生成草稿
+            </button>
+          )}
+          <button
+            aria-label="打开想法详情"
+            className="rounded-xl p-1 text-muted transition hover:bg-canvas hover:text-ink"
+            type="button"
+            onClick={() => onOpen(thought.id)}
+          >
+            <ChevronRight
+              className="transition group-hover:translate-x-0.5"
+              size={18}
+              strokeWidth={1.8}
+            />
+          </button>
+        </div>
+      </div>
     </motion.article>
   );
 }
