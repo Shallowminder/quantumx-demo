@@ -800,6 +800,7 @@ export default function App() {
                   sourceThoughtIds: [thought.id],
                 });
               }}
+              onAttachThoughtToTopic={attachThoughtToTopic}
               onRequestCaptureFocus={() =>
                 setFocusCaptureSignal((value) => value + 1)
               }

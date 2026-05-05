@@ -26,6 +26,7 @@ interface TodayPageProps {
   onDraftChange: (value: string) => void;
   onContinueFromThought: (thought: Thought) => void;
   onGenerateDraftFromThought?: (thought: Thought) => void;
+  onAttachThoughtToTopic?: (thoughtId: string, topicId: string) => void;
   onRequestCaptureFocus: () => void;
   onOpenThought: (thoughtId: string) => void;
   onOpenTopic: (topicId: string) => void;
@@ -47,6 +48,7 @@ export function TodayPage({
   onDraftChange,
   onContinueFromThought,
   onGenerateDraftFromThought,
+  onAttachThoughtToTopic,
   onRequestCaptureFocus,
   onOpenThought,
   onOpenTopic,
@@ -302,6 +304,26 @@ export function TodayPage({
                     >
                       生成草稿
                     </button>
+                  )}
+                  {onAttachThoughtToTopic && topics.length > 0 && (
+                    <select
+                      aria-label="加入主题"
+                      className="theme-input mt-3 w-full rounded-xl px-2.5 py-1.5 text-xs text-muted outline-none transition"
+                      defaultValue=""
+                      onChange={(event) => {
+                        const topicId = event.target.value;
+                        if (!topicId) return;
+                        onAttachThoughtToTopic(thought.id, topicId);
+                        event.target.value = "";
+                      }}
+                    >
+                      <option value="">加入主题</option>
+                      {topics.map((topic) => (
+                        <option key={topic.id} value={topic.id}>
+                          {topic.name}
+                        </option>
+                      ))}
+                    </select>
                   )}
                 </article>
               ))}
