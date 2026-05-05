@@ -25,6 +25,7 @@ interface TodayPageProps {
   onCapture: (content: string) => void;
   onDraftChange: (value: string) => void;
   onContinueFromThought: (thought: Thought) => void;
+  onGenerateDraftFromThought?: (thought: Thought) => void;
   onRequestCaptureFocus: () => void;
   onOpenThought: (thoughtId: string) => void;
   onOpenTopic: (topicId: string) => void;
@@ -45,6 +46,7 @@ export function TodayPage({
   onCapture,
   onDraftChange,
   onContinueFromThought,
+  onGenerateDraftFromThought,
   onRequestCaptureFocus,
   onOpenThought,
   onOpenTopic,
@@ -271,14 +273,27 @@ export function TodayPage({
             </div>
             <div className="grid gap-2 md:grid-cols-2">
               {inboxThoughts.map((thought) => (
-                <button
+                <article
                   key={thought.id}
-                className="theme-card-soft rounded-[20px] p-3.5 text-left text-sm leading-6 text-ink transition"
-                  type="button"
-                  onClick={() => onOpenThought(thought.id)}
+                  className="theme-card-soft rounded-[20px] p-3.5 text-sm leading-6 text-ink transition"
                 >
-                  {thought.content}
-                </button>
+                  <button
+                    className="w-full text-left"
+                    type="button"
+                    onClick={() => onOpenThought(thought.id)}
+                  >
+                    {thought.content}
+                  </button>
+                  {onGenerateDraftFromThought && (
+                    <button
+                      className="theme-button-muted mt-3 rounded-xl px-2.5 py-1.5 text-xs transition hover:text-ink"
+                      type="button"
+                      onClick={() => onGenerateDraftFromThought(thought)}
+                    >
+                      生成草稿
+                    </button>
+                  )}
+                </article>
               ))}
             </div>
           </div>
@@ -296,6 +311,7 @@ export function TodayPage({
                   key={thought.id}
                   thought={thought}
                   topics={topics}
+                  onGenerateDraft={onGenerateDraftFromThought}
                   onOpen={onOpenThought}
                 />
               ))
@@ -322,6 +338,7 @@ export function TodayPage({
                   key={thought.id}
                   thought={thought}
                   topics={topics}
+                  onGenerateDraft={onGenerateDraftFromThought}
                   onOpen={onOpenThought}
                 />
               ))}

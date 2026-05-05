@@ -793,6 +793,13 @@ export default function App() {
               onCapture={captureThought}
               onDraftChange={setCaptureDraft}
               onContinueFromThought={continueFromThought}
+              onGenerateDraftFromThought={(thought) => {
+                const topicId = thought.topicIds[0];
+                openDistill({
+                  ...(topicId ? { topicId } : {}),
+                  sourceThoughtIds: [thought.id],
+                });
+              }}
               onRequestCaptureFocus={() =>
                 setFocusCaptureSignal((value) => value + 1)
               }
