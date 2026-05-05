@@ -172,6 +172,14 @@ export function ThoughtDetailPage({
                       context: thought.content,
                     });
                   }}
+                  onGenerateDraft={(thoughtId) => {
+                    const sourceThought = thoughts.find(
+                      (item) => item.id === thoughtId,
+                    );
+                    if (sourceThought) {
+                      onGenerateFromThought(sourceThought);
+                    }
+                  }}
                   onOpenThought={onOpenThought}
                 />
               ))}

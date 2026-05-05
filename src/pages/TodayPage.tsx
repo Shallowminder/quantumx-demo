@@ -152,6 +152,16 @@ export function TodayPage({
                       context: draft.trim() || thoughts[0]?.content || "today",
                     });
                   }}
+                  onGenerateDraft={onGenerateDraftFromThought
+                    ? (thoughtId) => {
+                        const sourceThought = thoughts.find(
+                          (thought) => thought.id === thoughtId,
+                        );
+                        if (sourceThought) {
+                          onGenerateDraftFromThought(sourceThought);
+                        }
+                      }
+                    : undefined}
                   onOpenThought={onOpenThought}
                 />
               ))}
