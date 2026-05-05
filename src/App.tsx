@@ -50,6 +50,7 @@ import type {
 import type {
   CloudSyncState,
   CloudSyncMetadata,
+  DistillSeed,
   QuantumXDataSnapshot,
   SavedDistill,
   Thought,
@@ -133,6 +134,7 @@ export default function App() {
   const [savedDistills, setSavedDistills] = useState<SavedDistill[]>(() =>
     initialSnapshot.savedDistills,
   );
+  const [distillSeed, setDistillSeed] = useState<DistillSeed | null>(null);
   const [authState, setAuthState] = useState<AuthState>({
     configured: false,
     session: null,
@@ -197,7 +199,10 @@ export default function App() {
     setActiveView("topics");
   }
 
-  function openDistill() {
+  function openDistill(seed?: Omit<DistillSeed, "createdAt">) {
+    if (seed) {
+      setDistillSeed({ ...seed, createdAt: new Date().toISOString() });
+    }
     setActiveView("distill");
   }
 
@@ -854,10 +859,12 @@ export default function App() {
 
           {activeView === "distill" && (
             <DistillPage
+              distillSeed={distillSeed}
               savedDistills={savedDistills}
               thoughts={thoughts}
               topics={topics}
               onDeleteDistill={deleteDistill}
+              onDistillSeedConsumed={() => setDistillSeed(null)}
               onSaveDistill={saveDistill}
               onUpdateDistill={updateDistill}
             />

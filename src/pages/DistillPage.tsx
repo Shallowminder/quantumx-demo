@@ -14,6 +14,7 @@ import { SourceComposition } from "../components/SourceComposition";
 import { formatMonthDay } from "../lib/date";
 import { generateCloudDistill } from "../services/distillRepository";
 import type {
+  DistillSeed,
   DistillOutputType,
   SavedDistill,
   Thought,
@@ -22,10 +23,12 @@ import type {
 } from "../types";
 
 interface DistillPageProps {
+  distillSeed?: DistillSeed | null;
   savedDistills: SavedDistill[];
   thoughts: Thought[];
   topics: Topic[];
   onDeleteDistill: (draftId: string) => void;
+  onDistillSeedConsumed?: () => void;
   onSaveDistill: (draft: SavedDistill) => void;
   onUpdateDistill: (draft: SavedDistill) => void;
 }
@@ -103,13 +106,18 @@ function buildDistillContent(
 }
 
 export function DistillPage({
+  distillSeed,
   savedDistills,
   thoughts,
   topics,
   onDeleteDistill,
+  onDistillSeedConsumed,
   onSaveDistill,
   onUpdateDistill,
 }: DistillPageProps) {
+  void distillSeed;
+  void onDistillSeedConsumed;
+
   const [selectedTopicId, setSelectedTopicId] = useState(topics[0]?.id ?? "");
   const [outputType, setOutputType] = useState<DistillOutputType>("文章提纲");
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);

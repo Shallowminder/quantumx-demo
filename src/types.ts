@@ -72,6 +72,12 @@ export interface ContinueQuestion {
 
 export type DistillOutputType = "文章提纲" | "复盘框架" | "观点卡片";
 
+export interface DistillSeed {
+  topicId?: string;
+  sourceThoughtIds: string[];
+  createdAt: string;
+}
+
 export interface SavedDistill {
   id: string;
   topicId: string;
