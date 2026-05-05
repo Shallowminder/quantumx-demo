@@ -394,6 +394,20 @@ export function DataPage({
 
           <div className="frost-panel rounded-[26px] p-5">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
+              <ShieldCheck size={16} strokeWidth={1.8} />
+              账号与数据删除
+            </div>
+            <div className="space-y-3 text-sm leading-6 text-muted">
+              <p>当前版本还没有一键删除账号入口。</p>
+              <p>你可以先下载 JSON 备份，保留一份可自行恢复的数据。</p>
+              <p>如需清空当前浏览器数据，可以通过浏览器清理站点数据；登录账号的云端数据仍会保留在 Supabase。</p>
+              <p>如需删除云端账号数据，当前需要在 Supabase 后台处理，后续会补充专门的删除流程。</p>
+              <p>后续计划补充账号删除和云端数据清除入口。</p>
+            </div>
+          </div>
+
+          <div className="frost-panel rounded-[26px] p-5">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
               <CheckCircle2 size={16} strokeWidth={1.8} />
               下一步增强
             </div>
