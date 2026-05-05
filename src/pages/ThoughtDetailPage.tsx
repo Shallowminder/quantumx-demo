@@ -301,7 +301,7 @@ export function ThoughtDetailPage({
               onClick={() => onGenerateFromThought(thought)}
             >
               <BookOpenText size={15} strokeWidth={1.8} />
-              生成草稿
+              带这条想法生成草稿
             </button>
             <button
               className="theme-button-secondary inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm transition"

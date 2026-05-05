@@ -834,8 +834,11 @@ export default function App() {
               onAttachThoughtToTopic={attachThoughtToTopic}
               onContinueFromThought={continueFromThought}
               onGenerateFromThought={(thought) => {
-                setSelectedTopicId(thought.topicIds[0] ?? topics[0]?.id ?? "");
-                setActiveView("distill");
+                const topicId = thought.topicIds[0];
+                openDistill({
+                  ...(topicId ? { topicId } : {}),
+                  sourceThoughtIds: [thought.id],
+                });
               }}
               onOpenThought={openThought}
               onOpenTopic={openTopic}
