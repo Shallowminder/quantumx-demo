@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpenText,
   CheckCircle2,
@@ -115,9 +115,7 @@ export function DistillPage({
   onSaveDistill,
   onUpdateDistill,
 }: DistillPageProps) {
-  void distillSeed;
-  void onDistillSeedConsumed;
-
+  const seededSourceTopicRef = useRef<string | null>(null);
   const [selectedTopicId, setSelectedTopicId] = useState(topics[0]?.id ?? "");
   const [outputType, setOutputType] = useState<DistillOutputType>("文章提纲");
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
@@ -190,9 +188,45 @@ export function DistillPage({
   );
 
   useEffect(() => {
+    if (!distillSeed) return;
+
+    const validTopic = distillSeed.topicId
+      ? topics.find((topic) => topic.id === distillSeed.topicId)
+      : null;
+    const nextTopicId = validTopic?.id ?? selectedTopicId;
+    const knownThoughtIds = new Set(thoughts.map((thought) => thought.id));
+    const validSourceThoughtIds = Array.from(
+      new Set(
+        distillSeed.sourceThoughtIds.filter((thoughtId) =>
+          knownThoughtIds.has(thoughtId),
+        ),
+      ),
+    );
+
+    setActiveDraftId(null);
+
+    if (validTopic) {
+      setSelectedTopicId(validTopic.id);
+    }
+
+    if (validSourceThoughtIds.length > 0) {
+      seededSourceTopicRef.current = nextTopicId;
+      setSelectedThoughtIds(validSourceThoughtIds);
+      setGenerationMessage("已带入来源记录，可继续调整后生成草稿。");
+      setCopyMessage("");
+    }
+
+    onDistillSeedConsumed?.();
+  }, [distillSeed, onDistillSeedConsumed, selectedTopicId, thoughts, topics]);
+
+  useEffect(() => {
     if (activeDraftId) return;
     if (!selectedTopic) {
       setSelectedThoughtIds([]);
+      return;
+    }
+    if (seededSourceTopicRef.current === selectedTopicId) {
+      seededSourceTopicRef.current = null;
       return;
     }
     const nextIds = sourceThoughts.slice(0, 4).map((thought) => thought.id);
