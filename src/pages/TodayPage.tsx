@@ -5,6 +5,11 @@ import { MemoryMatchCard } from "../components/MemoryMatchCard";
 import { ThoughtCard } from "../components/ThoughtCard";
 import { findRelatedMemoryMatches, inferTopicIds } from "../lib/memory";
 import {
+  getInboxThoughts,
+  getRecalledThoughts,
+  getRecentThoughts,
+} from "../lib/workflow";
+import {
   fetchRelatedMemoryResult,
   type RecallSource,
   type RecallStrategy,
@@ -90,12 +95,9 @@ export function TodayPage({
     };
   }, [draft, localRelatedMatches, recallInput, thoughts, topics]);
 
-  const todayThoughts = thoughts.slice(0, 7);
-  const inboxThoughts = thoughts
-    .filter((thought) => thought.status === "inbox")
-    .slice(0, 4);
-  const recalledThoughts = relatedMatches
-    .map((match) => match.thought)
+  const todayThoughts = getRecentThoughts(thoughts, 7);
+  const inboxThoughts = getInboxThoughts(thoughts, 4);
+  const recalledThoughts = getRecalledThoughts(relatedMatches, [], relatedMatches.length)
     .filter((thought) => !todayThoughts.some((item) => item.id === thought.id))
     .slice(0, 3);
   const suggestedTopics =
