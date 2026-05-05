@@ -8,6 +8,7 @@ import type {
 
 interface MemoryMatchCardProps {
   match: MemoryMatch;
+  onGenerateDraft?: (thoughtId: string) => void;
   onOpenThought?: (thoughtId: string) => void;
   onFeedback?: (thoughtId: string, feedback: MemoryFeedbackType) => void;
   selectedFeedback?: MemoryFeedbackType | null;
@@ -32,6 +33,7 @@ const feedbackOptions: Array<{
 
 export function MemoryMatchCard({
   match,
+  onGenerateDraft,
   onOpenThought,
   onFeedback,
   selectedFeedback = null,
@@ -64,7 +66,7 @@ export function MemoryMatchCard({
         {match.reason}
       </div>
 
-      {(onOpenThought || showFeedback) && (
+      {(onOpenThought || onGenerateDraft || showFeedback) && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {onOpenThought && (
             <button
@@ -74,6 +76,15 @@ export function MemoryMatchCard({
             >
               打开
               <ArrowRight size={13} strokeWidth={1.8} />
+            </button>
+          )}
+          {onGenerateDraft && (
+            <button
+              className="theme-button-muted rounded-xl px-3 py-2 text-xs transition"
+              type="button"
+              onClick={() => onGenerateDraft(match.thought.id)}
+            >
+              生成草稿
             </button>
           )}
           {showFeedback &&

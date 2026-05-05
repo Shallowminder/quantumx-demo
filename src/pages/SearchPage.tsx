@@ -28,6 +28,7 @@ import {
 import { useMemoryFeedback } from "../hooks/useMemoryFeedback";
 import type {
   MemoryMatch,
+  DistillSeed,
   SavedDistill,
   Thought,
   ThoughtStatus,
@@ -39,7 +40,7 @@ interface SearchPageProps {
   thoughts: Thought[];
   topics: Topic[];
   onContinueFromThought: (thought: Thought) => void;
-  onNavigateDistill: () => void;
+  onNavigateDistill: (seed?: Omit<DistillSeed, "createdAt">) => void;
   onOpenThought: (thoughtId: string) => void;
   onOpenTopic: (topicId: string) => void;
 }
@@ -461,6 +462,17 @@ export function SearchPage({
                             void persistFeedback(thoughtId, {
                               feedbackType: nextFeedback,
                               context: query,
+                            });
+                          }}
+                          onGenerateDraft={(thoughtId) => {
+                            const sourceThought = thoughts.find(
+                              (thought) => thought.id === thoughtId,
+                            );
+                            if (!sourceThought) return;
+                            const topicId = sourceThought.topicIds[0];
+                            onNavigateDistill({
+                              ...(topicId ? { topicId } : {}),
+                              sourceThoughtIds: [sourceThought.id],
                             });
                           }}
                           onOpenThought={onOpenThought}
