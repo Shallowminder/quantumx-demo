@@ -116,6 +116,11 @@ export function DistillPage({
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationMessage, setGenerationMessage] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
+  const [draftTypeFilter, setDraftTypeFilter] = useState<
+    "all" | DistillOutputType
+  >("all");
+  const [draftTopicFilter, setDraftTopicFilter] = useState("all");
+  const [draftQuery, setDraftQuery] = useState("");
   const selectedTopic =
     topics.find((topic) => topic.id === selectedTopicId) ?? topics[0];
   const sourceThoughts = useMemo(
@@ -154,6 +159,22 @@ export function DistillPage({
       statusCounts,
     };
   }, [selectedThoughts]);
+  const filteredDistills = useMemo(() => {
+    const query = draftQuery.trim().toLowerCase();
+
+    return savedDistills.filter((draft) => {
+      const matchesQuery =
+        query.length === 0 ||
+        draft.title.toLowerCase().includes(query) ||
+        draft.content.toLowerCase().includes(query);
+      const matchesType =
+        draftTypeFilter === "all" || draft.outputType === draftTypeFilter;
+      const matchesTopic =
+        draftTopicFilter === "all" || draft.topicId === draftTopicFilter;
+
+      return matchesQuery && matchesType && matchesTopic;
+    });
+  }, [draftQuery, draftTopicFilter, draftTypeFilter, savedDistills]);
   const [editableContent, setEditableContent] = useState(() =>
     selectedTopic
       ? buildDistillContent(selectedTopic, selectedThoughts, outputType)
@@ -369,15 +390,64 @@ export function DistillPage({
         <div className="frost-panel rounded-[24px] p-4">
           <div className="mb-3 flex items-center justify-between">
             <div className="text-sm font-semibold text-ink">草稿库</div>
-            <span className="text-xs text-muted">{savedDistills.length} 份</span>
+            <span className="text-xs text-muted">
+              {filteredDistills.length} / {savedDistills.length} 份
+            </span>
           </div>
+          {savedDistills.length > 0 && (
+            <div className="mb-3 grid gap-2">
+              <input
+                className="theme-input w-full rounded-xl px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted"
+                placeholder="搜索标题或内容"
+                type="search"
+                value={draftQuery}
+                onChange={(event) => setDraftQuery(event.target.value)}
+              />
+              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+                <select
+                  className="theme-input w-full rounded-xl px-3.5 py-2.5 text-sm text-ink outline-none transition"
+                  value={draftTypeFilter}
+                  onChange={(event) =>
+                    setDraftTypeFilter(
+                      event.target.value === "all"
+                        ? "all"
+                        : (event.target.value as DistillOutputType),
+                    )
+                  }
+                >
+                  <option value="all">全部类型</option>
+                  {outputTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="theme-input w-full rounded-xl px-3.5 py-2.5 text-sm text-ink outline-none transition"
+                  value={draftTopicFilter}
+                  onChange={(event) => setDraftTopicFilter(event.target.value)}
+                >
+                  <option value="all">全部主题</option>
+                  {topics.map((topic) => (
+                    <option key={topic.id} value={topic.id}>
+                      {topic.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
           {savedDistills.length === 0 ? (
             <p className="theme-card-soft rounded-[20px] p-3 text-sm leading-6 text-muted">
               保存后的整理内容会出现在这里，可以回来继续编辑、复制或查看来源。
             </p>
+          ) : filteredDistills.length === 0 ? (
+            <p className="theme-card-soft rounded-[20px] p-3 text-sm leading-6 text-muted">
+              没有符合筛选条件的草稿。
+            </p>
           ) : (
             <div className="space-y-2">
-              {savedDistills.map((draft) => (
+              {filteredDistills.map((draft) => (
                 <article
                   key={draft.id}
                   className={`rounded-[20px] p-3.5 ${
