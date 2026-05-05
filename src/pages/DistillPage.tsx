@@ -49,6 +49,11 @@ const statusLabels: Record<ThoughtStatus, string> = {
   archived: "已归档",
 };
 
+type SeedNotice = {
+  sourceCount: number;
+  topicName?: string;
+};
+
 function buildDistillContent(
   topic: Topic,
   selectedThoughts: Thought[],
@@ -121,6 +126,7 @@ export function DistillPage({
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationMessage, setGenerationMessage] = useState("");
+  const [seedNotice, setSeedNotice] = useState<SeedNotice | null>(null);
   const [copyMessage, setCopyMessage] = useState("");
   const [draftTypeFilter, setDraftTypeFilter] = useState<
     "all" | DistillOutputType
@@ -212,7 +218,11 @@ export function DistillPage({
     if (validSourceThoughtIds.length > 0) {
       seededSourceTopicRef.current = nextTopicId;
       setSelectedThoughtIds(validSourceThoughtIds);
-      setGenerationMessage("已带入来源记录，可继续调整后生成草稿。");
+      setSeedNotice({
+        sourceCount: validSourceThoughtIds.length,
+        ...(validTopic ? { topicName: validTopic.name } : {}),
+      });
+      setGenerationMessage("");
       setCopyMessage("");
     }
 
@@ -257,6 +267,7 @@ export function DistillPage({
     if (selectedThoughts.length === 0) return;
 
     setIsGenerating(true);
+    setSeedNotice(null);
     setGenerationMessage("");
     setCopyMessage("");
     setActiveDraftId(null);
@@ -323,6 +334,7 @@ export function DistillPage({
 
   function openDraft(draft: SavedDistill) {
     setActiveDraftId(draft.id);
+    setSeedNotice(null);
     setSelectedTopicId(draft.topicId);
     setOutputType(draft.outputType);
     setSelectedThoughtIds(draft.sourceThoughtIds);
@@ -653,6 +665,7 @@ export function DistillPage({
               type="button"
               onClick={() => {
                 setActiveDraftId(null);
+                setSeedNotice(null);
                 setOutputType(type);
                 setGenerationMessage("");
                 setCopyMessage("");
@@ -671,6 +684,13 @@ export function DistillPage({
           />
         </div>
 
+        {seedNotice && (
+          <div className="theme-accent-soft mb-4 rounded-[20px] px-4 py-3 text-sm leading-6">
+            {seedNotice.topicName
+              ? `已带入 ${seedNotice.sourceCount} 条来源记录，并选中主题「${seedNotice.topicName}」。你可以继续调整后生成草稿。`
+              : `已带入 ${seedNotice.sourceCount} 条来源记录。你可以选择主题或继续调整后生成草稿。`}
+          </div>
+        )}
         {generationMessage && (
           <div className="theme-accent-soft mb-4 rounded-[20px] px-4 py-3 text-sm leading-6">
             {generationMessage}
