@@ -75,6 +75,9 @@ export function ThoughtDetailPage({
   const [summaryDraft, setSummaryDraft] = useState(thought.summary);
   const [selectedTopicIds, setSelectedTopicIds] = useState(thought.topicIds);
   const thoughtTopics = topics.filter((topic) => thought.topicIds.includes(topic.id));
+  const availableTopics = topics.filter(
+    (topic) => !thought.topicIds.includes(topic.id),
+  );
   const referencingDistills = savedDistills.filter((draft) =>
     draft.sourceThoughtIds.includes(thought.id),
   );
@@ -285,12 +288,42 @@ export function ThoughtDetailPage({
                 {thought.content}
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-2">
-                {thoughtTopics.map((topic) => (
-                  <button key={topic.id} type="button" onClick={() => onOpenTopic(topic.id)}>
-                    <TopicBadge topic={topic} />
-                  </button>
-                ))}
+              <div className="mt-6 flex flex-wrap items-center gap-2">
+                {thoughtTopics.length > 0 ? (
+                  thoughtTopics.map((topic) => (
+                    <button key={topic.id} type="button" onClick={() => onOpenTopic(topic.id)}>
+                      <TopicBadge topic={topic} />
+                    </button>
+                  ))
+                ) : (
+                  <span className="theme-chip-soft rounded-full px-2.5 py-1 text-xs text-muted">
+                    还没有加入主题
+                  </span>
+                )}
+                {availableTopics.length > 0 ? (
+                  <select
+                    aria-label="加入主题"
+                    className="theme-input rounded-full px-3 py-1.5 text-xs text-muted outline-none transition"
+                    defaultValue=""
+                    onChange={(event) => {
+                      const topicId = event.target.value;
+                      if (!topicId) return;
+                      onAttachThoughtToTopic(thought.id, topicId);
+                      event.target.value = "";
+                    }}
+                  >
+                    <option value="">加入主题</option>
+                    {availableTopics.map((topic) => (
+                      <option key={topic.id} value={topic.id}>
+                        {topic.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  topics.length > 0 && (
+                    <span className="text-xs text-muted">已加入所有可用主题</span>
+                  )
+                )}
               </div>
             </>
           )}
