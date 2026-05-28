@@ -395,6 +395,20 @@ export function DataPage({
           <div className="frost-panel rounded-[26px] p-5">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
               <ShieldCheck size={16} strokeWidth={1.8} />
+              隐私与数据说明
+            </div>
+            <div className="space-y-3 text-sm leading-6 text-muted">
+              <p>1. 未登录时，记录只保存在当前浏览器的 localStorage。</p>
+              <p>2. 登录并启用云端模式后，记录、主题、草稿会同步到 Supabase，并按账号隔离。</p>
+              <p>3. AI 蒸馏只会发送你选择的主题和来源记录。</p>
+              <p>4. 语义召回和 embedding 会处理 thought 文本，用于找回相关旧想法。</p>
+              <p>5. 建议定期下载 JSON 备份，保留一份可自行恢复的数据副本。</p>
+            </div>
+          </div>
+
+          <div className="frost-panel rounded-[26px] p-5">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
+              <ShieldCheck size={16} strokeWidth={1.8} />
               账号与数据删除
             </div>
             <div className="space-y-3 text-sm leading-6 text-muted">
